@@ -1,6 +1,6 @@
 // Service Worker for ilabshadowing
-const CACHE_NAME = 'ilabshadowing-v1';
-const AUDIO_CACHE = 'ilabshadowing-audio-v1';
+const CACHE_NAME = 'ilabshadowing-v2';
+const AUDIO_CACHE = 'ilabshadowing-audio-v2';
 
 // 需要缓存的静态资源
 const STATIC_ASSETS = [

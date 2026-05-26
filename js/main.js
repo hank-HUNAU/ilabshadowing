@@ -1,6 +1,18 @@
 /* 全局常量 */
 const SPEEDS = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
-const LS = { BOOK: 'nce_book', UNIT: k => `nce_${k}_u`, TIME: (k,u) => `nce_${k}_${u}_t`, SPD: 'nce_spd', MODE: 'nce_mode', TR: 'nce_tr' };
+const REPEAT_COUNTS = [1, 2, 3, 5, 10, 99]; // 重复次数选项
+const LS = { 
+  BOOK: 'nce_book', 
+  UNIT: k => `nce_${k}_u`, 
+  TIME: (k,u) => `nce_${k}_${u}_t`, 
+  SPD: 'nce_spd', 
+  MODE: 'nce_mode', 
+  TR: 'nce_tr',
+  LAST_PAGE: 'nce_last_page',
+  FAVORITES: 'nce_favorites',
+  REPEAT_SINGLE: 'nce_repeat_single',  // 单句重复次数
+  REPEAT_ALL: 'nce_repeat_all'         // 全文重复次数
+};
 
 /* 音频源配置 - 一键切换 */
 // 可选值：'github' 或 'supabase'
@@ -86,11 +98,33 @@ class App {
     this.mode = localStorage.getItem(LS.MODE) || 'single';
     this.spd = +(localStorage.getItem(LS.SPD) || 1.0);
     this.tr = localStorage.getItem(LS.TR) || 'show';
+    this.repeatSingle = +(localStorage.getItem(LS.REPEAT_SINGLE) || 3);  // 单句重复次数
+    this.repeatAll = +(localStorage.getItem(LS.REPEAT_ALL) || 3);       // 全文重复次数
     this.cache = new Map();
+    this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
+    
+    // 重复计数
+    this.singleRepeatCount = 0;  // 当前单句已重复次数
+    this.allRepeatCount = 0;     // 当前全文已重复次数
     
     this.els = {
-      sel: document.getElementById('bookSelect'),
-      grid: document.getElementById('unitGrid'),
+      bookPage: document.getElementById('bookSelectPage'),
+      unitPage: document.getElementById('unitListPage'),
+      favoritePage: document.getElementById('favoritePage'),
+      bookGrid: document.getElementById('bookGrid'),
+      unitGrid: document.getElementById('unitGrid'),
+      favoriteGrid: document.getElementById('favoriteGrid'),
+      bookTitle: document.getElementById('bookTitle'),
+      unitCount: document.getElementById('unitCount'),
+      favoriteCount: document.getElementById('favoriteCount'),
+      backToBooks: document.getElementById('backToBooks'),
+      backToBooksFromFav: document.getElementById('backToBooksFromFav'),
+      showFavorites: document.getElementById('showFavorites'),
+      favCountBadge: document.getElementById('favCountBadge'),
+      favoriteToolbar: document.getElementById('favoriteToolbar'),
+      favoriteToolbarAdd: document.getElementById('addFavoriteBtn'),
+      favoriteToolbarClear: document.getElementById('clearFavoriteBtn'),
+      currentSentence: document.getElementById('currentSentence'),
       dlg: document.getElementById('playerDialog'),
       title: document.getElementById('unitTitle'),
       close: document.getElementById('closeBtn'),
@@ -109,6 +143,10 @@ class App {
       spdL: document.getElementById('speedLabel'),
       tr: document.getElementById('transBtn'),
       trL: document.getElementById('transLabel'),
+      repeatSingle: document.getElementById('repeatSingleBtn'),
+      repeatSingleCount: document.getElementById('repeatSingleCount'),
+      repeatAll: document.getElementById('repeatAllBtn'),
+      repeatAllCount: document.getElementById('repeatAllCount'),
       audio: document.getElementById('audio')
     };
 
@@ -116,40 +154,248 @@ class App {
     this.applyTr();
     this.syncUI();
   }
-
+  
   async init() {
     await this.loadBooks();
-    this.restoreBook();
+    this.renderBooks();
     this.bind();
+    this.updateFavBadge();
+    
+    // 检查是否应该直接进入课程页面
+    this.restoreLastPage();
+  }
+  
+  updateFavBadge() {
+    if (!this.els.favCountBadge) return;
+    const count = this.favorites.length;
+    if (count > 0) {
+      this.els.favCountBadge.textContent = count > 99 ? '99+' : count;
+      this.els.favCountBadge.style.display = 'block';
+    } else {
+      this.els.favCountBadge.style.display = 'none';
+    }
+  }
+  
+  showFavoriteToolbar() {
+    if (!this.els.favoriteToolbar || this.cur < 0 || !this.lines[this.cur]) {
+      this.els.favoriteToolbar.style.display = 'none';
+      return;
+    }
+    
+    const line = this.lines[this.cur];
+    this.els.currentSentence.textContent = line.en;
+    this.els.favoriteToolbar.style.display = 'flex';
+    
+    // 检查是否已收藏
+    const favId = `${this.key}_${this.idx}_${this.cur}`;
+    const isFavorited = this.favorites.some(f => f.id === favId);
+    
+    if (isFavorited) {
+      this.els.favoriteToolbarAdd.classList.add('favorited');
+      this.els.favoriteToolbarAdd.querySelector('svg').setAttribute('fill', '#fbbf24');
+    } else {
+      this.els.favoriteToolbarAdd.classList.remove('favorited');
+      this.els.favoriteToolbarAdd.querySelector('svg').setAttribute('fill', 'none');
+    }
+  }
+  
+  hideFavoriteToolbar() {
+    if (this.els.favoriteToolbar) {
+      this.els.favoriteToolbar.style.display = 'none';
+    }
+  }
+  
+  toggleCurrentSentenceFavorite() {
+    if (this.cur < 0 || !this.lines[this.cur]) return;
+    
+    const currentLine = this.lines[this.cur];
+    const favId = `${this.key}_${this.idx}_${this.cur}`;
+    const existingIdx = this.favorites.findIndex(f => f.id === favId);
+    
+    if (existingIdx >= 0) {
+      // 取消收藏
+      this.favorites.splice(existingIdx, 1);
+      this.els.favoriteToolbarAdd.classList.remove('favorited');
+      this.els.favoriteToolbarAdd.querySelector('svg').setAttribute('fill', 'none');
+      console.log('[Favorite] Removed from favorites');
+    } else {
+      // 添加收藏
+      const unit = this.units[this.idx];
+      this.favorites.push({
+        id: favId,
+        key: this.key,
+        unitIdx: this.idx,
+        lineIdx: this.cur,
+        sentence: currentLine.en,
+        translation: currentLine.cn || '',
+        lessonTitle: unit?.lesson_num || `Lesson ${this.idx + 1}`,
+        bookTitle: this.books.find(b => b.key === this.key)?.title || ''
+      });
+      this.els.favoriteToolbarAdd.classList.add('favorited');
+      this.els.favoriteToolbarAdd.querySelector('svg').setAttribute('fill', '#fbbf24');
+      console.log('[Favorite] Added sentence to favorites');
+    }
+    
+    localStorage.setItem(LS.FAVORITES, JSON.stringify(this.favorites));
+    this.updateFavBadge();
+  }
+
+  toggleFavorite() {
+    if (this.cur < 0 || !this.lines[this.cur]) {
+      console.warn('[ToggleFavorite] No sentence selected');
+      return;
+    }
+    
+    const currentLine = this.lines[this.cur];
+    const favId = `${this.key}_${this.idx}_${this.cur}`;
+    const existingIdx = this.favorites.findIndex(f => f.id === favId);
+    
+    if (existingIdx >= 0) {
+      // 取消收藏
+      this.favorites.splice(existingIdx, 1);
+      this.els.favoriteBtn?.classList.remove('favorited');
+      this.els.favoriteBtn?.querySelector('svg').setAttribute('fill', 'none');
+      // 如果在收藏页，刷新收藏列表
+      if (this.els.favoritePage.style.display === 'flex') {
+        this.renderFavorites();
+      }
+    } else {
+      // 添加收藏 - 收藏当前句子
+      const unit = this.units[this.idx];
+      this.favorites.push({
+        id: favId,
+        key: this.key,
+        unitIdx: this.idx,
+        lineIdx: this.cur,
+        sentence: currentLine.en,
+        translation: currentLine.cn || '',
+        lessonTitle: unit?.lesson_num || `Lesson ${this.idx + 1}`,
+        bookTitle: this.books.find(b => b.key === this.key)?.title || ''
+      });
+      this.els.favoriteBtn?.classList.add('favorited');
+      this.els.favoriteBtn?.querySelector('svg').setAttribute('fill', '#fbbf24');
+    }
+    
+    localStorage.setItem(LS.FAVORITES, JSON.stringify(this.favorites));
+  }
+  
+  renderFavorites() {
+    if (this.favorites.length === 0) {
+      this.els.favoriteGrid.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-secondary)">
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;margin-bottom:16px">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <p>暂无收藏</p>
+          <p style="font-size:0.85rem;margin-top:8px">播放时点击 ⭐ 收藏喜欢的句子</p>
+        </div>
+      `;
+      this.els.favoriteCount.textContent = '0 句';
+      return;
+    }
+    
+    this.els.favoriteCount.textContent = `${this.favorites.length} 句`;
+    this.els.favoriteGrid.innerHTML = this.favorites.map((f, i) => {
+      const num = f.lessonTitle.match(/\d+/)?.[0] || i + 1;
+      return `
+      <div class="unit-card" data-fav-idx="${i}" style="min-height:60px;align-items:flex-start;text-align:left;">
+        <div class="unit-num" style="font-size:1rem;margin-bottom:4px;">${num}</div>
+        <div class="unit-title" style="font-size:0.75rem;white-space:normal;line-height:1.3;">${f.sentence.substring(0, 30)}${f.sentence.length > 30 ? '...' : ''}</div>
+      </div>`;
+    }).join('');
   }
 
   async loadBooks() {
     try {
       const d = await fetch('data.json').then(r => r.json());
       this.books = d.books || [];
-    } catch (e) { this.books = []; }
+      if (this.books.length === 0) {
+        console.error('[App] No books found in data.json');
+      }
+    } catch (e) { 
+      console.error('[App] Failed to load data.json:', e);
+      this.books = []; 
+      this.els.bookGrid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary)">加载数据失败，请刷新页面重试</div>';
+    }
   }
 
-  restoreBook() {
-    const k = localStorage.getItem(LS.BOOK) || this.books[0]?.key;
-    if (k) this.switch(k);
+  renderBooks() {
+    this.els.bookGrid.innerHTML = this.books.map(b => {
+      // 提取书名缩写作为图标文字
+      const shortName = b.key.replace('NCE', 'NCE').replace('THINK_', 'T');
+      return `
+      <div class="book-card" data-key="${b.key}">
+        <div class="book-icon">${shortName}</div>
+        <div class="book-info">
+          <h2 class="book-title">${b.title}</h2>
+          <p class="book-desc">${this.getBookDesc(b.key)}</p>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  
+  getBookDesc(key) {
+    const descs = {
+      'NCE1': '新概念英语第一册 · 基础入门',
+      'THINK_0': 'Think Level 0 · 入门级别',
+      'THINK_F': 'Think Level F · 基础级别'
+    };
+    return descs[key] || '英语跟读训练';
   }
 
-  switch(key) {
+  restoreLastPage() {
+    const lastBook = localStorage.getItem(LS.BOOK);
+    const lastPage = localStorage.getItem(LS.LAST_PAGE);
+    
+    // 如果用户之前已经进入过课程页面，直接恢复
+    if (lastBook && lastPage === 'unit') {
+      const book = this.books.find(b => b.key === lastBook);
+      if (book) {
+        this.openBook(book.key);
+      } else {
+        this.showBookPage();
+      }
+    } else {
+      this.showBookPage();
+    }
+  }
+
+  showBookPage() {
+    this.els.bookPage.style.display = 'flex';
+    this.els.unitPage.style.display = 'none';
+    localStorage.setItem(LS.LAST_PAGE, 'book');
+  }
+
+  openBook(key, toUnitIdx = null, toLineIdx = null) {
     this.key = key;
-    this.path = (this.books.find(b => b.key === key) || {}).bookPath || '';
+    const book = this.books.find(b => b.key === key);
+    if (!book) return;
+    
+    this.path = book.bookPath || '';
     localStorage.setItem(LS.BOOK, key);
-    this.els.sel.value = key;
-    this.loadUnits();
+    
+    // 更新页面显示
+    this.els.bookTitle.textContent = book.title;
+    this.els.bookPage.style.display = 'none';
+    this.els.unitPage.style.display = 'flex';
+    localStorage.setItem(LS.LAST_PAGE, 'unit');
+    
+    // 加载课程列表
+    this.loadUnits(() => {
+      // 如果指定了课程索引，加载完成后打开
+      if (toUnitIdx !== null) {
+        setTimeout(() => {
+          this.open(toUnitIdx);
+          // 如果指定了句子索引，播放该句子
+          if (toLineIdx !== null) {
+            setTimeout(() => this.playLine(toLineIdx), 300);
+          }
+        }, 100);
+      }
+    });
   }
 
-  renderOptions() {
-    this.els.sel.innerHTML = this.books.map(b => `<option value="${b.key}">${b.title}</option>`).join('');
-    this.els.sel.value = this.key;
-  }
-
-  async loadUnits() {
-    this.renderOptions();
+  async loadUnits(callback) {
     if (!this.path) return;
     
     // 显示骨架屏
@@ -158,50 +404,53 @@ class App {
     try {
       const d = await fetch(`${this.path}/book.json`).then(r => r.json());
       this.units = d.units || [];
+      this.els.unitCount.textContent = `${this.units.length} 课`;
       this.grid();
       this.restoreUnit();
       this.preloadLrcFiles(); // 预加载 LRC 文件
-    } catch(e) { this.units = []; }
+      
+      // 加载完成回调
+      if (callback) callback();
+    } catch(e) { 
+      this.units = []; 
+      this.els.unitCount.textContent = '0 课';
+      if (callback) callback();
+    }
   }
 
   showSkeleton() {
     // 根据当前布局显示骨架屏
     const isThink = (this.key === 'THINK_0' || this.key === 'THINK_F');
-    const columns = isThink ? 8 : 12;
-    const count = isThink ? 8 : 24; // Think 显示 8 个，NCE1 显示 24 个
+    const count = isThink ? 8 : 24;
     
-    this.els.grid.innerHTML = Array(count).fill(0).map(() => `
-      <div class="card skeleton"></div>
+    this.els.unitGrid.innerHTML = Array(count).fill(0).map(() => `
+      <div class="unit-card skeleton"></div>
     `).join('');
   }
 
   grid() {
     // 根据书籍类型设置布局类名
-    if (this.key === 'THINK_0' || this.key === 'THINK_F') {
-      this.els.grid.classList.add('think-layout');
-    } else {
-      this.els.grid.classList.remove('think-layout');
-    }
+    const isThink = (this.key === 'THINK_0' || this.key === 'THINK_F');
+    this.els.unitGrid.classList.toggle('think-layout', isThink);
     
-    this.els.grid.innerHTML = this.units.map((u, i) => {
+    this.els.unitGrid.innerHTML = this.units.map((u, i) => {
       // NCE1: 从 lesson_num 提取纯数字（如 "Lesson 1" → "1"）
       // Think: 直接使用 lesson_num（如 "10-1"）
       let num;
-      if (this.key === 'THINK_0' || this.key === 'THINK_F') {
+      if (isThink) {
         num = u.lesson_num || u.filename;
       } else {
-        // NCE1: 提取数字部分
         const numMatch = u.lesson_num ? u.lesson_num.match(/(\d+)/) : null;
         num = numMatch ? numMatch[1] : u.filename;
       }
       
       // Think Level 系列显示标题，NCE1 不显示
-      const showTitle = (this.key === 'THINK_0' || this.key === 'THINK_F');
+      const showTitle = isThink;
       
       return `
-      <div class="card" data-i="${i}">
-        <div class="card-num">${num}</div>
-        ${showTitle && u.title ? `<div class="card-title">${u.title}</div>` : ''}
+      <div class="unit-card ${isThink ? 'think-unit' : ''}" data-i="${i}">
+        <div class="unit-num">${num}</div>
+        ${showTitle && u.title ? `<div class="unit-title">${u.title}</div>` : ''}
       </div>`;
     }).join('');
   }
@@ -262,6 +511,7 @@ class App {
   async open(i) {
     this.idx = i;
     this.cur = -1;
+    this.allRepeatCount = 0;  // 重置全文重复计数
     localStorage.setItem(LS.UNIT(this.key), i);
     
     const u = this.units[i];
@@ -272,6 +522,7 @@ class App {
     this.navBtns();
     this.activeCard(i);
     this.reset();
+    this.hideFavoriteToolbar(); // 隐藏收藏工具栏
     
     // 先显示弹窗（不等待 LRC 加载）
     this.els.dlg.showModal();
@@ -333,6 +584,8 @@ class App {
     this.els.dur.textContent = '0:00';
     this.playIcon(false);
     this.bound = null;
+    this.singleRepeatCount = 0;
+    this.allRepeatCount = 0;
   }
 
   restoreTime() {
@@ -385,10 +638,23 @@ class App {
     this.els.audio.currentTime = line.time;
     this.cur = i;
     this.highlight();
+    this.showFavoriteToolbar();
     
     if (this.mode === 'single') {
       const nxt = this.lines[i + 1];
-      this.bound = nxt ? nxt.time : this.els.audio.duration;
+      // 提前 100ms 停止，并设置安全边界
+      if (nxt) {
+        // 计算当前句子的实际时长
+        const lineDuration = nxt.time - line.time;
+        // 提前 80-120ms 停止（根据语速动态调整）
+        const safeMargin = Math.min(0.12, lineDuration * 0.15);
+        this.bound = nxt.time - safeMargin;
+        this.bound = Math.max(this.bound, line.time + 0.3); // 确保至少播放 300ms
+      } else {
+        this.bound = this.els.audio.duration;
+      }
+      // 重置单句重复计数
+      this.singleRepeatCount = 0;
     } else { 
       this.bound = null; 
     }
@@ -397,6 +663,24 @@ class App {
     this.saveTime(line.time);
   }
 
+  handleAllRepeatEnd() {
+    if (this.mode === 'all' || this.idx >= this.units.length - 1) {
+      this.allRepeatCount++;
+      const needRepeat = this.repeatAll >= 99 || this.allRepeatCount < this.repeatAll;
+      
+      if (needRepeat) {
+        // 全文重复，从第一句开始
+        setTimeout(() => {
+          this.playLine(0);
+        }, 500);
+      } else {
+        // 全部重复完成，停止播放
+        this.els.audio.pause();
+        this.allRepeatCount = 0;
+      }
+    }
+  }
+  
   playNext() {
     const n = this.cur + 1;
     if (n < this.lines.length) this.playLine(n);
@@ -414,6 +698,8 @@ class App {
       const el = this.els.area.querySelectorAll('.line')[ni];
       el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
+    // 句子变化时更新收藏工具栏
+    this.showFavoriteToolbar();
   }
 
   updateProg() {
@@ -431,10 +717,28 @@ class App {
   syncUI() {
     this.els.spdL.textContent = `${this.spd}x`;
     this.modeLabel();
+    this.updateRepeatCounts();
+  }
+  
+  updateRepeatCounts() {
+    if (this.els.repeatSingleCount) {
+      this.els.repeatSingleCount.textContent = this.repeatSingle >= 99 ? '∞' : this.repeatSingle;
+    }
+    if (this.els.repeatAllCount) {
+      this.els.repeatAllCount.textContent = this.repeatAll >= 99 ? '∞' : this.repeatAll;
+    }
+    
+    // 根据模式更新按钮激活状态
+    if (this.els.repeatSingle) {
+      this.els.repeatSingle.classList.toggle('active', this.mode === 'single');
+    }
+    if (this.els.repeatAll) {
+      this.els.repeatAll.classList.toggle('active', this.mode === 'all');
+    }
   }
 
   modeLabel() {
-    this.els.modeL.textContent = this.mode === 'single' ? '单句' : '连播';
+    this.els.modeL.textContent = this.mode === 'single' ? '单句' : '全文';
   }
 
   applyTr() {
@@ -449,21 +753,120 @@ class App {
   fmt(s) { if (!isFinite(s)) return '0:00'; return `${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`; }
 
   bind() {
-    // Book select
-    this.els.sel.addEventListener('change', e => { if (e.target.value) this.switch(e.target.value); });
+    // 收藏工具栏事件
+    if (this.els.favoriteToolbarAdd) {
+      this.els.favoriteToolbarAdd.addEventListener('click', () => {
+        this.toggleCurrentSentenceFavorite();
+      });
+    }
     
-    // Grid click
-    this.els.grid.addEventListener('click', e => {
-      const c = e.target.closest('.card');
-      if (c) this.open(+c.dataset.i);
+    if (this.els.favoriteToolbarClear) {
+      this.els.favoriteToolbarClear.addEventListener('click', () => {
+        this.toggleCurrentSentenceFavorite();
+        this.hideFavoriteToolbar();
+      });
+    }
+    
+    // 收藏页面入口
+    if (this.els.showFavorites) {
+      this.els.showFavorites.addEventListener('click', () => {
+        this.renderFavorites();
+        this.els.bookPage.style.display = 'none';
+        this.els.unitPage.style.display = 'none';
+        this.els.favoritePage.style.display = 'flex';
+      });
+    }
+    
+    // 单句重复次数
+    if (this.els.repeatSingle) {
+      this.els.repeatSingle.addEventListener('click', () => {
+        const currentIdx = REPEAT_COUNTS.indexOf(this.repeatSingle);
+        const nextIdx = (currentIdx + 1) % REPEAT_COUNTS.length;
+        this.repeatSingle = REPEAT_COUNTS[nextIdx];
+        localStorage.setItem(LS.REPEAT_SINGLE, this.repeatSingle);
+        this.updateRepeatCounts();
+      });
+    }
+    
+    // 全文重复次数
+    if (this.els.repeatAll) {
+      this.els.repeatAll.addEventListener('click', () => {
+        const currentIdx = REPEAT_COUNTS.indexOf(this.repeatAll);
+        const nextIdx = (currentIdx + 1) % REPEAT_COUNTS.length;
+        this.repeatAll = REPEAT_COUNTS[nextIdx];
+        localStorage.setItem(LS.REPEAT_ALL, this.repeatAll);
+        this.updateRepeatCounts();
+      });
+    }
+    
+    // 从收藏页返回
+    if (this.els.backToBooksFromFav) {
+      this.els.backToBooksFromFav.addEventListener('click', () => {
+        this.els.bookPage.style.display = 'flex';
+        this.els.favoritePage.style.display = 'none';
+      });
+    }
+    
+    // 课本选择 - 点击进入课程列表
+    this.els.bookGrid.addEventListener('click', e => {
+      const card = e.target.closest('.book-card');
+      if (card) {
+        const key = card.dataset.key;
+        if (key) this.openBook(key);
+      }
+    });
+    
+    // 返回课本选择
+    this.els.backToBooks.addEventListener('click', () => {
+      this.showBookPage();
+    });
+    
+    // 课程网格点击 - 打开播放器
+    this.els.unitGrid.addEventListener('click', e => {
+      const card = e.target.closest('.unit-card');
+      if (card) this.open(+card.dataset.i);
+    });
+    
+    // 收藏网格点击 - 打开对应句子
+    this.els.favoriteGrid.addEventListener('click', e => {
+      const card = e.target.closest('.unit-card');
+      if (card) {
+        const favIdx = +card.dataset.favIdx;
+        const fav = this.favorites[favIdx];
+        if (fav) {
+          // 切换到对应课本和课程
+          if (this.key !== fav.key) {
+            this.openBook(fav.key, fav.unitIdx, fav.lineIdx);
+          } else {
+            this.els.bookPage.style.display = 'none';
+            this.els.unitPage.style.display = 'flex';
+            // 打开课程并跳转到指定句子
+            setTimeout(() => {
+              this.open(fav.unitIdx);
+              // 播放指定句子
+              setTimeout(() => this.playLine(fav.lineIdx), 300);
+            }, 100);
+          }
+        }
+      }
     });
     
     // Close
     this.els.close.addEventListener('click', () => { this.els.dlg.close(); this.els.audio.pause(); });
     
     // Nav
-    this.els.prev.addEventListener('click', () => this.idx > 0 && this.open(this.idx - 1));
-    this.els.next.addEventListener('click', () => this.idx < this.units.length - 1 && this.open(this.idx + 1));
+    this.els.prev.addEventListener('click', () => {
+      if (this.idx > 0) {
+        this.open(this.idx - 1);
+        // 切换课程后收藏按钮会自动更新
+      }
+    });
+    this.els.next.addEventListener('click', () => {
+      if (this.idx < this.units.length - 1) {
+        this.open(this.idx + 1);
+        // 切换课程后收藏按钮会自动更新
+      }
+    });
     
     // Expand/Maximize Toggle
     if (this.els.expand) {
@@ -503,11 +906,36 @@ class App {
       if (Math.floor(this.els.audio.currentTime) % 5 === 0) {
         localStorage.setItem(LS.TIME(this.key, this.idx), this.els.audio.currentTime);
       }
-      if (this.mode === 'single' && this.bound && this.els.audio.currentTime >= this.bound) {
-        this.els.audio.pause();
-        this.els.audio.currentTime = this.bound - 0.01;
-        this.bound = null;
+      // 单句模式：精确检测播放边界
+      if (this.mode === 'single' && this.bound !== null) {
+        const currentTime = this.els.audio.currentTime;
+        // 使用更严格的边界检测（提前量 + 精确比较）
+        if (currentTime >= this.bound) {
+          this.singleRepeatCount++;
+          const needRepeat = this.repeatSingle >= 99 || this.singleRepeatCount < this.repeatSingle;
+          
+          if (needRepeat) {
+            // 继续重复当前句
+            this.els.audio.currentTime = this.lines[this.cur].time;
+            this.els.audio.play();
+          } else {
+            // 单句重复完成，播放下一句
+            this.bound = null;
+            const nextIdx = this.cur + 1;
+            if (nextIdx < this.lines.length) {
+              this.playLine(nextIdx);
+            } else {
+              // 课文结束，检查是否需要全文重复
+              this.handleAllRepeatEnd();
+            }
+          }
+        }
       }
+    });
+    
+    // 音频播放结束事件（用于全文重复检测）
+    this.els.audio.addEventListener('ended', () => {
+      this.handleAllRepeatEnd();
     });
     this.els.audio.addEventListener('loadedmetadata', () => { this.els.dur.textContent = this.fmt(this.els.audio.duration); });
     this.els.audio.addEventListener('play', () => this.playIcon(true));
@@ -523,9 +951,15 @@ class App {
     
     // Mode
     this.els.mode.addEventListener('click', () => {
-      this.mode = this.mode === 'single' ? 'loop' : 'single';
+      // 切换模式：single（单句重复） -> all（全文重复） -> single
+      this.mode = this.mode === 'single' ? 'all' : 'single';
       localStorage.setItem(LS.MODE, this.mode);
       this.modeLabel();
+      this.updateRepeatCounts();
+      
+      // 重置重复计数
+      this.singleRepeatCount = 0;
+      this.allRepeatCount = 0;
     });
     
     // Speed
