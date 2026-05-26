@@ -121,10 +121,6 @@ class App {
       backToBooksFromFav: document.getElementById('backToBooksFromFav'),
       showFavorites: document.getElementById('showFavorites'),
       favCountBadge: document.getElementById('favCountBadge'),
-      favoriteToolbar: document.getElementById('favoriteToolbar'),
-      favoriteToolbarAdd: document.getElementById('addFavoriteBtn'),
-      favoriteToolbarClear: document.getElementById('clearFavoriteBtn'),
-      currentSentence: document.getElementById('currentSentence'),
       dlg: document.getElementById('playerDialog'),
       title: document.getElementById('unitTitle'),
       close: document.getElementById('closeBtn'),
@@ -177,46 +173,25 @@ class App {
   }
   
   showFavoriteToolbar() {
-    if (!this.els.favoriteToolbar || this.cur < 0 || !this.lines[this.cur]) {
-      this.els.favoriteToolbar.style.display = 'none';
-      return;
-    }
-    
-    const line = this.lines[this.cur];
-    this.els.currentSentence.textContent = line.en;
-    this.els.favoriteToolbar.style.display = 'flex';
-    
-    // 检查是否已收藏
-    const favId = `${this.key}_${this.idx}_${this.cur}`;
-    const isFavorited = this.favorites.some(f => f.id === favId);
-    
-    if (isFavorited) {
-      this.els.favoriteToolbarAdd.classList.add('favorited');
-      this.els.favoriteToolbarAdd.querySelector('svg').setAttribute('fill', '#fbbf24');
-    } else {
-      this.els.favoriteToolbarAdd.classList.remove('favorited');
-      this.els.favoriteToolbarAdd.querySelector('svg').setAttribute('fill', 'none');
-    }
+    // 不再使用工具栏，收藏按钮在每行歌词右侧
+    // 此函数保留用于兼容性
   }
   
   hideFavoriteToolbar() {
-    if (this.els.favoriteToolbar) {
-      this.els.favoriteToolbar.style.display = 'none';
-    }
+    // 不再使用工具栏
   }
   
-  toggleCurrentSentenceFavorite() {
-    if (this.cur < 0 || !this.lines[this.cur]) return;
+  toggleLineFavorite(lineIdx) {
+    if (lineIdx < 0 || !this.lines[lineIdx]) return;
     
-    const currentLine = this.lines[this.cur];
-    const favId = `${this.key}_${this.idx}_${this.cur}`;
+    const currentLine = this.lines[lineIdx];
+    const favId = `${this.key}_${this.idx}_${lineIdx}`;
     const existingIdx = this.favorites.findIndex(f => f.id === favId);
     
     if (existingIdx >= 0) {
       // 取消收藏
       this.favorites.splice(existingIdx, 1);
-      this.els.favoriteToolbarAdd.classList.remove('favorited');
-      this.els.favoriteToolbarAdd.querySelector('svg').setAttribute('fill', 'none');
+      this.updateLineFavoriteIcon(lineIdx, false);
       console.log('[Favorite] Removed from favorites');
     } else {
       // 添加收藏
@@ -225,19 +200,41 @@ class App {
         id: favId,
         key: this.key,
         unitIdx: this.idx,
-        lineIdx: this.cur,
+        lineIdx: lineIdx,
         sentence: currentLine.en,
         translation: currentLine.cn || '',
         lessonTitle: unit?.lesson_num || `Lesson ${this.idx + 1}`,
         bookTitle: this.books.find(b => b.key === this.key)?.title || ''
       });
-      this.els.favoriteToolbarAdd.classList.add('favorited');
-      this.els.favoriteToolbarAdd.querySelector('svg').setAttribute('fill', '#fbbf24');
+      this.updateLineFavoriteIcon(lineIdx, true);
       console.log('[Favorite] Added sentence to favorites');
     }
     
     localStorage.setItem(LS.FAVORITES, JSON.stringify(this.favorites));
     this.updateFavBadge();
+    
+    // 如果在收藏页，刷新收藏列表
+    if (this.els.favoritePage && this.els.favoritePage.style.display === 'flex') {
+      this.renderFavorites();
+    }
+  }
+  
+  updateLineFavoriteIcon(lineIdx, isFavorited) {
+    const btn = this.els.area.querySelector(`.line-favorite[data-line-i="${lineIdx}"]`);
+    if (!btn) return;
+    
+    const svg = btn.querySelector('svg');
+    if (isFavorited) {
+      btn.classList.add('favorited');
+      svg.setAttribute('fill', '#fbbf24');
+      svg.setAttribute('stroke', '#fbbf24');
+      btn.setAttribute('title', '取消收藏');
+    } else {
+      btn.classList.remove('favorited');
+      svg.setAttribute('fill', 'none');
+      svg.setAttribute('stroke', 'currentColor');
+      btn.setAttribute('title', '收藏本句');
+    }
   }
 
   toggleFavorite() {
@@ -597,11 +594,22 @@ class App {
 
   renderLines() {
     if (!this.lines.length) { this.els.area.innerHTML = '<p class="line">无歌词数据</p>'; return; }
-    this.els.area.innerHTML = this.lines.map((l, i) => `
+    this.els.area.innerHTML = this.lines.map((l, i) => {
+      const favId = `${this.key}_${this.idx}_${i}`;
+      const isFavorited = this.favorites.some(f => f.id === favId);
+      return `
       <div class="line" data-i="${i}" data-t="${l.time}">
-        <div class="line-en">${l.en}</div>
-        ${l.cn ? `<div class="line-cn">${l.cn}</div>` : ''}
-      </div>`).join('');
+        <div class="line-content">
+          <div class="line-en">${l.en}</div>
+          ${l.cn ? `<div class="line-cn">${l.cn}</div>` : ''}
+        </div>
+        <button class="line-favorite ${isFavorited ? 'favorited' : ''}" data-line-i="${i}" title="${isFavorited ? '取消收藏' : '收藏本句'}">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="${isFavorited ? '#fbbf24' : 'none'}" stroke="${isFavorited ? '#fbbf24' : 'currentColor'}" stroke-width="2">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </button>
+      </div>`;
+    }).join('');
     this.els.area.scrollTop = 0;
   }
 
@@ -698,8 +706,6 @@ class App {
       const el = this.els.area.querySelectorAll('.line')[ni];
       el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-    // 句子变化时更新收藏工具栏
-    this.showFavoriteToolbar();
   }
 
   updateProg() {
@@ -753,20 +759,7 @@ class App {
   fmt(s) { if (!isFinite(s)) return '0:00'; return `${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`; }
 
   bind() {
-    // 收藏工具栏事件
-    if (this.els.favoriteToolbarAdd) {
-      this.els.favoriteToolbarAdd.addEventListener('click', () => {
-        this.toggleCurrentSentenceFavorite();
-      });
-    }
-    
-    if (this.els.favoriteToolbarClear) {
-      this.els.favoriteToolbarClear.addEventListener('click', () => {
-        this.toggleCurrentSentenceFavorite();
-        this.hideFavoriteToolbar();
-      });
-    }
-    
+    // 收藏工具栏事件（已删除，改用行内收藏按钮）
     // 收藏页面入口
     if (this.els.showFavorites) {
       this.els.showFavorites.addEventListener('click', () => {
@@ -777,7 +770,24 @@ class App {
       });
     }
     
-    // 单句重复次数
+    // 歌词区域点击事件（包含收藏按钮）
+    this.els.area.addEventListener('click', e => {
+      const line = e.target.closest('.line');
+      const favoriteBtn = e.target.closest('.line-favorite');
+      
+      // 如果点击的是收藏按钮
+      if (favoriteBtn) {
+        e.stopPropagation();
+        const lineIdx = +favoriteBtn.dataset.lineI;
+        this.toggleLineFavorite(lineIdx);
+        return;
+      }
+      
+      // 否则播放该句
+      if (line) {
+        this.playLine(+line.dataset.i);
+      }
+    });
     if (this.els.repeatSingle) {
       this.els.repeatSingle.addEventListener('click', () => {
         const currentIdx = REPEAT_COUNTS.indexOf(this.repeatSingle);
