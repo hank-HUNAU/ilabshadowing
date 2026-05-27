@@ -102,9 +102,11 @@ class App {
     this.repeatAll = +(localStorage.getItem(LS.REPEAT_ALL) || 3);       // 全文重复次数
     
     // 静音检测配置
-    this.silenceThreshold = 0.08;  // 静音阈值 (0-1)
-    this.silenceDuration = 0.15;   // 持续多长时间判定为静音 (秒)
-    this.useSilenceDetection = true; // 是否启用静音检测
+    this.silenceThreshold = 0.15;  // 静音阈值 (0-1) - 提高阈值避免误判
+    this.silenceDuration = 0.25;   // 持续 250ms 才判定为静音（更可靠）
+    // 手机端禁用静音检测（iOS Safari 不兼容 captureStream）
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    this.useSilenceDetection = !isMobile;
     this.cache = new Map();
     this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     
@@ -712,10 +714,11 @@ class App {
       const nxt = this.lines[i + 1];
       if (nxt) {
         const lineDuration = nxt.time - line.time;
-        // 提前停止时间作为后备保护
-        const safeMargin = Math.min(0.12, lineDuration * 0.15);
+        // 提前停止时间作为后备保护（静音检测失败时使用）
+        // 使用句子时长的 20% 作为提前量，最短 200ms，最长 400ms
+        const safeMargin = Math.min(0.4, Math.max(0.2, lineDuration * 0.2));
         this.bound = nxt.time - safeMargin;
-        this.bound = Math.max(this.bound, startTime + 0.3);
+        this.bound = Math.max(this.bound, startTime + 0.5);  // 确保至少播放 500ms
       } else {
         this.bound = this.els.audio.duration;
       }
