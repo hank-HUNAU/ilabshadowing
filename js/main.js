@@ -100,6 +100,11 @@ class App {
     this.tr = localStorage.getItem(LS.TR) || 'show';
     this.repeatSingle = +(localStorage.getItem(LS.REPEAT_SINGLE) || 3);  // 单句重复次数
     this.repeatAll = +(localStorage.getItem(LS.REPEAT_ALL) || 3);       // 全文重复次数
+    
+    // 静音检测配置
+    this.silenceThreshold = 0.08;  // 静音阈值 (0-1)
+    this.silenceDuration = 0.15;   // 持续多长时间判定为静音 (秒)
+    this.useSilenceDetection = true; // 是否启用静音检测
     this.cache = new Map();
     this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     
@@ -149,6 +154,14 @@ class App {
     this.els.audio.playbackRate = this.spd;
     this.applyTr();
     this.syncUI();
+    
+    // 初始化 Web Audio API 用于静音检测
+    this.audioContext = null;
+    this.analyser = null;
+    this.dataArray = null;
+    this.silenceStartTime = null;
+    this.silenceDetected = false;
+    this.initAudioAnalyzer();
   }
   
   async init() {
@@ -170,6 +183,48 @@ class App {
     } else {
       this.els.favCountBadge.style.display = 'none';
     }
+  }
+  
+  // 初始化音频分析器
+  initAudioAnalyzer() {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      
+      this.audioContext = new AudioContext();
+      this.analyser = this.audioContext.createAnalyser();
+      this.analyser.fftSize = 256;
+      this.analyser.smoothingTimeConstant = 0.3;
+      
+      const source = this.els.audio.captureStream ? 
+        this.els.audio.captureStream() : null;
+      
+      if (source) {
+        const audioSource = this.audioContext.createMediaStreamSource(source);
+        audioSource.connect(this.analyser);
+      }
+      
+      const bufferLength = this.analyser.frequencyBinCount;
+      this.dataArray = new Uint8Array(bufferLength);
+      
+      console.log('[Audio Analyzer] Initialized');
+    } catch (e) {
+      console.warn('[Audio Analyzer] Init failed:', e.message);
+      this.useSilenceDetection = false;
+    }
+  }
+  
+  // 获取当前音量 (0-1)
+  getCurrentVolume() {
+    if (!this.analyser || !this.dataArray) return 0;
+    
+    this.analyser.getByteFrequencyData(this.dataArray);
+    let sum = 0;
+    for (let i = 0; i < this.dataArray.length; i++) {
+      sum += this.dataArray[i];
+    }
+    const average = sum / this.dataArray.length / 255;
+    return average;
   }
   
   showFavoriteToolbar() {
@@ -642,7 +697,11 @@ class App {
   }
 
   _doPlayLine(line, i) {
-    // 计算实际开始播放时间（可配置提前/延后）
+    // 重置静音检测状态
+    this.silenceDetected = false;
+    this.silenceStartTime = null;
+    
+    // 计算实际开始播放时间
     const startTime = Math.max(0, line.time);
     this.els.audio.currentTime = startTime;
     this.cur = i;
@@ -653,7 +712,7 @@ class App {
       const nxt = this.lines[i + 1];
       if (nxt) {
         const lineDuration = nxt.time - line.time;
-        // 提前停止时间：默认 100ms，可根据句子长度动态调整
+        // 提前停止时间作为后备保护
         const safeMargin = Math.min(0.12, lineDuration * 0.15);
         this.bound = nxt.time - safeMargin;
         this.bound = Math.max(this.bound, startTime + 0.3);
@@ -912,19 +971,59 @@ class App {
       if (Math.floor(this.els.audio.currentTime) % 5 === 0) {
         localStorage.setItem(LS.TIME(this.key, this.idx), this.els.audio.currentTime);
       }
-      // 单句模式：精确检测播放边界
-      if (this.mode === 'single' && this.bound !== null) {
+      
+      // 单句模式：静音检测
+      if (this.mode === 'single' && this.useSilenceDetection && !this.els.audio.paused) {
+        const volume = this.getCurrentVolume();
+        const currentTime = this.els.audio.currentTime;
+        
+        // 检测是否开始静音
+        if (volume < this.silenceThreshold) {
+          if (!this.silenceStartTime) {
+            this.silenceStartTime = currentTime;
+          } else if (currentTime - this.silenceStartTime >= this.silenceDuration) {
+            // 持续静音达到阈值，判定为句子结束
+            if (!this.silenceDetected) {
+              this.silenceDetected = true;
+              console.log('[Silence] Detected at', currentTime.toFixed(3), 's, volume:', volume.toFixed(3));
+              
+              // 暂停播放
+              this.els.audio.pause();
+              this.singleRepeatCount++;
+              
+              const needRepeat = this.repeatSingle >= 99 || this.singleRepeatCount < this.repeatSingle;
+              if (needRepeat) {
+                // 重复当前句
+                setTimeout(() => {
+                  this.els.audio.currentTime = this.lines[this.cur].time;
+                  this.els.audio.play();
+                  this.silenceDetected = false;
+                  this.silenceStartTime = null;
+                }, 200);
+              } else {
+                // 重复完成，停止播放
+                this.bound = null;
+              }
+            }
+          }
+        } else {
+          // 有声音，重置检测
+          this.silenceStartTime = null;
+          this.silenceDetected = false;
+        }
+      }
+      
+      // 单句模式：后备边界检测（如果静音检测失败）
+      if (this.mode === 'single' && this.bound !== null && !this.silenceDetected) {
         const currentTime = this.els.audio.currentTime;
         if (currentTime >= this.bound) {
           this.singleRepeatCount++;
           const needRepeat = this.repeatSingle >= 99 || this.singleRepeatCount < this.repeatSingle;
           
           if (needRepeat) {
-            // 继续重复当前句
             this.els.audio.currentTime = this.lines[this.cur].time;
             this.els.audio.play();
           } else {
-            // 单句重复完成，立即停止播放
             this.bound = null;
             this.els.audio.pause();
           }
@@ -937,7 +1036,14 @@ class App {
       this.handleAllRepeatEnd();
     });
     this.els.audio.addEventListener('loadedmetadata', () => { this.els.dur.textContent = this.fmt(this.els.audio.duration); });
-    this.els.audio.addEventListener('play', () => this.playIcon(true));
+    // 音频播放开始事件
+    this.els.audio.addEventListener('play', () => {
+      this.playIcon(true);
+      // 启用音频上下文（需要用户交互后才能启动）
+      if (this.audioContext && this.audioContext.state === 'suspended') {
+        this.audioContext.resume();
+      }
+    });
     this.els.audio.addEventListener('pause', () => this.playIcon(false));
     this.els.audio.addEventListener('ended', () => { if (this.mode === 'loop') this.playNext(); });
     
