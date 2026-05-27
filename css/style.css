@@ -609,7 +609,7 @@ body {
 }
 
 body.hide-cn .line-cn { display: none; }
-body.blur-cn .line-cn { filter: blur(4px); user-select: none; }
+body.hide-en .line-en { display: none; }
 
 /* 底部控制栏 */
 .player-footer {

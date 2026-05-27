@@ -97,9 +97,12 @@ class App {
     this.cur = -1;
     this.mode = localStorage.getItem(LS.MODE) || 'single';
     this.spd = +(localStorage.getItem(LS.SPD) || 1.0);
-    this.tr = localStorage.getItem(LS.TR) || 'show';
+    this.tr = localStorage.getItem(LS.TR) || 'bilingual';  // 显示模式：bilingual/en-only/cn-only
     this.repeatSingle = +(localStorage.getItem(LS.REPEAT_SINGLE) || 3);  // 单句重复次数
     this.repeatAll = +(localStorage.getItem(LS.REPEAT_ALL) || 3);       // 全文重复次数
+    
+    // 显示模式配置
+    this.displayModes = ['bilingual', 'en-only', 'cn-only'];
     
     // 静音检测配置
     this.silenceThreshold = 0.15;  // 静音阈值 (0-1)
@@ -824,10 +827,16 @@ class App {
   }
 
   applyTr() {
-    document.body.classList.remove('hide-cn', 'blur-cn');
-    if (this.tr === 'hide') document.body.classList.add('hide-cn');
-    else if (this.tr === 'blur') document.body.classList.add('blur-cn');
-    this.els.trL.textContent = this.tr === 'show' ? '中文' : this.tr === 'hide' ? '隐藏' : '模糊';
+    document.body.classList.remove('hide-cn', 'hide-en');
+    
+    if (this.tr === 'en-only') {
+      document.body.classList.add('hide-cn');
+    } else if (this.tr === 'cn-only') {
+      document.body.classList.add('hide-en');
+    }
+    
+    const labels = { bilingual: '双语', 'en-only': '英文', 'cn-only': '中文' };
+    this.els.trL.textContent = labels[this.tr] || '双语';
   }
 
   saveTime(t) { localStorage.setItem(LS.TIME(this.key, this.idx), t); }
@@ -1097,10 +1106,10 @@ class App {
       this.syncUI();
     });
     
-    // Translation
+    // Translation display mode
     this.els.tr.addEventListener('click', () => {
-      const m = ['show', 'hide', 'blur'];
-      this.tr = m[(m.indexOf(this.tr) + 1) % m.length];
+      const idx = this.displayModes.indexOf(this.tr);
+      this.tr = this.displayModes[(idx + 1) % this.displayModes.length];
       localStorage.setItem(LS.TR, this.tr);
       this.applyTr();
     });
