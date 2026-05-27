@@ -419,9 +419,9 @@ body {
   -webkit-backdrop-filter: blur(30px);
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-xl);
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
 }
 
 @media (min-width: 768px) {
@@ -431,6 +431,7 @@ body {
     height: 85vh;
     margin: auto;
     border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
     box-shadow: var(--shadow-xl);
   }
   
@@ -440,6 +441,7 @@ body {
     height: 100vh;
     margin: 0;
     border-radius: 0;
+    border: none;
     box-shadow: none;
   }
 }
@@ -512,14 +514,25 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 18px;
-  margin-bottom: 8px;
+  padding: 16px 20px;
+  margin-bottom: 10px;
   border-radius: var(--radius-md);
   cursor: pointer;
   border-left: 3px solid transparent;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   background: var(--card);
   border: 1px solid var(--border-light);
+  justify-content: center;
+  text-align: center;
+}
+
+.line-content {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .line:hover {
@@ -575,11 +588,12 @@ body {
 }
 
 .line-en {
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: 600;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   color: var(--text);
   letter-spacing: -0.01em;
+  line-height: 1.4;
 }
 
 .line.active .line-en {
@@ -588,9 +602,10 @@ body {
 }
 
 .line-cn {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   color: var(--text-secondary);
   font-weight: 400;
+  line-height: 1.4;
 }
 
 body.hide-cn .line-cn { display: none; }
@@ -800,22 +815,47 @@ body.blur-cn .line-cn { filter: blur(4px); user-select: none; }
   }
 
   .line {
-    padding: 12px 14px;
-    margin-bottom: 6px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
   }
 
-  .line-en { font-size: 0.95rem; }
-  .line-cn { font-size: 0.8rem; }
+  .line-en { font-size: 1.05rem; }
+  .line-cn { font-size: 0.85rem; }
 
   .dialog-header {
-    padding: 12px 16px;
-    padding-top: calc(12px + env(safe-area-inset-top));
+    padding: 14px 16px;
+    padding-top: calc(14px + env(safe-area-inset-top));
   }
   
   .icon-btn {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
   }
+  
+  .dialog-title {
+    font-size: 1rem;
+  }
+  
+  .lyrics-scroll {
+    padding: 16px;
+  }
+}
+
+/* 平板端适配 */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .line-en { font-size: 1.15rem; }
+  .line-cn { font-size: 0.9rem; }
+  
+  .dialog-inner {
+    width: 95%;
+    height: 90vh;
+  }
+}
+
+/* 桌面端适配 */
+@media (min-width: 1024px) {
+  .line-en { font-size: 1.25rem; }
+  .line-cn { font-size: 1rem; }
 }
 
 @media (max-width: 767px) and (orientation: landscape) {
