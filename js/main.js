@@ -11,7 +11,8 @@ const LS = {
   LAST_PAGE: 'nce_last_page',
   FAVORITES: 'nce_favorites',
   REPEAT_SINGLE: 'nce_repeat_single',  // 单句重复次数
-  REPEAT_ALL: 'nce_repeat_all'         // 全文重复次数
+  REPEAT_ALL: 'nce_repeat_all',        // 全文重复次数
+  GAP: 'nce_gap'                       // 句子间隔时间
 };
 
 /* 音频源配置 - 一键切换 */
@@ -100,6 +101,7 @@ class App {
     this.tr = localStorage.getItem(LS.TR) || 'show';
     this.repeatSingle = +(localStorage.getItem(LS.REPEAT_SINGLE) || 3);  // 单句重复次数
     this.repeatAll = +(localStorage.getItem(LS.REPEAT_ALL) || 3);       // 全文重复次数
+    this.gap = +(localStorage.getItem(LS.GAP) || 0.1); // 句子间隔时间（秒）
     this.cache = new Map();
     this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     
@@ -642,32 +644,31 @@ class App {
   }
 
   _doPlayLine(line, i) {
-    this.els.audio.currentTime = line.time;
+    // 计算实际开始播放时间（可配置提前/延后）
+    const startTime = Math.max(0, line.time);
+    this.els.audio.currentTime = startTime;
     this.cur = i;
     this.highlight();
     this.showFavoriteToolbar();
     
     if (this.mode === 'single') {
       const nxt = this.lines[i + 1];
-      // 提前 100ms 停止，并设置安全边界
       if (nxt) {
-        // 计算当前句子的实际时长
         const lineDuration = nxt.time - line.time;
-        // 提前 80-120ms 停止（根据语速动态调整）
+        // 提前停止时间：默认 100ms，可根据句子长度动态调整
         const safeMargin = Math.min(0.12, lineDuration * 0.15);
         this.bound = nxt.time - safeMargin;
-        this.bound = Math.max(this.bound, line.time + 0.3); // 确保至少播放 300ms
+        this.bound = Math.max(this.bound, startTime + 0.3);
       } else {
         this.bound = this.els.audio.duration;
       }
-      // 重置单句重复计数
       this.singleRepeatCount = 0;
     } else { 
       this.bound = null; 
     }
     
     this.els.audio.play().catch(e => console.log('Play error:', e.message));
-    this.saveTime(line.time);
+    this.saveTime(startTime);
   }
 
   handleAllRepeatEnd() {
@@ -690,7 +691,14 @@ class App {
   
   playNext() {
     const n = this.cur + 1;
-    if (n < this.lines.length) this.playLine(n);
+    if (n < this.lines.length) {
+      // 添加间隔延迟
+      if (this.gap > 0) {
+        setTimeout(() => this.playLine(n), this.gap * 1000);
+      } else {
+        this.playLine(n);
+      }
+    }
   }
 
   highlight() {
