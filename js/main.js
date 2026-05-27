@@ -11,8 +11,7 @@ const LS = {
   LAST_PAGE: 'nce_last_page',
   FAVORITES: 'nce_favorites',
   REPEAT_SINGLE: 'nce_repeat_single',  // 单句重复次数
-  REPEAT_ALL: 'nce_repeat_all',        // 全文重复次数
-  GAP: 'nce_gap'                       // 句子间隔时间
+  REPEAT_ALL: 'nce_repeat_all'         // 全文重复次数
 };
 
 /* 音频源配置 - 一键切换 */
@@ -101,7 +100,6 @@ class App {
     this.tr = localStorage.getItem(LS.TR) || 'show';
     this.repeatSingle = +(localStorage.getItem(LS.REPEAT_SINGLE) || 3);  // 单句重复次数
     this.repeatAll = +(localStorage.getItem(LS.REPEAT_ALL) || 3);       // 全文重复次数
-    this.gap = +(localStorage.getItem(LS.GAP) || 0.1); // 句子间隔时间（秒）
     this.cache = new Map();
     this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     
@@ -672,34 +670,25 @@ class App {
   }
 
   handleAllRepeatEnd() {
-    if (this.mode === 'all' || this.idx >= this.units.length - 1) {
+    // 只有在全文模式才触发全文重复
+    if (this.mode !== 'all') return;
+    
+    const needRepeat = this.repeatAll >= 99 || this.allRepeatCount < this.repeatAll;
+    
+    if (needRepeat) {
       this.allRepeatCount++;
-      const needRepeat = this.repeatAll >= 99 || this.allRepeatCount < this.repeatAll;
-      
-      if (needRepeat) {
-        // 全文重复，从第一句开始
-        setTimeout(() => {
-          this.playLine(0);
-        }, 500);
-      } else {
-        // 全部重复完成，停止播放
-        this.els.audio.pause();
-        this.allRepeatCount = 0;
-      }
+      // 全文重复：间隔 0.1 秒后从第一句开始
+      setTimeout(() => {
+        this.playLine(0);
+      }, 100);
+    } else {
+      // 全部重复完成，停止播放
+      this.els.audio.pause();
+      this.allRepeatCount = 0;
     }
   }
   
-  playNext() {
-    const n = this.cur + 1;
-    if (n < this.lines.length) {
-      // 添加间隔延迟
-      if (this.gap > 0) {
-        setTimeout(() => this.playLine(n), this.gap * 1000);
-      } else {
-        this.playLine(n);
-      }
-    }
-  }
+  // playNext() - 已删除，全文模式下音频连续播放
 
   highlight() {
     if (!this.lines.length) return;
@@ -926,7 +915,6 @@ class App {
       // 单句模式：精确检测播放边界
       if (this.mode === 'single' && this.bound !== null) {
         const currentTime = this.els.audio.currentTime;
-        // 使用更严格的边界检测（提前量 + 精确比较）
         if (currentTime >= this.bound) {
           this.singleRepeatCount++;
           const needRepeat = this.repeatSingle >= 99 || this.singleRepeatCount < this.repeatSingle;
@@ -936,15 +924,9 @@ class App {
             this.els.audio.currentTime = this.lines[this.cur].time;
             this.els.audio.play();
           } else {
-            // 单句重复完成，播放下一句
+            // 单句重复完成，立即停止播放
             this.bound = null;
-            const nextIdx = this.cur + 1;
-            if (nextIdx < this.lines.length) {
-              this.playLine(nextIdx);
-            } else {
-              // 课文结束，检查是否需要全文重复
-              this.handleAllRepeatEnd();
-            }
+            this.els.audio.pause();
           }
         }
       }
