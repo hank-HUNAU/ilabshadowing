@@ -318,8 +318,7 @@ class App {
 
   renderBooks() {
     this.els.bookGrid.innerHTML = this.books.map(b => {
-      // 提取书名缩写作为图标文字
-      const shortName = b.key.replace('NCE', 'NCE').replace('THINK_', 'T');
+      const shortName = b.key === 'NCE1' ? 'N1' : b.key === 'THINK_0' ? 'T0' : b.key === 'THINK_F' ? 'TF' : b.key;
       return `
       <div class="book-card" data-key="${b.key}">
         <div class="book-icon">${shortName}</div>
