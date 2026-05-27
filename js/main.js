@@ -102,11 +102,19 @@ class App {
     this.repeatAll = +(localStorage.getItem(LS.REPEAT_ALL) || 3);       // 全文重复次数
     
     // 静音检测配置
-    this.silenceThreshold = 0.15;  // 静音阈值 (0-1) - 提高阈值避免误判
-    this.silenceDuration = 0.25;   // 持续 250ms 才判定为静音（更可靠）
+    this.silenceThreshold = 0.15;  // 静音阈值 (0-1)
+    this.silenceDuration = 0.25;   // 持续 250ms 才判定（避免误判）
     // 手机端禁用静音检测（iOS Safari 不兼容 captureStream）
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     this.useSilenceDetection = !isMobile;
+    
+    // 动态提前量配置：根据句子间隔自动调整
+    this.leadTimeMap = {
+      short: { gap: 0.5, lead: 0.15 },    // 间隔<500ms：提前 150ms
+      medium: { gap: 1.0, lead: 0.25 },   // 间隔<1s：提前 250ms
+      long: { gap: Infinity, lead: 0.40 } // 间隔>1s：提前 400ms
+    };
+    this.minPlayTime = 0.5;  // 最少播放时长
     this.cache = new Map();
     this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     
@@ -713,12 +721,22 @@ class App {
     if (this.mode === 'single') {
       const nxt = this.lines[i + 1];
       if (nxt) {
-        const lineDuration = nxt.time - line.time;
-        // 提前停止时间作为后备保护（静音检测失败时使用）
-        // 使用句子时长的 20% 作为提前量，最短 200ms，最长 400ms
-        const safeMargin = Math.min(0.4, Math.max(0.2, lineDuration * 0.2));
-        this.bound = nxt.time - safeMargin;
-        this.bound = Math.max(this.bound, startTime + 0.5);  // 确保至少播放 500ms
+        const gap = nxt.time - line.time;  // 句子间隔
+        
+        // 动态调整提前量
+        let leadTime;
+        if (gap < this.leadTimeMap.short.gap) {
+          leadTime = this.leadTimeMap.short.lead;
+        } else if (gap < this.leadTimeMap.medium.gap) {
+          leadTime = this.leadTimeMap.medium.lead;
+        } else {
+          leadTime = this.leadTimeMap.long.lead;
+        }
+        
+        this.bound = nxt.time - leadTime;
+        this.bound = Math.max(this.bound, startTime + this.minPlayTime);
+        
+        console.log(`[Play] Line ${i}, gap=${gap.toFixed(3)}s, leadTime=${leadTime}s, bound=${this.bound.toFixed(3)}s`);
       } else {
         this.bound = this.els.audio.duration;
       }
