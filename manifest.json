@@ -1,6 +1,6 @@
 {
-  "name": "新概念英语跟读",
-  "short_name": "英语跟读",
+  "name": "Hankilab 学习中心",
+  "short_name": "学习中心",
   "description": "新概念英语第一册 AI 跟读学习站",
   "start_url": "/",
   "display": "standalone",
