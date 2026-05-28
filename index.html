@@ -210,11 +210,21 @@
       const APP_VERSION = '20260527';
       const UPDATE_SHOWN_KEY = 'nce_update_shown_' + APP_VERSION;
       
+      // 检测是否为 iOS 设备
+      function isIOS() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      }
+      
+      // 检测是否支持 PWA 安装
+      function isPWAInstallable() {
+        return !!deferredPrompt || isIOS();
+      }
+      
       window.addEventListener('load', function() {
         // 延迟显示 PWA 安装提示（3 秒后）
-        if (!localStorage.getItem(LS.PWA_DISMISSED)) {
+        if (!localStorage.getItem(LS.PWA_DISMISSED) && isPWAInstallable()) {
           setTimeout(function() {
-            if (deferredPrompt && !document.getElementById('pwaInstallDialog').open) {
+            if (!document.getElementById('pwaInstallDialog').open) {
               document.getElementById('pwaInstallDialog').showModal();
             }
           }, 3000);
@@ -234,6 +244,7 @@
       // PWA 安装确认
       document.getElementById('pwaInstallConfirm')?.addEventListener('click', async function() {
         if (deferredPrompt) {
+          // Android Chrome: 使用原生安装
           deferredPrompt.prompt();
           const choiceResult = await deferredPrompt.userChoice;
           console.log('用户选择：', choiceResult.outcome);
@@ -242,6 +253,11 @@
           if (choiceResult.outcome === 'accepted') {
             localStorage.setItem(LS.PWA_DISMISSED, 'true');
           }
+        } else if (isIOS()) {
+          // iOS: 显示指导，用户需要手动操作
+          alert('在 Safari 浏览器中：\n\n1. 点击底部工具栏的"分享"按钮（正方形带箭头）\n2. 向下滚动并点击"添加到主屏幕"\n3. 点击右上角"添加"');
+          localStorage.setItem(LS.PWA_DISMISSED, 'true');
+          document.getElementById('pwaInstallDialog').close();
         }
       });
       
@@ -257,16 +273,16 @@
         document.getElementById('updateDialog').close();
       });
       
-      // 监听 PWA 安装事件
+      // 监听 PWA 安装事件（Android Chrome）
       window.addEventListener('beforeinstallprompt', function(e) {
         e.preventDefault();
         deferredPrompt = e;
-        console.log('PWA 可安装');
+        console.log('[PWA] beforeinstallprompt triggered');
       });
       
       // PWA 安装成功后
       window.addEventListener('appinstalled', function() {
-        console.log('PWA 已安装');
+        console.log('[PWA] App installed');
         localStorage.setItem(LS.PWA_DISMISSED, 'true');
         deferredPrompt = null;
       });
