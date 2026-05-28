@@ -2001,6 +2001,207 @@ body.hide-en .line-en { display: none; }
   font-weight: 600;
 }
 
+/* ========== 新手引导 ========== */
+.onboarding-content {
+  width: 90%;
+  max-width: 500px;
+  padding: 40px 32px;
+  border-radius: 20px;
+  background: var(--card-solid);
+  text-align: center;
+}
+
+.onboarding-step {
+  animation: onboardingFadeIn 0.4s ease;
+}
+
+@keyframes onboardingFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.onboarding-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.onboarding-content h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: var(--text);
+}
+
+.onboarding-desc {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin: 0 0 24px;
+  line-height: 1.6;
+}
+
+.onboarding-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+  text-align: left;
+}
+
+.onboarding-features li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  font-size: 1rem;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+
+.onboarding-features li:last-child {
+  border-bottom: none;
+}
+
+.feature-icon {
+  font-size: 24px;
+  width: 32px;
+  text-align: center;
+}
+
+.onboarding-tips {
+  display: grid;
+  gap: 16px;
+  margin: 0 0 32px;
+}
+
+.tip-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  text-align: left;
+}
+
+.tip-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.tip-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.tip-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.onboarding-form {
+  margin: 24px 0;
+}
+
+.onboarding-form input {
+  width: 100%;
+  max-width: 300px;
+  padding: 14px 20px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-family: inherit;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.onboarding-form input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+}
+
+.onboarding-hint {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  margin: 12px 0 24px;
+}
+
+.onboarding-nav {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.onboarding-prev,
+.onboarding-next {
+  padding: 14px 32px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.onboarding-prev {
+  background: var(--bg-secondary);
+  color: var(--text);
+}
+
+.onboarding-prev:hover {
+  background: var(--card-solid);
+  border-color: var(--border);
+}
+
+.onboarding-next {
+  background: var(--primary);
+  color: white;
+}
+
+.onboarding-next:hover {
+  background: var(--primary-light);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+@media (max-width: 767px) {
+  .onboarding-content {
+    padding: 32px 20px;
+  }
+  
+  .onboarding-icon {
+    font-size: 48px;
+  }
+  
+  .onboarding-content h3 {
+    font-size: 1.3rem;
+  }
+  
+  .tip-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .onboarding-nav {
+    flex-direction: column-reverse;
+  }
+  
+  .onboarding-prev,
+  .onboarding-next {
+    width: 100%;
+  }
+}
+
 /* ========== 头像选择器 ========== */
 .profile-header {
   display: flex;

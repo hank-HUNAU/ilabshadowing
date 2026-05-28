@@ -124,6 +124,12 @@ class App {
     this.cache = new Map();
     this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     
+    // 定时器
+    this.timerMinutes = 0;  // 定时分钟数，0=关闭
+    this.timerInterval = null;
+    this.timerTimeout = null;
+    this.timerEndtime = null;
+    
     // 重复计数
     this.singleRepeatCount = 0;  // 当前单句已重复次数
     this.allRepeatCount = 0;     // 当前全文已重复次数
@@ -150,6 +156,9 @@ class App {
       expand: document.getElementById('expandBtn'),
       area: document.getElementById('lyricsArea'),
       play: document.getElementById('playBtn'),
+      timer: document.getElementById('timerBtn'),
+      timerLabel: document.getElementById('timerLabel'),
+      timerDisplay: document.getElementById('timerDisplay'),
       track: document.getElementById('progressTrack'),
       fill: document.getElementById('progressFill'),
       cur: document.getElementById('curTime'),
@@ -374,6 +383,47 @@ class App {
       const num = f.lessonTitle.match(/\d+/)?.[0] || i + 1;
       return `
       <div class="unit-card" data-fav-idx="${i}" style="min-height:60px;align-items:flex-start;text-align:left;">
+        <div class="unit-num" style="font-size:1rem;margin-bottom:4px;">${num}</div>
+        <div class="unit-title" style="font-size:0.75rem;white-space:normal;line-height:1.3;">${f.sentence.substring(0, 30)}${f.sentence.length > 30 ? '...' : ''}</div>
+      </div>`;
+    }).join('');
+  }
+  
+  // 搜索过滤收藏
+  filterFavorites(query) {
+    if (!query || query.trim() === '') {
+      // 清空搜索，显示全部
+      this.renderFavorites();
+      return;
+    }
+    
+    const lowerQuery = query.toLowerCase().trim();
+    const filtered = this.favorites.filter(f => 
+      f.sentence.toLowerCase().includes(lowerQuery) ||
+      f.translation.toLowerCase().includes(lowerQuery) ||
+      f.bookTitle.toLowerCase().includes(lowerQuery) ||
+      f.lessonTitle.toLowerCase().includes(lowerQuery)
+    );
+    
+    if (filtered.length === 0) {
+      this.els.favoriteGrid.innerHTML = `
+        <div class="empty-state">
+          <svg class="empty-state-icon" viewBox="0 0 24 24" width="80" height="80" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 21l-4.35-4.35M19 11a8 8 0 10-16 0 8 8 0 0016 0z"/>
+          </svg>
+          <h3 class="empty-state-title">未找到匹配的句子</h3>
+          <p class="empty-state-desc">试试其他关键词</p>
+        </div>
+      `;
+      this.els.favoriteCount.textContent = `${filtered.length} 句`;
+      return;
+    }
+    
+    this.els.favoriteCount.textContent = `${filtered.length} 句`;
+    this.els.favoriteGrid.innerHTML = filtered.map((f, i) => {
+      const num = f.lessonTitle.match(/\d+/)?.[0] || i + 1;
+      return `
+      <div class="unit-card" data-fav-idx="${this.favorites.indexOf(f)}" style="min-height:60px;align-items:flex-start;text-align:left;">
         <div class="unit-num" style="font-size:1rem;margin-bottom:4px;">${num}</div>
         <div class="unit-title" style="font-size:0.75rem;white-space:normal;line-height:1.3;">${f.sentence.substring(0, 30)}${f.sentence.length > 30 ? '...' : ''}</div>
       </div>`;
@@ -1051,6 +1101,13 @@ class App {
     // Play
     this.els.play.addEventListener('click', () => this.els.audio.paused ? this.els.audio.play() : this.els.audio.pause());
     
+    // 定时关闭
+    if (this.els.timer) {
+      this.els.timer.addEventListener('click', () => {
+        this.toggleTimer();
+      });
+    }
+    
     // Audio events
     this.els.audio.addEventListener('timeupdate', () => {
       this.highlight();
@@ -1213,6 +1270,34 @@ class App {
         }
       });
     }
+    
+    // 定时关闭方法
+    this.toggleTimer = function() {
+      const options = [0, 15, 30, 60];
+      const currentIdx = options.indexOf(this.timerMinutes);
+      const nextIdx = (currentIdx + 1) % options.length;
+      this.timerMinutes = options[nextIdx];
+      
+      this.updateTimerDisplay();
+      
+      if (this.timerMinutes === 0) {
+        toast.info('定时关闭已取消');
+      } else {
+        toast.info(`${this.timerMinutes}分钟后自动关闭`);
+      }
+    };
+    
+    this.updateTimerDisplay = function() {
+      if (!this.els.timerLabel) return;
+      
+      if (this.timerMinutes === 0) {
+        this.els.timerLabel.textContent = '关闭';
+        this.els.timer.classList.remove('active');
+      } else {
+        this.els.timerLabel.textContent = `${this.timerMinutes}分`;
+        this.els.timer.classList.add('active');
+      }
+    };
   }
 }
 

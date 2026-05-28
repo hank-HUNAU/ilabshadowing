@@ -348,6 +348,64 @@ class UserManager {
         ]
       );
     });
+    
+    // 检查首次使用，显示新手引导
+    this.checkFirstTime();
+  }
+  
+  // 检查是否首次使用
+  checkFirstTime() {
+    const hasOnboarded = localStorage.getItem('nce_onboarded');
+    if (!hasOnboarded) {
+      // 延迟显示，确保页面已加载
+      setTimeout(() => {
+        const dialog = document.getElementById('onboardingDialog');
+        if (dialog) {
+          dialog.showModal();
+        }
+      }, 500);
+    }
+  }
+  
+  // 显示引导步骤
+  showOnboardingStep(step) {
+    // 隐藏所有步骤
+    for (let i = 1; i <= 3; i++) {
+      const el = document.getElementById(`onboardingStep${i}`);
+      if (el) el.style.display = 'none';
+    }
+    
+    // 显示当前步骤
+    const current = document.getElementById(`onboardingStep${step}`);
+    if (current) current.style.display = 'block';
+    
+    // 聚焦输入框（第三步）
+    if (step === 3) {
+      setTimeout(() => {
+        document.getElementById('onboardingNickname')?.focus();
+      }, 100);
+    }
+  }
+  
+  // 完成引导
+  completeOnboarding() {
+    const nickname = document.getElementById('onboardingNickname').value.trim();
+    
+    if (!nickname || nickname.length < 2) {
+      toast.error('请输入有效的昵称（至少 2 个字符）');
+      return;
+    }
+    
+    // 保存用户信息
+    this.saveUserProfile(nickname, '', '', '👤');
+    
+    // 标记已完成
+    localStorage.setItem('nce_onboarded', 'true');
+    
+    // 关闭弹窗
+    document.getElementById('onboardingDialog').close();
+    
+    toast.success('欢迎加入！开始学习吧～');
   }
   
   // ========== 显示更新 ==========
@@ -615,3 +673,16 @@ class UserManager {
 
 /* 全局实例 */
 let userManager = null;
+
+// 全局暴露新手引导函数
+window.showOnboardingStep = function(step) {
+  if (userManager) {
+    userManager.showOnboardingStep(step);
+  }
+};
+
+window.completeOnboarding = function() {
+  if (userManager) {
+    userManager.completeOnboarding();
+  }
+};

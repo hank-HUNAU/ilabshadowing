@@ -67,6 +67,19 @@
         <h1 class="site-title">我的收藏</h1>
         <span id="favoriteCount" class="unit-count">0 课</span>
       </header>
+      
+      <!-- 搜索框 -->
+      <div class="favorite-search-bar">
+        <input type="text" id="favoriteSearch" placeholder="搜索收藏的句子..." 
+          style="width:100%;max-width:600px;padding:12px 20px 12px 44px;border:1px solid var(--border);border-radius:var(--radius-lg);font-size:0.95rem;background:var(--bg);color:var(--text);margin:16px auto;display:block"
+          oninput="app.filterFavorites(this.value)">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+          style="position:absolute;left:50%;transform:translateX(-50%);margin-top:28px;color:var(--text-tertiary)">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="M21 21l-4.35-4.35"/>
+        </svg>
+      </div>
+      
       <section id="favoriteGrid" class="unit-grid"></section>
     </main>
 
@@ -144,6 +157,14 @@
                 <path d="M21 13v2a4 4 0 01-4 4H3"/>
               </svg>
               <span id="repeatAllCount">3</span>
+            </button>
+            
+            <button id="timerBtn" class="ctrl-btn tag-btn" title="定时关闭">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+              <span id="timerLabel">关闭</span>
             </button>
             
             <button id="modeBtn" class="ctrl-btn tag-btn" title="单句循环">
@@ -466,6 +487,64 @@
           <section class="privacy-section" style="border-bottom:none">
             <p style="color:var(--text-tertiary);font-size:0.85rem">更新日期：2026 年 1 月 28 日</p>
           </section>
+        </div>
+      </div>
+    </dialog>
+    
+    <!-- 新手引导弹窗 -->
+    <dialog id="onboardingDialog" class="pwa-dialog">
+      <div class="pwa-dialog-content onboarding-content">
+        <div class="onboarding-step" id="onboardingStep1">
+          <div class="onboarding-icon">👋</div>
+          <h3>欢迎来到 Hankilab 学习中心</h3>
+          <p class="onboarding-desc">这是一款专为英语学习者设计的跟读训练工具，支持：</p>
+          <ul class="onboarding-features">
+            <li><span class="feature-icon">🎧</span> 单句循环跟读</li>
+            <li><span class="feature-icon">⭐</span> 收藏喜欢的句子</li>
+            <li><span class="feature-icon">📊</span> 追踪学习进度</li>
+            <li><span class="feature-icon">📱</span> 离线使用</li>
+          </ul>
+          <button class="onboarding-next" onclick="showOnboardingStep(2)">开始使用</button>
+        </div>
+        
+        <div class="onboarding-step" id="onboardingStep2" style="display:none">
+          <div class="onboarding-icon">🎯</div>
+          <h3>核心功能</h3>
+          <div class="onboarding-tips">
+            <div class="tip-card">
+              <div class="tip-icon">🔁</div>
+              <div class="tip-title">单句循环</div>
+              <div class="tip-desc">点击句子即可循环播放，支持自定义重复次数</div>
+            </div>
+            <div class="tip-card">
+              <div class="tip-icon">⭐</div>
+              <div class="tip-title">收藏句子</div>
+              <div class="tip-desc">点击每句右侧的星星收藏，在收藏页统一管理</div>
+            </div>
+            <div class="tip-card">
+              <div class="tip-icon">🎚️</div>
+              <div class="tip-title">速度调节</div>
+              <div class="tip-desc">0.5x-2.0x 六档速度，适应不同学习阶段</div>
+            </div>
+          </div>
+          <div class="onboarding-nav">
+            <button class="onboarding-prev" onclick="showOnboardingStep(1)">上一步</button>
+            <button class="onboarding-next" onclick="showOnboardingStep(3)">下一步</button>
+          </div>
+        </div>
+        
+        <div class="onboarding-step" id="onboardingStep3" style="display:none">
+          <div class="onboarding-icon">🎉</div>
+          <h3>准备就绪！</h3>
+          <p class="onboarding-desc">最后一步，设置您的昵称：</p>
+          <div class="onboarding-form">
+            <input type="text" id="onboardingNickname" placeholder="请输入昵称（至少 2 个字符）" maxlength="20">
+          </div>
+          <p class="onboarding-hint">稍后可以在用户中心完善更多信息</p>
+          <div class="onboarding-nav">
+            <button class="onboarding-prev" onclick="showOnboardingStep(2)">上一步</button>
+            <button class="onboarding-next" onclick="completeOnboarding()">开始学习</button>
+          </div>
         </div>
       </div>
     </dialog>
