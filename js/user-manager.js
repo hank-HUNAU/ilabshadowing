@@ -24,14 +24,27 @@ class UserManager {
     }
   }
   
-  saveUserProfile(enName, cnName, age) {
+  saveUserProfile(enName, cnName, ageRange, avatar = null) {
     this.userProfile = {
       enName: enName.trim(),
       cnName: cnName.trim(),
-      age: parseInt(age),
+      ageRange: ageRange,
+      avatar: avatar || this.userProfile?.avatar || '👤',
       createdAt: this.userProfile?.createdAt || new Date().toISOString().split('T')[0],
       updatedAt: new Date().toISOString()
     };
+    localStorage.setItem(LS.USER_PROFILE, JSON.stringify(this.userProfile));
+    this.updateDisplay();
+  }
+  
+  // 保存头像
+  saveAvatar(emoji) {
+    if (!this.userProfile) {
+      this.userProfile = { avatar: emoji, createdAt: new Date().toISOString().split('T')[0] };
+    } else {
+      this.userProfile.avatar = emoji;
+      this.userProfile.updatedAt = new Date().toISOString();
+    }
     localStorage.setItem(LS.USER_PROFILE, JSON.stringify(this.userProfile));
     this.updateDisplay();
   }
@@ -301,6 +314,14 @@ class UserManager {
       this.saveUserInfoFromForm();
     });
     
+    document.getElementById('avatarSelector')?.addEventListener('click', () => {
+      document.getElementById('avatarPickerDialog').showModal();
+    });
+    
+    document.getElementById('closeAvatarPicker')?.addEventListener('click', () => {
+      document.getElementById('avatarPickerDialog').close();
+    });
+    
     document.getElementById('exportData')?.addEventListener('click', () => {
       this.exportData();
     });
@@ -327,6 +348,24 @@ class UserManager {
         ]
       );
     });
+  }
+  
+  // ========== 显示更新 ==========
+  updateDisplay() {
+    const displayNameEl = document.getElementById('userDisplayName');
+    if (displayNameEl) {
+      if (this.userProfile) {
+        const avatar = this.userProfile.avatar || '👤';
+        const name = this.userProfile.enName || this.userProfile.cnName || '用户';
+        displayNameEl.innerHTML = `<span style="margin-right:4px">${avatar}</span>${name}`;
+        displayNameEl.style.display = '';
+      } else {
+        displayNameEl.textContent = '';
+        displayNameEl.style.display = 'none';
+      }
+    }
+    
+    this.updateFavCount();
   }
   
   showConfirm(title, message, buttons) {
@@ -357,28 +396,54 @@ class UserManager {
   saveUserInfoFromForm() {
     const enName = document.getElementById('userEnName').value.trim();
     const cnName = document.getElementById('userCnName').value.trim();
-    const age = document.getElementById('userAge').value.trim();
+    const ageRange = document.getElementById('userAgeRange').value;
+    const avatar = this.userProfile?.avatar || '👤';
     
     if (!enName || enName.length < 2) {
-      toast.error('请输入有效的英文名（至少 2 个字符）');
+      toast.error('请输入有效的昵称（至少 2 个字符）');
       document.getElementById('userEnName').focus();
       return;
     }
     
-    if (!cnName || cnName.length < 2) {
-      toast.error('请输入有效的中文名（至少 2 个字符）');
-      document.getElementById('userCnName').focus();
-      return;
-    }
-    
-    if (!age || parseInt(age) < 5 || parseInt(age) > 99) {
-      toast.error('请输入有效的年龄（5-99 岁）');
-      document.getElementById('userAge').focus();
-      return;
-    }
-    
-    this.saveUserProfile(enName, cnName, age);
+    this.saveUserProfile(enName, cnName, ageRange, avatar);
     toast.success('用户信息保存成功！');
+  }
+  
+  // 初始化头像选择器
+  initAvatarPicker() {
+    const emojis = [
+      '👤', '👦', '👧', '👨', '👩', '👴', '👵',
+      '🧑', '🧒', '👶', '🦊', '🐼', '🐨', '🐯',
+      '🦁', '🐸', '🐵', '🐔', '🦄', '🐝',
+      '🤖', '👽', '🎃', '🌟', '🌈', '🔮'
+    ];
+    
+    const grid = document.getElementById('emojiGrid');
+    if (!grid) return;
+    
+    grid.innerHTML = emojis.map(emoji => `
+      <div class="emoji-item" data-emoji="${emoji}">${emoji}</div>
+    `).join('');
+    
+    // 点击选择
+    grid.addEventListener('click', (e) => {
+      const item = e.target.closest('.emoji-item');
+      if (!item) return;
+      
+      const emoji = item.dataset.emoji;
+      this.saveAvatar(emoji);
+      document.getElementById('avatarPreview').textContent = emoji;
+      document.getElementById('avatarPickerDialog').close();
+      toast.success(`头像已设置为 ${emoji}`);
+    });
+    
+    // 当前选中状态
+    const currentAvatar = this.userProfile?.avatar || '👤';
+    grid.querySelectorAll('.emoji-item').forEach(item => {
+      if (item.dataset.emoji === currentAvatar) {
+        item.classList.add('selected');
+      }
+    });
   }
   
   showUserCenter() {
@@ -387,12 +452,16 @@ class UserManager {
     if (this.userProfile) {
       document.getElementById('userEnName').value = this.userProfile.enName || '';
       document.getElementById('userCnName').value = this.userProfile.cnName || '';
-      document.getElementById('userAge').value = this.userProfile.age || '';
+      document.getElementById('userAgeRange').value = this.userProfile.ageRange || '';
+      document.getElementById('avatarPreview').textContent = this.userProfile.avatar || '👤';
     }
     
     this.updateStatsDisplay();
     this.updateCourseSelect();
     this.updateProgressDisplay();
+    this.updateLearningCalendar();
+    this.updateAchievements();
+    this.initAvatarPicker();
     
     dialog.showModal();
   }

@@ -1219,6 +1219,60 @@ class App {
 document.addEventListener('DOMContentLoaded', () => {
   // 初始化用户管理
   userManager = new UserManager();
+  
+  // 初始化移动端手势
+  initMobileGestures();
+  
   // 初始化应用
   new App().init();
 });
+
+// 移动端手势支持
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+
+function initMobileGestures() {
+  if (window.innerWidth <= 768) {
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+  }
+}
+
+function handleTouchStart(e) {
+  touchStartX = e.changedTouches[0].screenX;
+  touchStartY = e.changedTouches[0].screenY;
+}
+
+function handleTouchEnd(e) {
+  touchEndX = e.changedTouches[0].screenX;
+  touchEndY = e.changedTouches[0].screenY;
+  
+  handleSwipe();
+}
+
+function handleSwipe() {
+  const diffX = touchEndX - touchStartX;
+  const diffY = touchEndY - touchStartY;
+  
+  // 水平滑动（切换课程）
+  if (Math.abs(diffX) > 50 && Math.abs(diffY) < 30) {
+    const appInstance = window.app;
+    if (!appInstance || !appInstance.els?.dlg?.open) return;
+    
+    if (diffX > 0) {
+      // 向右滑动 - 上一课
+      if (appInstance.idx > 0) {
+        appInstance.open(appInstance.idx - 1);
+        toast.info('上一课');
+      }
+    } else {
+      // 向左滑动 - 下一课
+      if (appInstance.idx < appInstance.units.length - 1) {
+        appInstance.open(appInstance.idx + 1);
+        toast.info('下一课');
+      }
+    }
+  }
+}
