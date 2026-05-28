@@ -986,12 +986,6 @@ class App {
       });
     }
     
-    // Line click
-    this.els.area.addEventListener('click', e => {
-      const l = e.target.closest('.line');
-      if (l) this.playLine(+l.dataset.i);
-    });
-    
     // Play
     this.els.play.addEventListener('click', () => this.els.audio.paused ? this.els.audio.play() : this.els.audio.pause());
     
