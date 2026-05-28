@@ -338,7 +338,8 @@ class UserManager {
     
     fetch('data.json')
       .then(r => r.json())
-      .then(books => {
+      .then(data => {
+        const books = data.books || [];
         books.forEach(book => {
           const isSelected = selected === null || selected.includes(book.key);
           
@@ -347,7 +348,7 @@ class UserManager {
           item.dataset.key = book.key;
           item.innerHTML = `
             <div class="course-select-checkbox"></div>
-            <span class="course-select-label">${book.name}</span>
+            <span class="course-select-label">${book.name || book.title}</span>
           `;
           
           item.addEventListener('click', () => {
@@ -362,27 +363,23 @@ class UserManager {
   toggleCourseSelect(key) {
     let selected = this.getSelectedCourses();
     
-    // 如果是 null，说明之前是全选状态，现在要排除一个
     if (selected === null) {
       fetch('data.json')
         .then(r => r.json())
-        .then(books => {
+        .then(data => {
+          const books = data.books || [];
           selected = books.map(b => b.key).filter(k => k !== key);
           this.saveSelectedCourses(selected);
           this.updateCourseSelect();
         });
     } else {
-      // 已选列表中切换
       const idx = selected.indexOf(key);
       if (idx >= 0) {
-        // 取消选择
         selected.splice(idx, 1);
-        // 如果全部取消，重置为 null（全选）
         if (selected.length === 0) {
           selected = null;
         }
       } else {
-        // 添加选择
         selected.push(key);
       }
       this.saveSelectedCourses(selected);

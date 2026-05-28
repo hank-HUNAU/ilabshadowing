@@ -375,13 +375,11 @@ class App {
 
   async loadBooks() {
     try {
-      const d = await fetch('data.json').then(r => r.json());
-      const allBooks = d.books || [];
+      const data = await fetch('data.json').then(r => r.json());
+      const allBooks = data.books || [];
       
-      // 获取用户选择的课程
       const selected = userManager?.getSelectedCourses() || null;
       
-      // 过滤显示的课程
       if (selected === null) {
         this.books = allBooks;
       } else {
