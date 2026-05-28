@@ -162,12 +162,12 @@
             <rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
           </svg>
         </div>
-        <h3>添加到主屏幕</h3>
-        <p>获取更便捷的学习体验</p>
+        <h3>安装应用</h3>
+        <p>将应用固定到任务栏，快速启动</p>
         <div class="pwa-buttons">
           <button id="pwaInstallCancel" class="pwa-btn-secondary">稍后再说</button>
           <button id="pwaInstallConfirm" class="pwa-btn-primary">
-            立即添加
+            立即安装
           </button>
         </div>
       </div>
@@ -202,7 +202,8 @@
   <!-- PWA & 更新逻辑 -->
   <script>
     (function() {
-      let deferredPrompt;
+      let deferredPrompt = null;
+      let swRegistered = false;
       const LS = {
         PWA_DISMISSED: 'nce_pwa_dismissed',
         VERSION: 'nce_app_version'
@@ -215,17 +216,43 @@
         return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
       }
       
-      // 检测是否支持 PWA 安装
+      // 检测是否支持桌面 PWA
+      function isDesktopPWA() {
+        const isDesktop = !/Mobile|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
+        const isSupportedBrowser = /Chrome|Edge/.test(navigator.userAgent);
+        return isDesktop && isSupportedBrowser;
+      }
+      
+      // 检测是否可安装 PWA
       function isPWAInstallable() {
-        return !!deferredPrompt || isIOS();
+        return !!deferredPrompt || isIOS() || (swRegistered && isDesktopPWA());
+      }
+      
+      // 注册 Service Worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => {
+            console.log('[SW] Service Worker registered:', reg.scope);
+            swRegistered = true;
+            
+            // 检查更新状态
+            if (reg.active && !reg.active.scriptURL.includes('sw.js')) {
+              console.log('[SW] Service Worker updated');
+            }
+          })
+          .catch(err => {
+            console.error('[SW] Service Worker registration failed:', err);
+          });
       }
       
       window.addEventListener('load', function() {
         // 延迟显示 PWA 安装提示（3 秒后）
         if (!localStorage.getItem(LS.PWA_DISMISSED) && isPWAInstallable()) {
           setTimeout(function() {
-            if (!document.getElementById('pwaInstallDialog').open) {
-              document.getElementById('pwaInstallDialog').showModal();
+            const dialog = document.getElementById('pwaInstallDialog');
+            if (dialog && !dialog.open) {
+              console.log('[PWA] Showing install dialog');
+              dialog.showModal();
             }
           }, 3000);
         }
@@ -234,28 +261,44 @@
         const updateShown = localStorage.getItem(UPDATE_SHOWN_KEY);
         if (!updateShown) {
           setTimeout(function() {
-            document.getElementById('updateDialog').showModal();
-            localStorage.setItem(UPDATE_SHOWN_KEY, 'true');
-            localStorage.setItem(LS.VERSION, APP_VERSION);
+            const dialog = document.getElementById('updateDialog');
+            if (dialog && !dialog.open) {
+              console.log('[Update] Showing update dialog');
+              dialog.showModal();
+              localStorage.setItem(UPDATE_SHOWN_KEY, 'true');
+              localStorage.setItem(LS.VERSION, APP_VERSION);
+            }
           }, 1000);
         }
+        
+        // 日志：当前状态
+        console.log('[PWA] dismissed:', localStorage.getItem(LS.PWA_DISMISSED));
+        console.log('[PWA] deferredPrompt:', !!deferredPrompt);
+        console.log('[PWA] swRegistered:', swRegistered);
+        console.log('[PWA] isDesktopPWA:', isDesktopPWA());
+        console.log('[PWA] isIOS:', isIOS());
       });
       
       // PWA 安装确认
       document.getElementById('pwaInstallConfirm')?.addEventListener('click', async function() {
         if (deferredPrompt) {
-          // Android Chrome: 使用原生安装
+          // Android/Desktop Chrome: 使用原生安装
           deferredPrompt.prompt();
           const choiceResult = await deferredPrompt.userChoice;
-          console.log('用户选择：', choiceResult.outcome);
+          console.log('[PWA] User choice:', choiceResult.outcome);
           deferredPrompt = null;
           document.getElementById('pwaInstallDialog').close();
           if (choiceResult.outcome === 'accepted') {
             localStorage.setItem(LS.PWA_DISMISSED, 'true');
           }
         } else if (isIOS()) {
-          // iOS: 显示指导，用户需要手动操作
+          // iOS: 显示指导
           alert('在 Safari 浏览器中：\n\n1. 点击底部工具栏的"分享"按钮（正方形带箭头）\n2. 向下滚动并点击"添加到主屏幕"\n3. 点击右上角"添加"');
+          localStorage.setItem(LS.PWA_DISMISSED, 'true');
+          document.getElementById('pwaInstallDialog').close();
+        } else if (isDesktopPWA()) {
+          // 桌面浏览器手动安装指导
+          alert('在浏览器中：\n\n1. 点击地址栏右侧的"安装"按钮（💡 或 📥 图标）\n2. 或点击浏览器菜单 → 应用 → 安装此应用');
           localStorage.setItem(LS.PWA_DISMISSED, 'true');
           document.getElementById('pwaInstallDialog').close();
         }
@@ -266,42 +309,35 @@
         localStorage.setItem(LS.PWA_DISMISSED, 'true');
         deferredPrompt = null;
         document.getElementById('pwaInstallDialog').close();
+        console.log('[PWA] Dismissed by user');
       });
       
       // 关闭更新提示
       document.getElementById('updateClose')?.addEventListener('click', function() {
         document.getElementById('updateDialog').close();
+        console.log('[Update] Update dialog closed');
       });
       
-      // 监听 PWA 安装事件（Android Chrome）
+      // 监听 PWA 安装事件（Chrome/Edge）
       window.addEventListener('beforeinstallprompt', function(e) {
         e.preventDefault();
         deferredPrompt = e;
-        console.log('[PWA] beforeinstallprompt triggered');
+        console.log('[PWA] beforeinstallprompt event received');
+        
+        // 如果弹窗还未显示，立即显示
+        const dialog = document.getElementById('pwaInstallDialog');
+        if (dialog && !dialog.open && !localStorage.getItem(LS.PWA_DISMISSED)) {
+          dialog.showModal();
+        }
       });
       
       // PWA 安装成功后
       window.addEventListener('appinstalled', function() {
-        console.log('[PWA] App installed');
+        console.log('[PWA] App installed successfully');
         localStorage.setItem(LS.PWA_DISMISSED, 'true');
         deferredPrompt = null;
       });
     })();
-  </script>
-  
-  <!-- 注册 Service Worker -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => {
-            console.log('[SW] Service Worker registered:', reg.scope);
-          })
-          .catch(err => {
-            console.log('[SW] Service Worker registration failed:', err);
-          });
-      });
-    }
   </script>
 </body>
 </html>

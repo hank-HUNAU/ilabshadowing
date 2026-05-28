@@ -1,15 +1,19 @@
 // Service Worker for ilabshadowing
-const CACHE_NAME = 'ilabshadowing-v2';
-const AUDIO_CACHE = 'ilabshadowing-audio-v2';
+const CACHE_NAME = 'ilabshadowing-v3';
+const AUDIO_CACHE = 'ilabshadowing-audio-v3';
 
-// 需要缓存的静态资源
+// 获取当前作用域路径（处理子目录部署）
+const SCOPE = self.registration ? self.registration.scope : '/';
+const BASE_PATH = SCOPE.replace(/\/$/, '').split('/').slice(0, -1).join('/') || '';
+
+// 需要缓存的静态资源（使用相对路径）
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/js/main.js',
-  '/css/style.css',
-  '/data.json',
-  '/manifest.json'
+  './',
+  './index.html',
+  './js/main.js',
+  './css/style.css',
+  './data.json',
+  './manifest.json'
 ];
 
 // 安装：缓存静态资源

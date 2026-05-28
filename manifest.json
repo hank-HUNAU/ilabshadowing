@@ -3,10 +3,13 @@
   "short_name": "学习中心",
   "description": "新概念英语第一册 AI 跟读学习站",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay"],
   "background_color": "#f8fafc",
   "theme_color": "#3b82f6",
   "orientation": "portrait-primary",
+  "categories": ["education", "productivity"],
   "icons": [
     {
       "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%233b82f6'/><text x='256' y='320' font-size='280' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>N</text></svg>",
@@ -19,6 +22,26 @@
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%233b82f6'/><text x='256' y='320' font-size='280' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>N</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "开始学习",
+      "short_name": "学习",
+      "description": "打开课本选择页面",
+      "url": "/",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%233b82f6'/><text x='256' y='320' font-size='280' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>N</text></svg>",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }
