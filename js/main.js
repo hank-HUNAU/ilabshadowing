@@ -300,11 +300,17 @@ class App {
       svg.setAttribute('fill', '#fbbf24');
       svg.setAttribute('stroke', '#fbbf24');
       btn.setAttribute('title', '取消收藏');
+      btn.setAttribute('aria-label', '取消收藏');
+      btn.setAttribute('aria-pressed', 'true');
+      btn.classList.add('favorite-star', 'active');
     } else {
       btn.classList.remove('favorited');
       svg.setAttribute('fill', 'none');
       svg.setAttribute('stroke', 'currentColor');
       btn.setAttribute('title', '收藏本句');
+      btn.setAttribute('aria-label', '收藏本句');
+      btn.setAttribute('aria-pressed', 'false');
+      btn.classList.remove('favorite-star', 'active');
     }
   }
 

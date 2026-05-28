@@ -153,6 +153,84 @@ class UserManager {
   }
   
   // ========== 数据导出 ==========
+  exportData() {
+    // 导出完整备份（JSON 格式）
+    const backup = {
+      version: '1.0',
+      exportDate: new Date().toISOString(),
+      data: {}
+    };
+    
+    // 导出所有 localStorage 数据
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('nce_')) {
+        try {
+          const value = localStorage.getItem(key);
+          JSON.parse(value); // 验证是否为 JSON
+          backup.data[key] = value;
+        } catch (e) {
+          backup.data[key] = localStorage.getItem(key);
+        }
+      }
+    });
+    
+    const json = JSON.stringify(backup, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `学习备份_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    toast.success('数据已导出到备份文件');
+  }
+  
+  // 导入数据
+  importData(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const backup = JSON.parse(e.target.result);
+        
+        if (!backup.version || !backup.data) {
+          throw new Error('无效的备份文件格式');
+        }
+        
+        // 导入数据
+        Object.keys(backup.data).forEach(key => {
+          localStorage.setItem(key, backup.data[key]);
+        });
+        
+        toast.success('数据导入成功，页面将刷新');
+        setTimeout(() => {
+          location.reload();
+        }, 1500);
+      } catch (err) {
+        console.error('Import error:', err);
+        toast.error(`导入失败：${err.message}`);
+      }
+    };
+    reader.onerror = () => {
+      toast.error('文件读取失败');
+    };
+    reader.readAsText(file);
+  }
+  
+  // 触发文件选择
+  triggerImport() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        this.importData(file);
+      }
+    };
+    input.click();
+  }
+  
   exportToExcel() {
     const rows = [
       ['Hankilab 学习中心 - 学习记录导出'],
@@ -224,14 +302,19 @@ class UserManager {
     });
     
     document.getElementById('exportData')?.addEventListener('click', () => {
-      this.showConfirm(
-        '导出数据',
-        '请选择导出格式：',
-        [
-          { label: 'Excel (CSV)', action: () => this.exportToExcel() },
-          { label: 'PDF（开发中）', action: () => this.exportToPDF() }
-        ]
-      );
+      this.exportData();
+    });
+    
+    document.getElementById('importData')?.addEventListener('click', () => {
+      this.triggerImport();
+    });
+    
+    document.getElementById('privacyPolicy')?.addEventListener('click', () => {
+      document.getElementById('privacyDialog').showModal();
+    });
+    
+    document.getElementById('closePrivacy')?.addEventListener('click', () => {
+      document.getElementById('privacyDialog').close();
     });
     
     document.getElementById('clearData')?.addEventListener('click', () => {

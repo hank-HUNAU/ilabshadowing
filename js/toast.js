@@ -116,6 +116,51 @@ class LoadingManager {
 const toast = new ToastManager();
 const loading = new LoadingManager();
 
+/* 按钮波纹效果 */
+function initButtonRipple() {
+  document.querySelectorAll('.ctrl-btn, .pwa-btn-primary, .pwa-btn-secondary, .setting-btn, .empty-state-action').forEach(btn => {
+    btn.classList.add('btn-ripple');
+  });
+}
+
+/* 页面加载动画 */
+function initPageAnimations() {
+  document.querySelectorAll('.book-card, .unit-card, .stat-card, .course-select-item, .progress-item').forEach(card => {
+    card.classList.add('card-hover');
+  });
+}
+
+/* 增强键盘导航 */
+function initKeyboardNav() {
+  // ESC 关闭所有弹窗
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('dialog[open]').forEach(dlg => {
+        dlg.close();
+      });
+    }
+  });
+  
+  // Tab 键导航优化
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      document.body.classList.add('keyboard-nav');
+    }
+  });
+  
+  document.addEventListener('mousedown', () => {
+    document.body.classList.remove('keyboard-nav');
+  });
+}
+
+// 初始化
+document.addEventListener('DOMContentLoaded', () => {
+  initButtonRipple();
+  initPageAnimations();
+  initKeyboardNav();
+});
+
 // 全局暴露
 window.toast = toast;
 window.loading = loading;
+window.initButtonRipple = initButtonRipple;
