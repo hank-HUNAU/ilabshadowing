@@ -857,18 +857,20 @@ class App {
     
     // 歌词区域点击事件（包含收藏按钮）
     this.els.area.addEventListener('click', e => {
-      const line = e.target.closest('.line');
       const favoriteBtn = e.target.closest('.line-favorite');
       
-      // 如果点击的是收藏按钮
+      // 如果点击的是收藏按钮，只切换收藏状态，不播放
       if (favoriteBtn) {
+        e.preventDefault();
         e.stopPropagation();
         const lineIdx = +favoriteBtn.dataset.lineI;
         this.toggleLineFavorite(lineIdx);
+        console.log('[Favorite Click] Toggled line', lineIdx, '- no audio play');
         return;
       }
       
       // 否则播放该句
+      const line = e.target.closest('.line');
       if (line) {
         this.playLine(+line.dataset.i);
       }
