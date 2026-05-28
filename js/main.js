@@ -350,12 +350,13 @@ class App {
   renderFavorites() {
     if (this.favorites.length === 0) {
       this.els.favoriteGrid.innerHTML = `
-        <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-secondary)">
-          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;margin-bottom:16px">
+        <div class="empty-state">
+          <svg class="empty-state-icon" viewBox="0 0 24 24" width="80" height="80" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
           </svg>
-          <p>暂无收藏</p>
-          <p style="font-size:0.85rem;margin-top:8px">播放时点击 ⭐ 收藏喜欢的句子</p>
+          <h3 class="empty-state-title">暂无收藏</h3>
+          <p class="empty-state-desc">播放课文时点击句子右侧的星星图标，收藏喜欢的句子</p>
+          <button class="empty-state-action" onclick="app.showBookPage()">去浏览课程</button>
         </div>
       `;
       this.els.favoriteCount.textContent = '0 句';
@@ -387,12 +388,34 @@ class App {
       }
       
       if (this.books.length === 0) {
-        console.error('[App] No books found in data.json');
+        this.els.bookGrid.innerHTML = `
+          <div class="empty-state">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" width="80" height="80" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+            </svg>
+            <h3 class="empty-state-title">没有显示的课程</h3>
+            <p class="empty-state-desc">您已隐藏所有课程，请在用户中心重新选择</p>
+            <button class="empty-state-action" onclick="document.getElementById('userCenterBtn').click()">去选择课程</button>
+          </div>
+        `;
+        return;
       }
     } catch (e) { 
       console.error('[App] Failed to load data.json:', e);
       this.books = []; 
-      this.els.bookGrid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary)">加载数据失败，请刷新页面重试</div>';
+      this.els.bookGrid.innerHTML = `
+        <div class="empty-state">
+          <svg class="empty-state-icon" viewBox="0 0 24 24" width="80" height="80" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+          <h3 class="empty-state-title">加载失败</h3>
+          <p class="empty-state-desc">数据加载失败，请刷新页面重试</p>
+          <button class="empty-state-action" onclick="location.reload()">刷新页面</button>
+        </div>
+      `;
+      return;
     }
   }
 

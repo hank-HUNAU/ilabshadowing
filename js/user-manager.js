@@ -193,7 +193,7 @@ class UserManager {
   }
   
   exportToPDF() {
-    alert('PDF 导出功能开发中，目前请使用 Excel (CSV) 导出');
+    toast.warning('PDF 导出功能开发中，目前请使用 Excel (CSV) 导出');
   }
   
   // ========== 清除数据 ==========
@@ -277,25 +277,25 @@ class UserManager {
     const age = document.getElementById('userAge').value.trim();
     
     if (!enName || enName.length < 2) {
-      alert('请输入有效的英文名（至少 2 个字符）');
+      toast.error('请输入有效的英文名（至少 2 个字符）');
       document.getElementById('userEnName').focus();
       return;
     }
     
     if (!cnName || cnName.length < 2) {
-      alert('请输入有效的中文名（至少 2 个字符）');
+      toast.error('请输入有效的中文名（至少 2 个字符）');
       document.getElementById('userCnName').focus();
       return;
     }
     
     if (!age || parseInt(age) < 5 || parseInt(age) > 99) {
-      alert('请输入有效的年龄（5-99 岁）');
+      toast.error('请输入有效的年龄（5-99 岁）');
       document.getElementById('userAge').focus();
       return;
     }
     
     this.saveUserProfile(enName, cnName, age);
-    alert('用户信息保存成功！');
+    toast.success('用户信息保存成功！');
   }
   
   showUserCenter() {
