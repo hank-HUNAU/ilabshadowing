@@ -11,7 +11,10 @@ const LS = {
   LAST_PAGE: 'nce_last_page',
   FAVORITES: 'nce_favorites',
   REPEAT_SINGLE: 'nce_repeat_single',  // 单句重复次数
-  REPEAT_ALL: 'nce_repeat_all'         // 全文重复次数
+  REPEAT_ALL: 'nce_repeat_all',         // 全文重复次数
+  USER_PROFILE: 'nce_user_profile',     // 用户信息
+  LEARNING_STATS: 'nce_learning_stats', // 学习统计
+  PROGRESS: 'nce_progress'              // 课程进度
 };
 
 /* 音频源配置 - 一键切换 */
@@ -373,7 +376,18 @@ class App {
   async loadBooks() {
     try {
       const d = await fetch('data.json').then(r => r.json());
-      this.books = d.books || [];
+      const allBooks = d.books || [];
+      
+      // 获取用户选择的课程
+      const selected = userManager?.getSelectedCourses() || null;
+      
+      // 过滤显示的课程
+      if (selected === null) {
+        this.books = allBooks;
+      } else {
+        this.books = allBooks.filter(b => selected.includes(b.key));
+      }
+      
       if (this.books.length === 0) {
         console.error('[App] No books found in data.json');
       }
@@ -588,6 +602,11 @@ class App {
     this.reset();
     this.hideFavoriteToolbar(); // 隐藏收藏工具栏
     
+    // 开始学习计时
+    if (userManager) {
+      userManager.startStudySession();
+    }
+    
     // 先显示弹窗（不等待 LRC 加载）
     this.els.dlg.showModal();
     
@@ -768,6 +787,10 @@ class App {
       // 全部重复完成，停止播放
       this.els.audio.pause();
       this.allRepeatCount = 0;
+      // 更新课程进度
+      if (userManager) {
+        userManager.updateProgress(this.key, this.idx, this.repeatAll);
+      }
     }
   }
   
@@ -949,7 +972,19 @@ class App {
     });
     
     // Close
-    this.els.close.addEventListener('click', () => { this.els.dlg.close(); this.els.audio.pause(); });
+    this.els.close.addEventListener('click', () => { 
+      // 结束学习计时
+      if (userManager) {
+        userManager.endStudySession();
+        // 更新课程进度
+        const targetRepeat = this.mode === 'single' 
+          ? REPEAT_COUNTS[this.singleRepeatIdx] 
+          : REPEAT_COUNTS[this.allRepeatIdx];
+        userManager.updateProgress(this.key, this.idx, targetRepeat);
+      }
+      this.els.dlg.close(); 
+      this.els.audio.pause(); 
+    });
     
     // Nav
     this.els.prev.addEventListener('click', () => {
@@ -1029,6 +1064,10 @@ class App {
               } else {
                 // 重复完成，停止播放
                 this.bound = null;
+                // 更新课程进度
+                if (userManager) {
+                  userManager.updateProgress(this.key, this.idx, this.repeatSingle);
+                }
               }
             }
           }
@@ -1052,6 +1091,10 @@ class App {
           } else {
             this.bound = null;
             this.els.audio.pause();
+            // 更新课程进度
+            if (userManager) {
+              userManager.updateProgress(this.key, this.idx, this.repeatSingle);
+            }
           }
         }
       }
@@ -1111,7 +1154,19 @@ class App {
     });
     
     // ESC
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && this.els.dlg.open) this.els.dlg.close(); });
+    document.addEventListener('keydown', e => { 
+      if (e.key === 'Escape' && this.els.dlg.open) {
+        // 结束学习计时
+        if (userManager) {
+          userManager.endStudySession();
+          const targetRepeat = this.mode === 'single' 
+            ? REPEAT_COUNTS[this.singleRepeatIdx] 
+            : REPEAT_COUNTS[this.allRepeatIdx];
+          userManager.updateProgress(this.key, this.idx, targetRepeat);
+        }
+        this.els.dlg.close(); 
+      } 
+    });
     
     // 键盘快捷键（仅桌面端）
     if (window.innerWidth > 768) {
@@ -1134,4 +1189,9 @@ class App {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => new App().init());
+document.addEventListener('DOMContentLoaded', () => {
+  // 初始化用户管理
+  userManager = new UserManager();
+  // 初始化应用
+  new App().init();
+});
