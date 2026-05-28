@@ -611,6 +611,127 @@ body {
 body.hide-cn .line-cn { display: none; }
 body.hide-en .line-en { display: none; }
 
+/* PWA 弹窗样式 */
+.pwa-dialog {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: auto;
+}
+
+.pwa-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+}
+
+.pwa-dialog-content {
+  background: var(--card-solid);
+  border-radius: var(--radius-xl);
+  padding: 40px 32px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border);
+}
+
+.pwa-icon {
+  margin-bottom: 20px;
+}
+
+.pwa-dialog h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.pwa-dialog p {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.update-list {
+  text-align: left;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin: 20px 0 24px;
+  list-style: none;
+}
+
+.update-list li {
+  padding: 8px 0;
+  font-size: 0.95rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.update-list li:first-child {
+  padding-top: 0;
+}
+
+.update-list li:last-child {
+  padding-bottom: 0;
+}
+
+.pwa-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.pwa-btn-primary {
+  background: var(--accent-gradient);
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.pwa-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.pwa-btn-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  padding: 12px 32px;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pwa-btn-secondary:hover {
+  background: var(--bg-secondary);
+  color: var(--text);
+}
+
+@media (max-width: 767px) {
+  .pwa-dialog-content {
+    padding: 32px 24px;
+    width: 95%;
+  }
+  
+  .pwa-buttons {
+    flex-direction: column;
+  }
+  
+  .pwa-btn-primary, .pwa-btn-secondary {
+    width: 100%;
+  }
+}
+
 /* 底部控制栏 */
 .player-footer {
   padding: 16px 20px;
