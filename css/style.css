@@ -611,7 +611,7 @@ body {
 body.hide-cn .line-cn { display: none; }
 body.hide-en .line-en { display: none; }
 
-/* PWA 弹窗样式 */
+/* PWA 弹窗样式 - 苹果 OS 简约风格 */
 .pwa-dialog {
   background: transparent;
   border: none;
@@ -620,116 +620,199 @@ body.hide-en .line-en { display: none; }
 }
 
 .pwa-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(5px);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .pwa-dialog-content {
-  background: var(--card-solid);
-  border-radius: var(--radius-xl);
-  padding: 40px 32px;
-  max-width: 420px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 28px;
+  max-width: 380px;
   width: 90%;
   text-align: center;
-  box-shadow: var(--shadow-xl);
-  border: 1px solid var(--border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
 }
 
 .pwa-icon {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  opacity: 0.9;
 }
 
 .pwa-dialog h3 {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 700;
-  margin-bottom: 16px;
-  color: var(--text);
+  margin-bottom: 12px;
+  color: #1d1d1f;
+  letter-spacing: -0.01em;
 }
 
 .pwa-dialog p {
-  font-size: 1rem;
-  color: var(--text-secondary);
-  margin-bottom: 24px;
+  font-size: 0.9rem;
+  color: #6e6e73;
+  margin-bottom: 20px;
+  line-height: 1.4;
 }
 
 .update-list {
   text-align: left;
-  background: var(--bg-secondary);
-  border-radius: var(--radius-lg);
-  padding: 20px;
-  margin: 20px 0 24px;
+  background: transparent;
+  border-radius: 12px;
+  padding: 0;
+  margin: 16px 0 20px;
   list-style: none;
 }
 
 .update-list li {
-  padding: 8px 0;
-  font-size: 0.95rem;
-  color: var(--text);
-  line-height: 1.5;
-}
-
-.update-list li:first-child {
-  padding-top: 0;
+  padding: 10px 0;
+  font-size: 0.9rem;
+  color: #1d1d1f;
+  line-height: 1.4;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
 }
 
 .update-list li:last-child {
-  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.update-list li::before {
+  content: '✓';
+  color: #007aff;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.update-list strong {
+  font-weight: 600;
 }
 
 .pwa-buttons {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   justify-content: center;
+  margin-top: 20px;
 }
 
 .pwa-btn-primary {
-  background: var(--accent-gradient);
+  background: #007aff;
   color: white;
   border: none;
-  padding: 12px 32px;
-  border-radius: var(--radius-md);
-  font-size: 1rem;
+  padding: 12px 28px;
+  border-radius: 12px;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
 }
 
 .pwa-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  background: #0056b3;
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.pwa-btn-primary:active {
+  transform: scale(0.98);
 }
 
 .pwa-btn-secondary {
   background: transparent;
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
-  padding: 12px 32px;
-  border-radius: var(--radius-md);
-  font-size: 1rem;
+  color: #007aff;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 12px;
+  font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .pwa-btn-secondary:hover {
-  background: var(--bg-secondary);
-  color: var(--text);
+  background: rgba(0, 122, 255, 0.08);
+}
+
+/* PWA 安装提示 - 右下角弹窗 */
+#pwaInstallDialog {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  left: auto;
+  top: auto;
+  margin: 0;
+  max-width: 340px;
+  width: calc(100% - 40px);
+}
+
+#pwaInstallDialog::backdrop {
+  background: transparent;
+}
+
+#pwaInstallDialog .pwa-dialog-content {
+  padding: 24px;
+  border-radius: 16px;
+}
+
+#pwaInstallDialog .pwa-icon {
+  margin-bottom: 12px;
+}
+
+#pwaInstallDialog h3 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+#pwaInstallDialog p {
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+#pwaInstallDialog .pwa-buttons {
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+#pwaInstallDialog .pwa-btn-primary,
+#pwaInstallDialog .pwa-btn-secondary {
+  width: 100%;
+  padding: 10px 20px;
+  font-size: 0.9rem;
 }
 
 @media (max-width: 767px) {
   .pwa-dialog-content {
-    padding: 32px 24px;
-    width: 95%;
+    padding: 24px 20px;
+    width: calc(100% - 40px);
+    max-width: none;
   }
-  
-  .pwa-buttons {
-    flex-direction: column;
+
+  #pwaInstallDialog {
+    bottom: 16px;
+    right: 16px;
+    left: 16px;
+    width: calc(100% - 32px);
   }
-  
-  .pwa-btn-primary, .pwa-btn-secondary {
-    width: 100%;
+
+  #updateDialog .pwa-dialog-content {
+    width: calc(100% - 32px);
+    max-width: none;
   }
+}
+
+/* 更新弹窗居中显示 */
+#updateDialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
 }
 
 /* 底部控制栏 */
