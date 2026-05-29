@@ -280,29 +280,6 @@
             </button>
           </div>
           <div class="fold-content" id="foldContentLearningDetails">
-            <!-- 学习概况 -->
-            <div class="details-section">
-              <h4>学习概况</h4>
-              <div class="stats-grid">
-                <div class="stat-card">
-                  <div class="stat-value" id="detailWeeklyMinutes">0 分钟</div>
-                  <div class="stat-label">本周学习</div>
-                </div>
-                <div class="stat-card">
-                  <div class="stat-value" id="detailStreak">0 天</div>
-                  <div class="stat-label">连续学习</div>
-                </div>
-                <div class="stat-card">
-                  <div class="stat-value" id="detailMastered">0/0</div>
-                  <div class="stat-label">已掌握/总课程</div>
-                </div>
-                <div class="stat-card">
-                  <div class="stat-value" id="detailAvgAccuracy">0%</div>
-                  <div class="stat-label">平均正确率</div>
-                </div>
-              </div>
-            </div>
-            
             <!-- 学习日历 -->
             <div class="details-section">
               <h4>学习日历</h4>
@@ -671,12 +648,6 @@
         if (!window.reviewSystem) return;
         
         const stats = reviewSystem.getLearningStats();
-        
-        // 学习概况
-        document.getElementById('detailWeeklyMinutes').textContent = stats.weeklyMinutes + '分钟';
-        document.getElementById('detailStreak').textContent = stats.streak + '天';
-        document.getElementById('detailMastered').textContent = stats.mastered + '/' + stats.total;
-        document.getElementById('detailAvgAccuracy').textContent = stats.avgAccuracy + '%';
         
         // 学习日历
         const calendarContainer = document.getElementById('calendarHeatmap');
