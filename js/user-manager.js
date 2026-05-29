@@ -302,9 +302,13 @@ class UserManager {
   
   // ========== 事件绑定 ==========
   bindEvents() {
-    document.getElementById('userCenterBtn')?.addEventListener('click', () => {
-      this.showUserCenter();
-    });
+    const userCenterBtn = document.getElementById('userCenterBtn');
+    if (userCenterBtn) {
+      userCenterBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.showUserCenter();
+      });
+    }
     
     document.getElementById('closeUserCenter')?.addEventListener('click', () => {
       document.getElementById('userCenterDialog').close();
@@ -331,11 +335,11 @@ class UserManager {
     });
     
     document.getElementById('privacyPolicy')?.addEventListener('click', () => {
-      document.getElementById('privacyDialog').showModal();
+      window.location.href = 'privacy.html';
     });
     
-    document.getElementById('closePrivacy')?.addEventListener('click', () => {
-      document.getElementById('privacyDialog').close();
+    document.getElementById('aboutApp')?.addEventListener('click', () => {
+      window.location.href = 'about.html';
     });
     
     document.getElementById('clearData')?.addEventListener('click', () => {
@@ -348,12 +352,9 @@ class UserManager {
         ]
       );
     });
-    
-    // 检查首次使用，显示新手引导
-    this.checkFirstTime();
   }
   
-  // 检查是否首次使用
+  // 检查首次使用，显示新手引导
   checkFirstTime() {
     const hasOnboarded = localStorage.getItem('nce_onboarded');
     if (!hasOnboarded) {
@@ -365,6 +366,14 @@ class UserManager {
         }
       }, 500);
     }
+  }
+  
+  // 初始化头像选择器（空方法）
+  initAvatarPicker() {
+    const emojiGrid = document.getElementById('emojiGrid');
+    if (!emojiGrid) return;
+    
+    // 头像列表已在 HTML 中定义
   }
   
   // 显示引导步骤
@@ -383,8 +392,52 @@ class UserManager {
     if (step === 3) {
       setTimeout(() => {
         document.getElementById('onboardingNickname')?.focus();
+        this.renderOnboardingCourses();
       }, 100);
     }
+  }
+  
+  // 渲染新手引导课程选择
+  renderOnboardingCourses() {
+    const container = document.getElementById('onboardingCourseSelect');
+    if (!container) return;
+    
+    // 从 data.json 加载课程数据
+    fetch('data.json')
+      .then(r => r.json())
+      .then(data => {
+        const courses = data.books || [];
+        if (!Array.isArray(courses)) {
+          console.error('[UserManager] courses data is not an array');
+          return;
+        }
+        
+        const existingSelection = this.getSelectedCourses();
+        
+        container.innerHTML = courses.map((book, idx) => {
+          // 如果是首次设置，默认全选；否则使用已有选择
+          const isChecked = existingSelection === null || 
+                           (Array.isArray(existingSelection) && existingSelection.includes(book.key));
+          
+          return `
+            <label>
+              <input type="checkbox" class="course-checkbox" data-key="${book.key}" ${isChecked ? 'checked' : ''}>
+              <div class="course-card">
+                <div class="check-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <path d="M20 6L9 17l-5-5"/>
+                  </svg>
+                </div>
+                <div class="course-name">${book.name || book.title}</div>
+                <div class="course-desc">${book.units?.length || 0} 课</div>
+              </div>
+            </label>
+          `;
+        }).join('');
+      })
+      .catch(err => {
+        console.error('[Onboarding] Failed to load courses:', err);
+      });
   }
   
   // 完成引导
@@ -396,8 +449,23 @@ class UserManager {
       return;
     }
     
+    // 获取选择的课程
+    const selectedCourses = [];
+    const checkboxes = document.querySelectorAll('#onboardingCourseSelect .course-checkbox:checked');
+    checkboxes.forEach(cb => {
+      selectedCourses.push(cb.dataset.key);
+    });
+    
+    if (selectedCourses.length === 0) {
+      toast.error('请至少选择一个课程');
+      return;
+    }
+    
     // 保存用户信息
     this.saveUserProfile(nickname, '', '', '👤');
+    
+    // 保存课程选择
+    localStorage.setItem(LS.SELECTED_COURSES, JSON.stringify(selectedCourses));
     
     // 标记已完成
     localStorage.setItem('nce_onboarded', 'true');
@@ -516,10 +584,20 @@ class UserManager {
     
     this.updateStatsDisplay();
     this.updateCourseSelect();
-    this.updateProgressDisplay();
-    this.updateLearningCalendar();
-    this.updateAchievements();
-    this.initAvatarPicker();
+    // 方案 C 暂不显示课程进度列表
+    // this.updateProgressDisplay();
+    
+    // 更新仪表盘（方案 C）
+    if (typeof updateDashboard === 'function') {
+      updateDashboard();
+    }
+    
+    // 恢复折叠状态（方案 C）
+    setTimeout(() => {
+      if (typeof restoreFoldState === 'function') {
+        restoreFoldState();
+      }
+    }, 200);
     
     dialog.showModal();
   }
@@ -598,15 +676,28 @@ class UserManager {
   }
   
   updateStatsDisplay() {
-    document.getElementById('statTotalTime').textContent = 
-      `${(this.learningStats.totalMinutes / 60).toFixed(1)}h`;
-    document.getElementById('statStreak').textContent = 
-      `${this.learningStats.streak}天`;
-    document.getElementById('statFavorites').textContent = 
-      `${JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]').length}句`;
+    // 方案 C: 使用仪表盘元素（dashTotalTime, dashStreak, dashFavorites, dashAchievements）
+    // 如果存在则更新，不存在则跳过（由 updateDashboard 函数负责更新）
+    const totalTimeEl = document.getElementById('statTotalTime') || document.getElementById('dashTotalTime');
+    const streakEl = document.getElementById('statStreak') || document.getElementById('dashStreak');
+    const favoritesEl = document.getElementById('statFavorites') || document.getElementById('dashFavorites');
     
-    const totalProgress = this.calculateTotalProgress();
-    document.getElementById('statProgress').textContent = `${totalProgress}%`;
+    if (totalTimeEl) {
+      totalTimeEl.textContent = `${(this.learningStats.totalMinutes / 60).toFixed(1)}h`;
+    }
+    if (streakEl) {
+      streakEl.textContent = `${this.learningStats.streak}天`;
+    }
+    if (favoritesEl) {
+      favoritesEl.textContent = `${JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]').length}句`;
+    }
+    
+    // 课程进度（方案 C 已移除，暂时不显示）
+    const progressEl = document.getElementById('statProgress');
+    if (progressEl) {
+      const totalProgress = this.calculateTotalProgress();
+      progressEl.textContent = `${totalProgress}%`;
+    }
   }
   
   calculateTotalProgress() {
@@ -624,11 +715,19 @@ class UserManager {
   
   updateProgressDisplay() {
     const container = document.getElementById('courseProgressList');
+    if (!container) return;
+    
     container.innerHTML = '';
     
     fetch('data.json')
       .then(r => r.json())
-      .then(books => {
+      .then(data => {
+        const books = data.books || [];
+        if (!Array.isArray(books)) {
+          console.error('[ UserManager] books data is not an array');
+          return;
+        }
+        
         let hasContent = false;
         books.forEach(book => {
           const key = book.key;

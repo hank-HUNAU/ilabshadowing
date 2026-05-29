@@ -10,11 +10,11 @@ const LS = {
   TR: 'nce_tr',
   LAST_PAGE: 'nce_last_page',
   FAVORITES: 'nce_favorites',
-  REPEAT_SINGLE: 'nce_repeat_single',  // 单句重复次数
-  REPEAT_ALL: 'nce_repeat_all',         // 全文重复次数
+  REPEAT: 'nce_repeat',              // 重复次数（合并）
   USER_PROFILE: 'nce_user_profile',     // 用户信息
   LEARNING_STATS: 'nce_learning_stats', // 学习统计
-  PROGRESS: 'nce_progress'              // 课程进度
+  PROGRESS: 'nce_progress',             // 课程进度
+  SELECTED_COURSES: 'nce_selected_courses' // 选择的课程
 };
 
 /* 音频源配置 - 一键切换 */
@@ -47,12 +47,48 @@ function getAudioUrl(filename, bookPath, key) {
   }
   // 从课程目录加载（支持多本书）
   if (bookPath) {
-    // 确保路径以 / 结尾
-    const path = bookPath.endsWith('/') ? bookPath : bookPath + '/';
-    return `${path}${filename}.mp3`;
+    return `/courses/${bookPath}/${filename}.mp3`;
   }
-  // 默认从 NCE1 加载
-  return `./audio/NCE1/${filename}.mp3`;
+  return null;
+}
+
+/* 辅助函数 - 从 user-manager.js 桥接 */
+function getFavorites() {
+  try {
+    return JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function formatLearningTime(minutes) {
+  if (!minutes || minutes < 60) {
+    return (minutes || 0) + 'm';
+  }
+  const hours = Math.floor(minutes / 60);
+  const mins = Math.round(minutes % 60);
+  return hours + 'h' + (mins > 0 ? mins + 'm' : '');
+}
+
+function loadLearningStats() {
+  if (window.userManager && typeof userManager.loadLearningStats === 'function') {
+    return userManager.loadLearningStats();
+  }
+  // 回退：直接从 localStorage 读取
+  const stats = JSON.parse(localStorage.getItem(LS.LEARNING_STATS) || '{}');
+  return {
+    totalTime: stats.totalTime || 0,
+    streak: stats.streak || 0,
+    lastStudyDate: stats.lastStudyDate || null
+  };
+}
+
+function loadAchievements() {
+  if (window.userManager && typeof userManager.loadAchievements === 'function') {
+    return userManager.loadAchievements();
+  }
+  // 回退：直接从 localStorage 读取
+  return JSON.parse(localStorage.getItem('nce_achievements') || '[]');
 }
 
 /* 获取 LRC URL */
@@ -101,8 +137,12 @@ class App {
     this.mode = localStorage.getItem(LS.MODE) || 'single';
     this.spd = +(localStorage.getItem(LS.SPD) || 1.0);
     this.tr = localStorage.getItem(LS.TR) || 'bilingual';  // 显示模式：bilingual/en-only/cn-only
-    this.repeatSingle = +(localStorage.getItem(LS.REPEAT_SINGLE) || 3);  // 单句重复次数
-    this.repeatAll = +(localStorage.getItem(LS.REPEAT_ALL) || 3);       // 全文重复次数
+    // 重复次数（合并单句和全文）
+    this.repeatCount = +(localStorage.getItem(LS.REPEAT) || 3);
+    // 降级兼容：如果新 key 不存在，使用旧的 single key
+    if (!localStorage.getItem(LS.REPEAT) && localStorage.getItem(LS.REPEAT_SINGLE)) {
+      this.repeatCount = +(localStorage.getItem(LS.REPEAT_SINGLE) || 3);
+    }
     
     // 显示模式配置
     this.displayModes = ['bilingual', 'en-only', 'cn-only'];
@@ -169,10 +209,8 @@ class App {
       spdL: document.getElementById('speedLabel'),
       tr: document.getElementById('transBtn'),
       trL: document.getElementById('transLabel'),
-      repeatSingle: document.getElementById('repeatSingleBtn'),
-      repeatSingleCount: document.getElementById('repeatSingleCount'),
-      repeatAll: document.getElementById('repeatAllBtn'),
-      repeatAllCount: document.getElementById('repeatAllCount'),
+      repeat: document.getElementById('repeatBtn'),
+      repeatCount: document.getElementById('repeatCount'),
       audio: document.getElementById('audio')
     };
 
@@ -200,14 +238,35 @@ class App {
   }
   
   updateFavBadge() {
-    if (!this.els.favCountBadge) return;
-    const count = this.favorites.length;
-    if (count > 0) {
-      this.els.favCountBadge.textContent = count > 99 ? '99+' : count;
-      this.els.favCountBadge.style.display = 'block';
+    if (!this.els.favBadge) return;
+    
+    if (this.favorites.length > 0) {
+      this.els.favBadge.style.display = 'flex';
+      this.els.favBadge.textContent = this.favorites.length > 99 ? '99+' : this.favorites.length;
     } else {
-      this.els.favCountBadge.style.display = 'none';
+      this.els.favBadge.style.display = 'none';
     }
+  }
+
+  openPractice(lineIdx) {
+    if (lineIdx < 0 || lineIdx >= this.lines.length) return;
+    
+    const line = this.lines[lineIdx];
+    const sentenceId = `${this.key}_${this.idx}_${lineIdx}`;
+    
+    // 打开练习页面
+    const practiceUrl = `practice.html?sentence=${encodeURIComponent(sentenceId)}&en=${encodeURIComponent(line.en)}&zh=${encodeURIComponent(line.cn || '')}&audio=${encodeURIComponent(this.getLineAudioUrl(lineIdx))}`;
+    
+    // 在新标签页打开练习页面
+    window.open(practiceUrl, '_blank');
+    
+    console.log('[Practice] Opening practice for sentence:', sentenceId);
+  }
+  
+  getLineAudioUrl(lineIdx) {
+    // 获取单句音频 URL（简化处理，使用完整音频 + 时间戳）
+    if (!this.currentAudioFile) return '';
+    return getAudioUrl(this.currentAudioFile, this.book?.path, this.key);
   }
   
   // 初始化音频分析器
@@ -371,7 +430,7 @@ class App {
           </svg>
           <h3 class="empty-state-title">暂无收藏</h3>
           <p class="empty-state-desc">播放课文时点击句子右侧的星星图标，收藏喜欢的句子</p>
-          <button class="empty-state-action" onclick="app.showBookPage()">去浏览课程</button>
+          <button class="empty-state-action" onclick="document.getElementById('showFavorites').click()">去浏览课程</button>
         </div>
       `;
       this.els.favoriteCount.textContent = '0 句';
@@ -766,11 +825,14 @@ class App {
           <div class="line-en">${l.en}</div>
           ${l.cn ? `<div class="line-cn">${l.cn}</div>` : ''}
         </div>
-        <button class="line-favorite ${isFavorited ? 'favorited' : ''}" data-line-i="${i}" title="${isFavorited ? '取消收藏' : '收藏本句'}">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="${isFavorited ? '#fbbf24' : 'none'}" stroke="${isFavorited ? '#fbbf24' : 'currentColor'}" stroke-width="2">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-        </button>
+        <div class="line-actions">
+          <button class="line-practice" data-line-i="${i}" title="练习本句" aria-label="练习本句">📝</button>
+          <button class="line-favorite ${isFavorited ? 'favorited' : ''}" data-line-i="${i}" title="${isFavorited ? '取消收藏' : '收藏本句'}">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="${isFavorited ? '#fbbf24' : 'none'}" stroke="${isFavorited ? '#fbbf24' : 'currentColor'}" stroke-width="2">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+          </button>
+        </div>
       </div>`;
     }).join('');
     this.els.area.scrollTop = 0;
@@ -852,7 +914,7 @@ class App {
     // 只有在全文模式才触发全文重复
     if (this.mode !== 'all') return;
     
-    const needRepeat = this.repeatAll >= 99 || this.allRepeatCount < this.repeatAll;
+    const needRepeat = this.repeatCount >= 99 || this.allRepeatCount < this.repeatCount;
     
     if (needRepeat) {
       this.allRepeatCount++;
@@ -866,7 +928,11 @@ class App {
       this.allRepeatCount = 0;
       // 更新课程进度
       if (userManager) {
-        userManager.updateProgress(this.key, this.idx, this.repeatAll);
+        userManager.updateProgress(this.key, this.idx, this.repeatCount);
+      }
+      // 同步到数据模块
+      if (window.dataSync && this.book?.key) {
+        window.updateCourseProgress(this.book.key, this.units[this.idx].key, this.repeatCount);
       }
     }
   }
@@ -906,19 +972,8 @@ class App {
   }
   
   updateRepeatCounts() {
-    if (this.els.repeatSingleCount) {
-      this.els.repeatSingleCount.textContent = this.repeatSingle >= 99 ? '∞' : this.repeatSingle;
-    }
-    if (this.els.repeatAllCount) {
-      this.els.repeatAllCount.textContent = this.repeatAll >= 99 ? '∞' : this.repeatAll;
-    }
-    
-    // 根据模式更新按钮激活状态
-    if (this.els.repeatSingle) {
-      this.els.repeatSingle.classList.toggle('active', this.mode === 'single');
-    }
-    if (this.els.repeatAll) {
-      this.els.repeatAll.classList.toggle('active', this.mode === 'all');
+    if (this.els.repeatCount) {
+      this.els.repeatCount.textContent = this.repeatCount >= 99 ? '∞' : this.repeatCount;
     }
   }
 
@@ -955,8 +1010,20 @@ class App {
       });
     }
     
-    // 歌词区域点击事件（包含收藏按钮）
+    // 歌词区域点击事件（包含收藏按钮和练习按钮）
     this.els.area.addEventListener('click', e => {
+      const practiceBtn = e.target.closest('.line-practice');
+      
+      // 如果点击的是练习按钮，打开练习界面
+      if (practiceBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const lineIdx = +practiceBtn.dataset.lineI;
+        this.openPractice(lineIdx);
+        console.log('[Practice] Opened practice for line', lineIdx);
+        return;
+      }
+      
       const favoriteBtn = e.target.closest('.line-favorite');
       
       // 如果点击的是收藏按钮，只切换收藏状态，不播放
@@ -975,23 +1042,12 @@ class App {
         this.playLine(+line.dataset.i);
       }
     });
-    if (this.els.repeatSingle) {
-      this.els.repeatSingle.addEventListener('click', () => {
-        const currentIdx = REPEAT_COUNTS.indexOf(this.repeatSingle);
+    if (this.els.repeat) {
+      this.els.repeat.addEventListener('click', () => {
+        const currentIdx = REPEAT_COUNTS.indexOf(this.repeatCount);
         const nextIdx = (currentIdx + 1) % REPEAT_COUNTS.length;
-        this.repeatSingle = REPEAT_COUNTS[nextIdx];
-        localStorage.setItem(LS.REPEAT_SINGLE, this.repeatSingle);
-        this.updateRepeatCounts();
-      });
-    }
-    
-    // 全文重复次数
-    if (this.els.repeatAll) {
-      this.els.repeatAll.addEventListener('click', () => {
-        const currentIdx = REPEAT_COUNTS.indexOf(this.repeatAll);
-        const nextIdx = (currentIdx + 1) % REPEAT_COUNTS.length;
-        this.repeatAll = REPEAT_COUNTS[nextIdx];
-        localStorage.setItem(LS.REPEAT_ALL, this.repeatAll);
+        this.repeatCount = REPEAT_COUNTS[nextIdx];
+        localStorage.setItem(LS.REPEAT, this.repeatCount);
         this.updateRepeatCounts();
       });
     }
@@ -1058,6 +1114,10 @@ class App {
           ? REPEAT_COUNTS[this.singleRepeatIdx] 
           : REPEAT_COUNTS[this.allRepeatIdx];
         userManager.updateProgress(this.key, this.idx, targetRepeat);
+        // 同步到数据模块
+        if (window.dataSync && this.book?.key) {
+          window.updateCourseProgress(this.book.key, this.units[this.idx].key, targetRepeat);
+        }
       }
       this.els.dlg.close(); 
       this.els.audio.pause(); 
@@ -1136,7 +1196,7 @@ class App {
               this.els.audio.pause();
               this.singleRepeatCount++;
               
-              const needRepeat = this.repeatSingle >= 99 || this.singleRepeatCount < this.repeatSingle;
+              const needRepeat = this.repeatCount >= 99 || this.singleRepeatCount < this.repeatCount;
               if (needRepeat) {
                 // 重复当前句
                 setTimeout(() => {
@@ -1150,7 +1210,11 @@ class App {
                 this.bound = null;
                 // 更新课程进度
                 if (userManager) {
-                  userManager.updateProgress(this.key, this.idx, this.repeatSingle);
+                  userManager.updateProgress(this.key, this.idx, this.repeatCount);
+                }
+                // 同步到数据模块
+                if (window.dataSync && this.book?.key) {
+                  window.updateCourseProgress(this.book.key, this.units[this.idx].key, this.repeatCount);
                 }
               }
             }
@@ -1167,7 +1231,7 @@ class App {
         const currentTime = this.els.audio.currentTime;
         if (currentTime >= this.bound) {
           this.singleRepeatCount++;
-          const needRepeat = this.repeatSingle >= 99 || this.singleRepeatCount < this.repeatSingle;
+          const needRepeat = this.repeatCount >= 99 || this.singleRepeatCount < this.repeatCount;
           
           if (needRepeat) {
             this.els.audio.currentTime = this.lines[this.cur].time;
@@ -1177,7 +1241,11 @@ class App {
             this.els.audio.pause();
             // 更新课程进度
             if (userManager) {
-              userManager.updateProgress(this.key, this.idx, this.repeatSingle);
+              userManager.updateProgress(this.key, this.idx, this.repeatCount);
+            }
+            // 同步到数据模块
+            if (window.dataSync && this.book?.key) {
+              window.updateCourseProgress(this.book.key, this.units[this.idx].key, this.repeatCount);
             }
           }
         }
@@ -1247,6 +1315,10 @@ class App {
             ? REPEAT_COUNTS[this.singleRepeatIdx] 
             : REPEAT_COUNTS[this.allRepeatIdx];
           userManager.updateProgress(this.key, this.idx, targetRepeat);
+          // 同步到数据模块
+          if (window.dataSync && this.book?.key) {
+            window.updateCourseProgress(this.book.key, this.units[this.idx].key, targetRepeat);
+          }
         }
         this.els.dlg.close(); 
       } 
@@ -1302,6 +1374,14 @@ class App {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // 初始化版本管理
+  if (window.NETWORK_STATUS) {
+    window.NETWORK_STATUS.init();
+  }
+  if (window.PWA_INSTALL) {
+    window.PWA_INSTALL.init();
+  }
+  
   // 初始化用户管理
   userManager = new UserManager();
   
@@ -1337,6 +1417,64 @@ function handleTouchEnd(e) {
   handleSwipe();
 }
 
+// ========== 方案 C: 折叠卡片交互 ==========
+
+// 折叠/展开卡片
+function toggleFoldCard(section) {
+  const card = document.querySelector(`.fold-card[data-fold="${section}"]`);
+  if (!card) return;
+  
+  const content = card.querySelector('.fold-content');
+  const isExpanded = card.classList.contains('expanded');
+  
+  // 切换状态
+  card.classList.toggle('expanded');
+  content.classList.toggle('show');
+  
+  // 保存展开/折叠状态到 localStorage
+  const foldState = JSON.parse(localStorage.getItem('nce_fold_state') || '{}');
+  foldState[section] = !isExpanded;
+  localStorage.setItem('nce_fold_state', JSON.stringify(foldState));
+  
+  // 展开时更新仪表盘
+  if (!isExpanded) {
+    setTimeout(() => {
+      updateDashboard();
+    }, 300);
+  }
+}
+
+// 恢复折叠状态
+function restoreFoldState() {
+  const foldState = JSON.parse(localStorage.getItem('nce_fold_state') || '{}');
+  
+  Object.entries(foldState).forEach(([section, isExpanded]) => {
+    if (isExpanded) {
+      setTimeout(() => {
+        toggleFoldCard(section);
+      }, 100);
+    }
+  });
+}
+
+// 更新仪表盘数据
+function updateDashboard() {
+  const stats = loadLearningStats();
+  
+  // 累计学习时间
+  document.getElementById('dashTotalTime').textContent = formatLearningTime(stats.totalTime);
+  
+  // 连续学习天数
+  document.getElementById('dashStreak').textContent = stats.streak + '天';
+  
+  // 收藏句子数
+  const favs = getFavorites();
+  document.getElementById('dashFavorites').textContent = favs.length + '句';
+  
+  // 成就解锁数（简化：显示 0/6）
+  document.getElementById('dashAchievements').textContent = '0/6';
+}
+
 function handleSwipe() {
   const diffX = touchEndX - touchStartX;
   const diffY = touchEndY - touchStartY;
@@ -1361,3 +1499,8 @@ function handleSwipe() {
     }
   }
 }
+
+// 导出折叠卡片函数到全局作用域
+window.toggleFoldCard = toggleFoldCard;
+window.restoreFoldState = restoreFoldState;
+window.updateDashboard = updateDashboard;
