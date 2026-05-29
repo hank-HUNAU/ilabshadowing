@@ -261,6 +261,45 @@ class DataSync {
   }
   
   /**
+   * 获取各题型正确率统计
+   * @returns {Object} 各题型正确率 { listening: 80, speaking: 75, ... }
+   */
+  getQuestionTypeAccuracy() {
+    const reviewData = JSON.parse(localStorage.getItem('nce_unit_review') || '{}');
+    const typeStats = {
+      listening: { correct: 0, total: 0 },
+      speaking: { correct: 0, total: 0 },
+      fillBlank: { correct: 0, total: 0 },
+      ordering: { correct: 0, total: 0 },
+      translation: { correct: 0, total: 0 }
+    };
+    
+    // 汇总所有单元的题型统计
+    Object.values(reviewData).forEach(record => {
+      if (record.questionTypeStats) {
+        Object.keys(typeStats).forEach(type => {
+          if (record.questionTypeStats[type]) {
+            typeStats[type].correct += record.questionTypeStats[type].correct || 0;
+            typeStats[type].total += record.questionTypeStats[type].total || 0;
+          }
+        });
+      }
+    });
+    
+    // 计算正确率
+    const accuracy = {};
+    Object.keys(typeStats).forEach(type => {
+      if (typeStats[type].total > 0) {
+        accuracy[type] = Math.round((typeStats[type].correct / typeStats[type].total) * 100);
+      } else {
+        accuracy[type] = 0;
+      }
+    });
+    
+    return accuracy;
+  }
+  
+  /**
    * 获取周一的日期
    * @returns {Date} 周一日期
    */

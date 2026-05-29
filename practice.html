@@ -23,27 +23,32 @@
 
     <!-- 主要内容区 -->
     <main class="practice-main">
-      <!-- 学习概览 -->
+      <!-- 练习统计 -->
       <section class="learning-overview">
-        <h2><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;margin-right:6px"><path d="M18 3v18M6 14v4M12 10v8M24 6v12"/></svg>学习概览</h2>
-        <div class="overview-grid">
-          <div class="overview-card">
-            <div class="overview-icon"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a5 5 0 005 5h4a5 5 0 005-5V9a2 2 0 00-2-2V7a5 5 0 00-5-5z"/><path d="M12 4v8M9 8h6"/></svg></div>
-            <div class="overview-value" id="streakDays">0 天</div>
-            <div class="overview-label">连续学习</div>
+        <h2><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;margin-right:6px"><path d="M18 3v18M6 14v4M12 10v8M24 6v12"/><path d="M8 13l3 3 5-6"/></svg>练习统计</h2>
+        <div class="type-stats-grid" id="typeStatsGrid">
+          <div class="type-stat-card">
+            <div class="type-stat-value"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4v16a5 5 0 005 5h1a5 5 0 005-5v-2a2 2 0 00-2-2 2 2 0 00-2 2v2a1 1 0 01-1 1h-1a1 1 0 01-1-1V4a1 1 0 011-1h1a1 1 0 011 1v2h2V4a3 3 0 00-3-3h-1a3 3 0 00-3 3z"/><circle cx="12" cy="13" r="2"/></svg> <span id="listeningAccuracy">0%</span></div>
+            <div class="type-stat-label">听音辨意</div>
           </div>
-          <div class="overview-card">
-            <div class="overview-icon"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg></div>
-            <div class="overview-value" id="masteredCount">0 课</div>
-            <div class="overview-label">已掌握</div>
+          <div class="type-stat-card">
+            <div class="type-stat-value"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg> <span id="speakingAccuracy">0%</span></div>
+            <div class="type-stat-label">跟读模仿</div>
           </div>
-          <div class="overview-card">
-            <div class="overview-icon"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg></div>
-            <div class="overview-value" id="avgAccuracy">0%</div>
-            <div class="overview-label">平均正确率</div>
+          <div class="type-stat-card">
+            <div class="type-stat-value"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/><path d="M9 18v3M15 18v3M12 18v3M5 6V3M19 6V3"/></svg> <span id="fillBlankAccuracy">0%</span></div>
+            <div class="type-stat-label">补全训练</div>
+          </div>
+          <div class="type-stat-card">
+            <div class="type-stat-value"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5h20M2 9h20M2 13h20M2 17h20"/><path d="M7 9v3M17 13v4M7 13v4M17 9v4"/></svg> <span id="orderingAccuracy">0%</span></div>
+            <div class="type-stat-label">句子重组</div>
+          </div>
+          <div class="type-stat-card">
+            <div class="type-stat-value"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 12h14M5 16h14"/><path d="M3 8v8M21 8v8M3 8l9-5 9 5"/></svg> <span id="translationAccuracy">0%</span></div>
+            <div class="type-stat-label">翻译练习</div>
           </div>
         </div>
-        <p class="hint" style="text-align:center;color:var(--text-secondary);font-size:0.85rem;margin-top:16px">
+        <p class="hint" style="text-align:center;color:var(--text-secondary);font-size:0.9rem;margin:16px 0">
           💡 查看详细学习报告，请返回 <a href="index.html" style="color:var(--primary);text-decoration:none">主应用 → 用户中心</a>
         </p>
       </section>
@@ -185,7 +190,7 @@
   <script src="js/toast.js?v=20260528"></script>
   <script src="js/user-manager.js?v=20260528"></script>
   <script src="js/sf-icons.js?v=20260528"></script>
-  <script src="js/data-sync.js?v=20260528"></script>
+  <script src="js/data-sync.js?v=20260529"></script>
   <script src="js/review-system.js?v=20260528"></script>
   <script src="js/course-practice-engine.js?v=20260529"></script>
   <script>
@@ -221,13 +226,17 @@
       });
     });
 
-    // 更新学习概览
+    // 更新学习概览（练习统计）
     function updateLearningOverview() {
-      const stats = reviewSystem.getLearningStats();
+      if (!window.dataSync) return;
       
-      document.getElementById('streakDays').textContent = stats.streak + '天';
-      document.getElementById('masteredCount').textContent = stats.mastered + '课';
-      document.getElementById('avgAccuracy').textContent = stats.avgAccuracy + '%';
+      const accuracy = dataSync.getQuestionTypeAccuracy();
+      
+      document.getElementById('listeningAccuracy').textContent = (accuracy.listening || 0) + '%';
+      document.getElementById('speakingAccuracy').textContent = (accuracy.speaking || 0) + '%';
+      document.getElementById('fillBlankAccuracy').textContent = (accuracy.fillBlank || 0) + '%';
+      document.getElementById('orderingAccuracy').textContent = (accuracy.ordering || 0) + '%';
+      document.getElementById('translationAccuracy').textContent = (accuracy.translation || 0) + '%';
     }
 
     // 更新练习统计
