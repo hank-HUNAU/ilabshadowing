@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#007aff">
   <title>学习中心 - Hankilab 学习中心</title>
   <link rel="stylesheet" href="css/style.css?v=20260528">
-  <link rel="stylesheet" href="css/practice.css?v=20260528">
+  <link rel="stylesheet" href="css/practice.css?v=20260529">
 </head>
 <body>
   <div id="app">
@@ -56,6 +56,27 @@
         <p class="hint" style="text-align:center;color:var(--text-secondary);font-size:0.9rem;margin:16px 0">
           💡 查看详细学习报告，请返回 <a href="index.html" style="color:var(--primary);text-decoration:none">主应用 → 用户中心</a>
         </p>
+      </section>
+
+      <!-- 学习激励 -->
+      <section class="learning-motivation">
+        <div class="motivation-grid">
+          <div class="motivation-card">
+            <div class="motivation-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+            <div class="motivation-value" id="totalLearningTime">0h</div>
+            <div class="motivation-label">累计学习</div>
+          </div>
+          <div class="motivation-card">
+            <div class="motivation-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a5 5 0 005 5h4a5 5 0 005-5V9a2 2 0 00-2-2V7a5 5 0 00-5-5z"/><path d="M12 4v8M9 8h6"/></svg></div>
+            <div class="motivation-value" id="streakDays">0 天</div>
+            <div class="motivation-label">连续学习</div>
+          </div>
+          <div class="motivation-card">
+            <div class="motivation-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg></div>
+            <div class="motivation-value" id="masteredCourses">0 课</div>
+            <div class="motivation-label">已掌握</div>
+          </div>
+        </div>
       </section>
 
       <!-- 听读训练 -->
@@ -201,6 +222,7 @@
       // 更新 UI
       updateLearningOverview();
       updatePracticeStats();
+      updateLearningMotivation();
       
       // 绑定事件
       document.getElementById('notificationBtn')?.addEventListener('click', () => {
@@ -237,6 +259,23 @@
       document.getElementById('translationCount').textContent = accuracy.translation.correct + '/' + accuracy.translation.total;
     }
 
+    // 更新学习激励
+    function updateLearningMotivation() {
+      if (!window.reviewSystem) return;
+      
+      const stats = reviewSystem.getLearningStats();
+      
+      // 累计学习时长（转换为小时）
+      const hours = (stats.weeklyMinutes / 60).toFixed(1);
+      document.getElementById('totalLearningTime').textContent = hours + 'h';
+      
+      // 连续学习天数
+      document.getElementById('streakDays').textContent = stats.streak + '天';
+      
+      // 已掌握课程
+      document.getElementById('masteredCourses').textContent = stats.mastered + '课';
+    }
+
     // 开始练习
     function startPractice(type) {
       if (!window.CoursePractice) return;
@@ -257,6 +296,7 @@
       Object.entries(stats).forEach(([type, data]) => {
         const starsEl = document.getElementById(`${type}Stars`);
         const remainingEl = document.getElementById(`${type}Remaining`);
+        const cardEl = document.querySelector(`.practice-card[data-type="${type}"]`);
         
         if (starsEl) {
           const starCount = Math.round(data.accuracy / 20);
@@ -265,6 +305,15 @@
         
         if (remainingEl) {
           remainingEl.textContent = `待强化${data.remaining}课`;
+        }
+        
+        // 正确率<80% 添加待强化样式
+        if (cardEl) {
+          if (data.accuracy < 80) {
+            cardEl.classList.add('weak-item');
+          } else {
+            cardEl.classList.remove('weak-item');
+          }
         }
       });
     }
