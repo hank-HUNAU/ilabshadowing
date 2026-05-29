@@ -30,22 +30,27 @@
           <div class="type-stat-card">
             <div class="type-stat-value"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4v16a5 5 0 005 5h1a5 5 0 005-5v-2a2 2 0 00-2-2 2 2 0 00-2 2v2a1 1 0 01-1 1h-1a1 1 0 01-1-1V4a1 1 0 011-1h1a1 1 0 011 1v2h2V4a3 3 0 00-3-3h-1a3 3 0 00-3 3z"/><circle cx="12" cy="13" r="2"/></svg> <span id="listeningAccuracy">0%</span></div>
             <div class="type-stat-label">听音辨意</div>
+            <div class="type-stat-count" id="listeningCount">0/0</div>
           </div>
           <div class="type-stat-card">
             <div class="type-stat-value"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg> <span id="speakingAccuracy">0%</span></div>
             <div class="type-stat-label">跟读模仿</div>
+            <div class="type-stat-count" id="speakingCount">0/0</div>
           </div>
           <div class="type-stat-card">
             <div class="type-stat-value"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/><path d="M9 18v3M15 18v3M12 18v3M5 6V3M19 6V3"/></svg> <span id="fillBlankAccuracy">0%</span></div>
             <div class="type-stat-label">补全训练</div>
+            <div class="type-stat-count" id="fillBlankCount">0/0</div>
           </div>
           <div class="type-stat-card">
             <div class="type-stat-value"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5h20M2 9h20M2 13h20M2 17h20"/><path d="M7 9v3M17 13v4M7 13v4M17 9v4"/></svg> <span id="orderingAccuracy">0%</span></div>
             <div class="type-stat-label">句子重组</div>
+            <div class="type-stat-count" id="orderingCount">0/0</div>
           </div>
           <div class="type-stat-card">
             <div class="type-stat-value"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 12h14M5 16h14"/><path d="M3 8v8M21 8v8M3 8l9-5 9 5"/></svg> <span id="translationAccuracy">0%</span></div>
             <div class="type-stat-label">翻译练习</div>
+            <div class="type-stat-count" id="translationCount">0/0</div>
           </div>
         </div>
         <p class="hint" style="text-align:center;color:var(--text-secondary);font-size:0.9rem;margin:16px 0">
@@ -110,21 +115,6 @@
               <span class="star-rating" id="translationStars">★★★★★</span>
               <span class="remaining-count" id="translationRemaining">剩余 0 课</span>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 学习详情入口 -->
-      <section class="learning-report-section">
-        <h2><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;margin-right:6px"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>学习详情</h2>
-        <div class="report-preview" id="reportPreview">
-          <div class="report-preview-item">
-            <span class="label">本周学习</span>
-            <span class="value">0 分钟</span>
-          </div>
-          <div class="report-preview-item">
-            <span class="label">掌握进度</span>
-            <span class="value">0/0 课</span>
           </div>
         </div>
       </section>
@@ -211,7 +201,6 @@
       // 更新 UI
       updateLearningOverview();
       updatePracticeStats();
-      updateReportPreview();
       
       // 绑定事件
       document.getElementById('notificationBtn')?.addEventListener('click', () => {
@@ -232,11 +221,32 @@
       
       const accuracy = dataSync.getQuestionTypeAccuracy();
       
-      document.getElementById('listeningAccuracy').textContent = (accuracy.listening || 0) + '%';
-      document.getElementById('speakingAccuracy').textContent = (accuracy.speaking || 0) + '%';
-      document.getElementById('fillBlankAccuracy').textContent = (accuracy.fillBlank || 0) + '%';
-      document.getElementById('orderingAccuracy').textContent = (accuracy.ordering || 0) + '%';
-      document.getElementById('translationAccuracy').textContent = (accuracy.translation || 0) + '%';
+      document.getElementById('listeningAccuracy').textContent = (accuracy.listening.accuracy || 0) + '%';
+      document.getElementById('listeningCount').textContent = accuracy.listening.correct + '/' + accuracy.listening.total;
+      
+      document.getElementById('speakingAccuracy').textContent = (accuracy.speaking.accuracy || 0) + '%';
+      document.getElementById('speakingCount').textContent = accuracy.speaking.correct + '/' + accuracy.speaking.total;
+      
+      document.getElementById('fillBlankAccuracy').textContent = (accuracy.fillBlank.accuracy || 0) + '%';
+      document.getElementById('fillBlankCount').textContent = accuracy.fillBlank.correct + '/' + accuracy.fillBlank.total;
+      
+      document.getElementById('orderingAccuracy').textContent = (accuracy.ordering.accuracy || 0) + '%';
+      document.getElementById('orderingCount').textContent = accuracy.ordering.correct + '/' + accuracy.ordering.total;
+      
+      document.getElementById('translationAccuracy').textContent = (accuracy.translation.accuracy || 0) + '%';
+      document.getElementById('translationCount').textContent = accuracy.translation.correct + '/' + accuracy.translation.total;
+    }
+
+    // 开始练习
+    function startPractice(type) {
+      if (!window.CoursePractice) return;
+      window.CoursePractice.init(type);
+    }
+
+    // 退出练习（返回学习中心）
+    function exitPractice() {
+      if (!window.CoursePractice) return;
+      window.CoursePractice.exit();
     }
 
     // 更新练习统计
@@ -254,26 +264,9 @@
         }
         
         if (remainingEl) {
-          remainingEl.textContent = `剩余${data.remaining}课`;
+          remainingEl.textContent = `待强化${data.remaining}课`;
         }
       });
-    }
-
-    // 更新报告预览
-    function updateReportPreview() {
-      const container = document.getElementById('reportPreview');
-      const stats = reviewSystem.getLearningStats();
-      
-      container.innerHTML = `
-        <div class="report-preview-item">
-          <span class="label">本周学习</span>
-          <span class="value">${stats.weeklyMinutes}分钟</span>
-        </div>
-        <div class="report-preview-item">
-          <span class="label">掌握进度</span>
-          <span class="value">${stats.mastered}/${stats.total}课</span>
-        </div>
-      `;
     }
 
     // 显示学习报告

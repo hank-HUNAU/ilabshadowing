@@ -185,14 +185,29 @@ class ReviewSystem {
       speaking: { accuracy: 0, remaining: 0 }
     };
     
-    // 简化：返回所有题型的默认值
-    // 实际项目中可以基于课程维度的练习记录计算
-    const todayReview = this.getTodayReviewUnits();
-    const remaining = todayReview.all.length;
+    // 基于题型统计计算待强化课数（正确率<80% 的课）
+    const reviewData = JSON.parse(localStorage.getItem('nce_unit_review') || '{}');
     
     Object.keys(stats).forEach(type => {
-      stats[type].remaining = Math.ceil(remaining / 5); // 平均分配
-      stats[type].accuracy = 80; // 默认 80% 正确率
+      let weakCount = 0;
+      let totalCorrect = 0;
+      let totalTotal = 0;
+      
+      Object.values(reviewData).forEach(record => {
+        if (record.questionTypeStats && record.questionTypeStats[type]) {
+          const typeStat = record.questionTypeStats[type];
+          totalCorrect += typeStat.correct || 0;
+          totalTotal += typeStat.total || 0;
+          
+          // 正确率<80% 算待强化
+          if (typeStat.total > 0 && (typeStat.correct / typeStat.total) < 0.8) {
+            weakCount++;
+          }
+        }
+      });
+      
+      stats[type].accuracy = totalTotal > 0 ? Math.round((totalCorrect / totalTotal) * 100) : 0;
+      stats[type].remaining = weakCount; // 改为待强化课数
     });
     
     return stats;

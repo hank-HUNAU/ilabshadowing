@@ -262,7 +262,7 @@ class DataSync {
   
   /**
    * 获取各题型正确率统计
-   * @returns {Object} 各题型正确率 { listening: 80, speaking: 75, ... }
+   * @returns {Object} 各题型正确率 { listening: { accuracy: 80, correct: 17, total: 20 }, ... }
    */
   getQuestionTypeAccuracy() {
     const reviewData = JSON.parse(localStorage.getItem('nce_unit_review') || '{}');
@@ -287,16 +287,24 @@ class DataSync {
     });
     
     // 计算正确率
-    const accuracy = {};
+    const result = {};
     Object.keys(typeStats).forEach(type => {
       if (typeStats[type].total > 0) {
-        accuracy[type] = Math.round((typeStats[type].correct / typeStats[type].total) * 100);
+        result[type] = {
+          accuracy: Math.round((typeStats[type].correct / typeStats[type].total) * 100),
+          correct: typeStats[type].correct,
+          total: typeStats[type].total
+        };
       } else {
-        accuracy[type] = 0;
+        result[type] = {
+          accuracy: 0,
+          correct: 0,
+          total: 0
+        };
       }
     });
     
-    return accuracy;
+    return result;
   }
   
   /**
