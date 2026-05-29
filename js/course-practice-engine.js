@@ -30,7 +30,13 @@ class CoursePracticeEngine {
     // 加载课程数据
     if (courseId) {
       // 指定课程模式
-      this.currentCourse = await this.loadCourse(courseId);
+      if (typeof courseId === 'object' && courseId.bookKey && courseId.unitKey) {
+        // 从 my-courses.html 传来的课程对象
+        this.currentCourse = await this.loadCourseByKeys(courseId.bookKey, courseId.unitKey);
+      } else {
+        // 传统的 courseId 字符串
+        this.currentCourse = await this.loadCourse(courseId);
+      }
     } else {
       // 默认：加载第一门课程
       const courses = await this.loadAllCourses();
@@ -62,6 +68,46 @@ class CoursePracticeEngine {
       const response = await fetch('data.json');
       const data = await response.json();
       return data.course_practice?.[courseId] || null;
+    } catch (error) {
+      console.error('加载课程失败:', error);
+      return null;
+    }
+  }
+  
+  // 通过 bookKey 和 unitKey 加载课程
+  async loadCourseByKeys(bookKey, unitKey) {
+    try {
+      const response = await fetch('data.json');
+      const data = await response.json();
+      
+      // 从 course_practice 中查找
+      const courseId = `${bookKey}_${unitKey}`;
+      if (data.course_practice?.[courseId]) {
+        return data.course_practice[courseId];
+      }
+      
+      // 降级：从 units 中动态构建课程
+      const units = data.units?.[bookKey] || [];
+      const unit = units.find(u => u.key === unitKey);
+      
+      if (!unit) {
+        return null;
+      }
+      
+      // 构建课程数据
+      return {
+        courseId,
+        bookKey,
+        unitKey,
+        title: unit.title,
+        sentences: unit.lines?.map((line, idx) => ({
+          id: idx,
+          en: line.en,
+          zh: line.cn,
+          audio: line.audio,
+          time: line.time
+        })) || []
+      };
     } catch (error) {
       console.error('加载课程失败:', error);
       return null;

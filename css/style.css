@@ -3508,3 +3508,117 @@ body.hide-en .line-en { display: none; }
     font-size: 0.8rem;
   }
 }
+
+/* 用户中心 - 最近学习快捷入口 */
+.recent-course-shortcut {
+  padding: 12px 0;
+}
+
+.recent-course-empty {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-secondary);
+}
+
+.recent-course-empty p {
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.recent-course-item {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.recent-course-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.recent-course-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.recent-course-header h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.progress-percent {
+  background: var(--primary);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.recent-course-progress {
+  margin-bottom: 12px;
+}
+
+.recent-course-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.learned-count {
+  color: var(--text-secondary);
+}
+
+.continue-btn {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.view-all-courses-link {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.btn-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+}
+
+.btn-link:hover {
+  background: var(--bg-secondary);
+}
+
+.btn-small {
+  display: inline-block;
+  background: var(--primary);
+  color: white;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-small:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}

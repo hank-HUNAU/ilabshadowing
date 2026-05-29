@@ -30,6 +30,31 @@
 
 .back-btn:hover {
   background: var(--bg-secondary);
+  color: var(--primary);
+}
+
+.nav-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+}
+
+.nav-action-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--primary);
+}
+
+.back-btn:hover {
+  background: var(--bg-secondary);
   color: var(--text);
 }
 

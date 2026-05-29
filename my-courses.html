@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#007aff">
+  <title>我的课程 - Hankilab 影子跟读</title>
+  <link rel="stylesheet" href="css/style.css?v=20260528">
+  <link rel="stylesheet" href="css/courses.css?v=20260529">
+</head>
+<body>
+  <div id="app">
+    <!-- 页面头部导航 -->
+    <header class="page-header">
+      <a href="index.html" class="back-btn">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 19l-7-7 7-7"/>
+        </svg>
+        <span>返回应用</span>
+      </a>
+      <h1 class="page-title">我的课程</h1>
+      <a href="practice.html" class="nav-action-btn">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/>
+          <path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/>
+        </svg>
+        <span>学习中心</span>
+      </a>
+    </header>
+
+    <!-- 主要内容区 -->
+    <main class="courses-main">
+      <!-- 继续学习 -->
+      <section class="continue-learning" id="continueLearningSection" style="display: none;">
+        <h2>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;margin-right:6px">
+            <path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/>
+            <path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/>
+          </svg>
+          继续学习
+        </h2>
+        <div class="continue-card" id="continueCard">
+          <!-- 动态生成 -->
+        </div>
+      </section>
+
+      <!-- 全部课程 -->
+      <section class="all-courses">
+        <h2>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;margin-right:6px">
+            <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+          </svg>
+          全部课程
+        </h2>
+        
+        <!-- 教材分组 -->
+        <div class="books-container" id="booksContainer">
+          <!-- 动态生成 -->
+        </div>
+      </section>
+    </main>
+
+    <!-- 页面底部 -->
+    <footer class="page-footer">
+      <div class="footer-content">
+        <span class="footer-text">© 2026 Hankilab. All rights reserved.</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="js/review-system.js?v=20260528"></script>
+  <script src="js/course-manager.js?v=20260529"></script>
+  <script>
+    // 页面加载
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 等待课程管理器初始化
+      await new Promise(resolve => {
+        const checkInit = () => {
+          if (window.CourseManager) {
+            resolve();
+          } else {
+            setTimeout(checkInit, 50);
+          }
+        };
+        checkInit();
+      });
+      
+      // 渲染继续学习区域
+      renderContinueLearning();
+      
+      // 渲染全部课程
+      renderAllCourses();
+    });
+
+    // 渲染继续学习卡片
+    function renderContinueLearning() {
+      const lastCourse = window.CourseManager.getLastLearnedCourse();
+      const section = document.getElementById('continueLearningSection');
+      const container = document.getElementById('continueCard');
+      
+      if (!lastCourse) {
+        section.style.display = 'none';
+        return;
+      }
+      
+      section.style.display = 'block';
+      
+      const progress = lastCourse.progress || 0;
+      const weakCount = lastCourse.weakCount || 0;
+      
+      container.innerHTML = `
+        <div class="continue-card-content" onclick="startCourse('${lastCourse.bookKey}', '${lastCourse.unitKey}')">
+          <div class="continue-card-header">
+            <h3>${lastCourse.title}</h3>
+            <span class="progress-badge">${progress}%</span>
+          </div>
+          <div class="continue-card-body">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${progress}%"></div>
+            </div>
+            <div class="continue-card-stats">
+              <span class="stat-item">已学：${lastCourse.learnedCount || 0}句</span>
+              <span class="stat-item ${weakCount > 0 ? 'weak-highlight' : ''}">待强化：${weakCount}句</span>
+            </div>
+          </div>
+          <div class="continue-card-action">
+            <button class="btn-primary">继续练习 →</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // 渲染全部课程
+    function renderAllCourses() {
+      const container = document.getElementById('booksContainer');
+      const books = window.CourseManager.getAllBooks();
+      
+      let html = '';
+      
+      books.forEach(book => {
+        const units = window.CourseManager.getUnitsByBook(book.key);
+        
+        html += `
+          <div class="book-section">
+            <div class="book-header">
+              <h3>${book.title}</h3>
+              <span class="book-units-count">${units.length}个单元</span>
+            </div>
+            <div class="units-grid">
+        `;
+        
+        units.forEach(unit => {
+          const progressData = window.CourseManager.getUnitProgress(book.key, unit.key);
+          const progress = progressData.progress || 0;
+          const isCompleted = progress === 100;
+          const weakCount = progressData.weakCount || 0;
+          
+          html += `
+            <div class="unit-card ${isCompleted ? 'completed' : ''} ${weakCount > 0 ? 'has-weak' : ''}" 
+                 onclick="startCourse('${book.key}', '${unit.key}')">
+              <div class="unit-card-header">
+                <h4>${unit.title}</h4>
+                ${isCompleted ? '<span class="completed-badge">✓</span>' : ''}
+              </div>
+              <div class="unit-card-body">
+                <div class="unit-progress-bar">
+                  <div class="unit-progress-fill" style="width: ${progress}%"></div>
+                </div>
+                <div class="unit-card-footer">
+                  <span class="unit-sentences">${progressData.totalSentences || unit.lines?.length || 0}句</span>
+                  ${weakCount > 0 ? `<span class="weak-count">待强化 ${weakCount}</span>` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        
+        html += `
+            </div>
+          </div>
+        `;
+      });
+      
+      container.innerHTML = html;
+    }
+
+    // 开始课程练习
+    function startCourse(bookKey, unitKey) {
+      const params = new URLSearchParams({
+        book: bookKey,
+        unit: unitKey
+      });
+      window.location.href = `practice.html?${params.toString()}`;
+    }
+  </script>
+</body>
+</html>

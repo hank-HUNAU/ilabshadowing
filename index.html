@@ -298,24 +298,39 @@
           </div>
         </div>
         
-        <!-- 个人信息 -->
-            <div class="fold-header" onclick="toggleFoldCard('courses')">
-              <div class="fold-title">
-                <span class="fold-icon">📚</span>
-                <span>课程选择</span>
+        <!-- 课程选择 -->
+            <div class="fold-card" data-fold="courses">
+              <div class="fold-header" onclick="toggleFoldCard('courses')">
+                <div class="fold-title">
+                  <span class="fold-icon">📚</span>
+                  <span>课程选择</span>
+                </div>
+                <button class="fold-toggle" id="foldToggleCourses">
+                  <svg class="fold-icon-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
+                </button>
               </div>
-              <button class="fold-toggle" id="foldToggleCourses">
-                <svg class="fold-icon-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M6 9l6 6 6-6"/>
-                </svg>
-              </button>
-            </div>
-            <div class="fold-content" id="foldContentCourses">
-              <div id="courseSelectList" class="course-select-list">
-                <!-- 动态生成 -->
+              <div class="fold-content" id="foldContentCourses">
+                <!-- 最近学习快捷入口 -->
+                <div id="recentCourseShortcut" class="recent-course-shortcut">
+                  <!-- 动态生成 -->
+                </div>
+                <!-- 查看全部课程链接 -->
+                <div class="view-all-courses-link">
+                  <a href="my-courses.html" class="btn-link">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+                    </svg>
+                    <span>查看全部课程</span>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
           
           <!-- 成就徽章 -->
           <div class="fold-card" data-fold="achievements">
@@ -684,7 +699,83 @@
           if (learningDetailsHeader) {
             setTimeout(renderLearningDetails, 300);
           }
+          // 如果点击的是课程选择折叠卡片的头部
+          const coursesHeader = e.target.closest('[data-fold="courses"] .fold-header');
+          if (coursesHeader) {
+            setTimeout(renderRecentCourseShortcut, 300);
+          }
         });
+      }
+      
+      // 渲染最近学习快捷入口
+      function renderRecentCourseShortcut() {
+        const container = document.getElementById('recentCourseShortcut');
+        if (!container) return;
+        
+        // 从 localStorage 获取最近学习的课程
+        const reviewData = JSON.parse(localStorage.getItem('nce_unit_review') || '{}');
+        const keys = Object.keys(reviewData);
+        
+        if (keys.length === 0) {
+          container.innerHTML = `
+            <div class="recent-course-empty">
+              <p>暂无学习记录</p>
+              <a href="my-courses.html" class="btn-small">选择课程</a>
+            </div>
+          `;
+          return;
+        }
+        
+        // 找到最近学习的单元
+        let lastKey = keys[0];
+        let lastDate = new Date(reviewData[keys[0]]?.studyDate || 0);
+        
+        keys.forEach(key => {
+          const record = reviewData[key];
+          if (record.studyDate) {
+            const studyDate = new Date(record.studyDate);
+            if (studyDate > lastDate) {
+              lastDate = studyDate;
+              lastKey = key;
+            }
+          }
+        });
+        
+        // 解析 key (格式：BOOK_UNIT)
+        const [bookKey, unitKey] = lastKey.split('_');
+        
+        // 获取课程标题
+        fetch('data.json')
+          .then(r => r.json())
+          .then(data => {
+            const units = data.units?.[bookKey] || [];
+            const unit = units.find(u => u.key === unitKey);
+            const title = unit?.title || '未知课程';
+            
+            // 计算进度
+            const record = reviewData[lastKey];
+            const totalSentences = unit?.lines?.length || 0;
+            const learnedCount = record?.accuracyHistory?.length || 0;
+            const progress = totalSentences > 0 ? Math.round((learnedCount / totalSentences) * 100) : 0;
+            
+            container.innerHTML = `
+              <div class="recent-course-item" onclick="window.location.href='practice.html?book=${bookKey}&unit=${unitKey}'">
+                <div class="recent-course-header">
+                  <h4>${title}</h4>
+                  <span class="progress-percent">${progress}%</span>
+                </div>
+                <div class="recent-course-progress">
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${progress}%"></div>
+                  </div>
+                </div>
+                <div class="recent-course-footer">
+                  <span class="learned-count">已学 ${learnedCount}/${totalSentences} 句</span>
+                  <span class="continue-btn">继续练习 →</span>
+                </div>
+              </div>
+            `;
+          });
       }
     });
   </script>

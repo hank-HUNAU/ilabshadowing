@@ -19,6 +19,13 @@
         <span>返回应用</span>
       </a>
       <h1 class="page-title">学习中心</h1>
+      <a href="my-courses.html" class="nav-action-btn">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+        </svg>
+        <span>我的课程</span>
+      </a>
     </header>
 
     <!-- 主要内容区 -->
@@ -203,6 +210,7 @@
   <script src="js/sf-icons.js?v=20260528"></script>
   <script src="js/data-sync.js?v=20260529"></script>
   <script src="js/review-system.js?v=20260528"></script>
+  <script src="js/course-manager.js?v=20260529"></script>
   <script src="js/course-practice-engine.js?v=20260529"></script>
   <script>
     // 页面加载
@@ -394,9 +402,26 @@
       return names[type] || type;
     }
     
-    // 解析 URL 参数，支持直接打开单句练习
+    // 解析 URL 参数，支持直接打开单句练习和课程练习
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
+      
+      // 课程练习模式：从 my-courses.html 跳转
+      const bookKey = params.get('book');
+      const unitKey = params.get('unit');
+      
+      if (bookKey && unitKey) {
+        console.log('[Practice Mode] Course practice:', { bookKey, unitKey });
+        
+        // 初始化课程练习
+        if (window.CoursePractice) {
+          // 默认使用听音辨意题型，后续可以在 UI 中选择题型
+          window.CoursePractice.init('listening', { bookKey, unitKey });
+        }
+        return;
+      }
+      
+      // 单句练习模式（原有逻辑）
       const sentenceId = params.get('sentence');
       const en = params.get('en');
       const zh = params.get('zh');
