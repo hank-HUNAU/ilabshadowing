@@ -75,16 +75,7 @@
     // 页面加载
     document.addEventListener('DOMContentLoaded', async () => {
       // 等待课程管理器初始化
-      await new Promise(resolve => {
-        const checkInit = () => {
-          if (window.CourseManager) {
-            resolve();
-          } else {
-            setTimeout(checkInit, 50);
-          }
-        };
-        checkInit();
-      });
+      await window.CourseManager.ensureInit();
       
       // 渲染继续学习区域
       renderContinueLearning();

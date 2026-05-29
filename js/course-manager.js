@@ -6,23 +6,36 @@
 window.CourseManager = {
   // 课程缓存数据
   _coursesData: null,
+  _initialized: false,
   
   /**
    * 初始化课程管理器
    */
   async init() {
-    if (this._coursesData) {
+    if (this._initialized) {
       return this._coursesData;
     }
     
     try {
       const response = await fetch('data.json');
       this._coursesData = await response.json();
+      this._initialized = true;
+      console.log('[CourseManager] 初始化成功，课程数:', this._coursesData?.books?.length || 0);
       return this._coursesData;
     } catch (error) {
-      console.error('[CourseManager] Failed to load courses:', error);
+      console.error('[CourseManager] 加载课程失败:', error);
       return { books: [], units: {} };
     }
+  },
+  
+  /**
+   * 确保已初始化
+   */
+  async ensureInit() {
+    if (!this._initialized) {
+      await this.init();
+    }
+    return this._coursesData;
   },
   
   /**
