@@ -63,19 +63,23 @@ window.CourseManager = {
     const key = `${bookKey}_${unitKey}`;
     const record = reviewData[key];
     
+    // 获取单元信息
+    const units = this.getUnitsByBook(bookKey);
+    const unit = units.find(u => u.key === unitKey);
+    const totalSentences = unit?.lines?.length || 0;
+    
     if (!record) {
-      const units = this.getUnitsByBook(bookKey);
-      const unit = units.find(u => u.key === unitKey);
       return {
         progress: 0,
         learnedCount: 0,
         weakCount: 0,
-        totalSentences: unit?.lines?.length || 0
+        totalSentences
       };
     }
     
     // 计算进度
-    const totalSentences = unit?.lines?.length || record.accuracyHistory?.length || 0;
+    const learnedCount = record.accuracyHistory?.length || 0;
+    const progress = totalSentences > 0 ? Math.round((learnedCount / totalSentences) * 100) : 0;
     const learnedCount = record.accuracyHistory?.length || 0;
     const progress = totalSentences > 0 ? Math.round((learnedCount / totalSentences) * 100) : 0;
     
