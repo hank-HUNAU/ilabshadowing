@@ -334,7 +334,7 @@ class CoursePracticeEngine {
     }
   }
   
-  // 渲染题目：听音辨意
+  // 渲染题目：听音辨意（真正的听力训练）
   renderListening(sentenceData, container) {
     const listening = sentenceData.questions?.listening;
     if (!listening?.options?.length) {
@@ -351,16 +351,50 @@ class CoursePracticeEngine {
       .join('');
     
     container.innerHTML = `
-      <h3 class="question-text">选择正确的含义</h3>
+      <!-- 音频播放区 -->
+      <div class="listening-audio-area">
+        <button class="audio-btn large" id="playAudioBtn">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          <span>点击播放音频</span>
+        </button>
+        <p class="listening-hint">听录音，选择正确含义</p>
+        <p class="listening-subhint" style="margin-top:8px;font-size:0.85rem;color:var(--text-secondary)">
+          🔁 可多次播放，直到听清为止
+        </p>
+      </div>
+      
+      <!-- 选项区 -->
       <div class="answer-options">
         ${optionsHtml}
       </div>
+      
+      <!-- 答案反馈区（答题后显示） -->
+      <div class="feedback-area" id="feedbackArea" style="display:none">
+        <div class="feedback-result"></div>
+        <div class="original-sentence">
+          <div class="sentence-en">${sentenceData.sentence}</div>
+          <div class="sentence-cn">${sentenceData.translation}</div>
+        </div>
+      </div>
     `;
+    
+    // 绑定音频播放
+    document.getElementById('playAudioBtn').addEventListener('click', () => {
+      this.playAudio(sentenceData.audio);
+    });
+    
+    // 自动播放一次（可选）
+    setTimeout(() => {
+      this.playAudio(sentenceData.audio);
+    }, 500);
     
     // 绑定选项点击
     container.querySelectorAll('.answer-option').forEach(btn => {
       btn.addEventListener('click', () => {
-        this.handleAnswer(btn.dataset.correct === 'true');
+        const isCorrect = btn.dataset.correct === 'true';
+        this.handleAnswer(isCorrect, sentenceData);
       });
     });
   }
@@ -581,20 +615,31 @@ class CoursePracticeEngine {
   }
   
   // 处理答案
-  handleAnswer(isCorrect) {
+  handleAnswer(isCorrect, sentenceData = null) {
     if (isCorrect) {
       this.score += 10;
-      toast.success('正确！+10 分');
       
-      // 延迟自动进入下一句
-      setTimeout(() => {
-        this.nextSentence();
-      }, 800);
+      // 显示正确答案反馈
+      if (this.questionType === 'listening') {
+        this.showListeningFeedback(sentenceData, true);
+      } else {
+        toast.success('正确！+10 分');
+        
+        // 延迟自动进入下一句
+        setTimeout(() => {
+          this.nextSentence();
+        }, 800);
+      }
     } else {
-      toast.error('不正确，请再思考一下');
+      // 显示错误反馈
+      if (this.questionType === 'listening') {
+        this.showListeningFeedback(sentenceData, false);
+      } else {
+        toast.error('不正确，请再思考一下');
+      }
     }
     
-    // TODO: 记录答题数据到同步模块
+    // 记录答题数据到同步模块
     if (window.dataSync && this.currentCourse) {
       window.recordPracticeResult(
         this.currentCourse.unitKey,
@@ -604,6 +649,51 @@ class CoursePracticeEngine {
         this.questionType
       );
     }
+  }
+  
+  // 显示听力题答案反馈
+  showListeningFeedback(sentenceData, isCorrect) {
+    const feedbackArea = document.getElementById('feedbackArea');
+    const resultDiv = feedbackArea.querySelector('.feedback-result');
+    
+    if (isCorrect) {
+      resultDiv.innerHTML = `
+        <div class="feedback-correct">
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#34d399" stroke-width="3">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+          <h3>正确！+10 分</h3>
+          <p>继续加油！</p>
+        </div>
+      `;
+      
+      toast.success('正确！+10 分');
+      
+      // 延迟自动进入下一句
+      setTimeout(() => {
+        this.nextSentence();
+      }, 1500);
+    } else {
+      resultDiv.innerHTML = `
+        <div class="feedback-incorrect">
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#ef4444" stroke-width="3">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+          <h3>不正确</h3>
+          <p>再听一遍，加深印象</p>
+        </div>
+      `;
+      
+      toast.error('不正确，请再思考一下');
+    }
+    
+    // 显示原句
+    feedbackArea.style.display = 'block';
+    
+    // 再次播放音频帮助记忆
+    setTimeout(() => {
+      this.playAudio(sentenceData.audio);
+    }, 500);
   }
   
   // 退出练习
