@@ -596,28 +596,6 @@ body {
   opacity: 0.6;
 }
 
-.line-practice {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  outline: none;
-  background: rgba(0, 122, 255, 0.1);
-  color: var(--primary);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  font-size: 1rem;
-}
-
-.line-practice:hover {
-  background: rgba(0, 122, 255, 0.2);
-  transform: scale(1.1);
-}
-
 .line-favorite:hover {
   background: rgba(251, 191, 36, 0.15);
   color: #fbbf24;

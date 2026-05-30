@@ -248,20 +248,7 @@ class App {
     }
   }
 
-  openPractice(lineIdx) {
-    if (lineIdx < 0 || lineIdx >= this.lines.length) return;
-    
-    const line = this.lines[lineIdx];
-    const sentenceId = `${this.key}_${this.idx}_${lineIdx}`;
-    
-    // 打开练习页面
-    const practiceUrl = `practice.html?sentence=${encodeURIComponent(sentenceId)}&en=${encodeURIComponent(line.en)}&zh=${encodeURIComponent(line.cn || '')}&audio=${encodeURIComponent(this.getLineAudioUrl(lineIdx))}`;
-    
-    // 在新标签页打开练习页面
-    window.open(practiceUrl, '_blank');
-    
-    console.log('[Practice] Opening practice for sentence:', sentenceId);
-  }
+  // 已移除"练习本句"按钮功能（2026-05-30）
   
   getLineAudioUrl(lineIdx) {
     // 获取单句音频 URL（简化处理，使用完整音频 + 时间戳）
@@ -826,7 +813,6 @@ class App {
           ${l.cn ? `<div class="line-cn">${l.cn}</div>` : ''}
         </div>
         <div class="line-actions">
-          <button class="line-practice" data-line-i="${i}" title="练习本句" aria-label="练习本句">📝</button>
           <button class="line-favorite ${isFavorited ? 'favorited' : ''}" data-line-i="${i}" title="${isFavorited ? '取消收藏' : '收藏本句'}">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="${isFavorited ? '#fbbf24' : 'none'}" stroke="${isFavorited ? '#fbbf24' : 'currentColor'}" stroke-width="2">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -1010,20 +996,8 @@ class App {
       });
     }
     
-    // 歌词区域点击事件（包含收藏按钮和练习按钮）
+    // 歌词区域点击事件（收藏按钮）
     this.els.area.addEventListener('click', e => {
-      const practiceBtn = e.target.closest('.line-practice');
-      
-      // 如果点击的是练习按钮，打开练习界面
-      if (practiceBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        const lineIdx = +practiceBtn.dataset.lineI;
-        this.openPractice(lineIdx);
-        console.log('[Practice] Opened practice for line', lineIdx);
-        return;
-      }
-      
       const favoriteBtn = e.target.closest('.line-favorite');
       
       // 如果点击的是收藏按钮，只切换收藏状态，不播放
