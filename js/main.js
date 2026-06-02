@@ -41,7 +41,9 @@ function getBucket(key) {
 function getAudioUrl(filename, bookPath, key) {
   if (AUDIO_SOURCE === 'supabase') {
     const bucket = getBucket(key);
-    const url = `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${filename}.mp3`;
+    // 对文件名进行 URL 编码，处理空格等特殊字符
+    const encodedFilename = encodeURIComponent(filename);
+    const url = `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${encodedFilename}.mp3`;
     console.log('[Audio URL]', { filename, key, bucket, url });
     return url;
   }
@@ -95,7 +97,9 @@ function loadAchievements() {
 function getLrcUrl(filename, bookPath, key) {
   if (AUDIO_SOURCE === 'supabase') {
     const bucket = getBucket(key);
-    const url = `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${filename}.lrc`;
+    // 对文件名进行 URL 编码，处理空格等特殊字符
+    const encodedFilename = encodeURIComponent(filename);
+    const url = `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${encodedFilename}.lrc`;
     console.log('[LRC URL]', { filename, key, bucket, url });
     return url;
   }

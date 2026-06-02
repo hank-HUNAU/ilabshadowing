@@ -231,6 +231,153 @@
             "cn": "你的生日是什么时候？"
           }
         ]
+      },
+      {
+        "key": "u003",
+        "title": "Unit 5-1 Robotics Club",
+        "audio": "Unit 05-1 Reading A",
+        "lines": [
+          {
+            "time": 6.33,
+            "en": "Robotics Club is cool.",
+            "cn": "机器人俱乐部很酷。"
+          },
+          {
+            "time": 10.51,
+            "en": "Our school has a Robotics Club and it's brilliant.",
+            "cn": "我们学校有一个机器人俱乐部，非常棒。"
+          },
+          {
+            "time": 15.82,
+            "en": "I know this because I go to it.",
+            "cn": "我知道这一点，因为我去了。"
+          },
+          {
+            "time": 20.64,
+            "en": "So what is a Robotics Club?",
+            "cn": "那么，什么是机器人俱乐部？"
+          },
+          {
+            "time": 24.0,
+            "en": "Easy.",
+            "cn": "简单！"
+          },
+          {
+            "time": 25.44,
+            "en": "It's a club for building robots and I love robots.",
+            "cn": "这是一个制造机器人的俱乐部，我喜欢机器人。"
+          },
+          {
+            "time": 32.14,
+            "en": "Mr. Thomas is the club leader.",
+            "cn": "托马斯先生是俱乐部的负责人。"
+          },
+          {
+            "time": 36.59,
+            "en": "He thinks of things for us to do and helps us build our robots.",
+            "cn": "他会考虑我们要做的事情，并帮助我们建造机器人。"
+          },
+          {
+            "time": 42.93,
+            "en": "He's really cool and very kind.",
+            "cn": "他真的很酷，也很善良。"
+          },
+          {
+            "time": 46.81,
+            "en": "He never gets angry with us.",
+            "cn": "他从不生我们的气。"
+          },
+          {
+            "time": 50.42,
+            "en": "He teaches music, not design and technology,",
+            "cn": "他教授音乐，而不是设计和技术，"
+          },
+          {
+            "time": 55.66,
+            "en": "but he just loves everything to do with computers.",
+            "cn": "但他只是喜欢与电脑有关的一切。"
+          },
+          {
+            "time": 61.79,
+            "en": "We often make our own robots,",
+            "cn": "我们经常自己制造机器人，"
+          },
+          {
+            "time": 65.22,
+            "en": "but we sometimes watch videos of other robots on the internet.",
+            "cn": "但我们有时会在互联网上观看其他机器人的视频。"
+          },
+          {
+            "time": 71.28,
+            "en": "When our robot is ready,",
+            "cn": "当我们的机器人准备好了，"
+          },
+          {
+            "time": 73.75,
+            "en": "we use computer programs to make it do things.",
+            "cn": "我们使用计算机程序让它做事情。"
+          },
+          {
+            "time": 79.23,
+            "en": "Every year there is a competition for schools all over the country.",
+            "cn": "每年全国各地的学校都会举办一场比赛。"
+          },
+          {
+            "time": 85.81,
+            "en": "I feel really excited when we show our robots to students from other schools.",
+            "cn": "当我们向其他学校的学生展示我们的机器人时，我感到非常兴奋。"
+          },
+          {
+            "time": 92.42,
+            "en": "We never win, but that's not important.",
+            "cn": "我们从来没有赢过，但这并不重要。"
+          },
+          {
+            "time": 97.51,
+            "en": "The other students like watching our robot move.",
+            "cn": "其他学生喜欢看我们的机器人移动。"
+          },
+          {
+            "time": 102.54,
+            "en": "It feels great.",
+            "cn": "感觉很棒。"
+          },
+          {
+            "time": 105.51,
+            "en": "I love Robotics Club.",
+            "cn": "我喜欢机器人俱乐部。"
+          },
+          {
+            "time": 108.6,
+            "en": "It's a great place to meet new people.",
+            "cn": "这是一个结识新朋友的好地方。"
+          },
+          {
+            "time": 112.62,
+            "en": "You make so many friends and not just with people from school.",
+            "cn": "你交了很多朋友，而不仅仅是和学校里的人。"
+          },
+          {
+            "time": 118.48,
+            "en": "Robotics Club is for everyone.",
+            "cn": "机器人俱乐部适合所有人。"
+          },
+          {
+            "time": 122.67,
+            "en": "We meet in the school hall every Monday at lunchtime and every Thursday after school.",
+            "cn": "我们每周一午餐时间和每周四放学后在学校大厅见面。"
+          },
+          {
+            "time": 131.71,
+            "en": "Come and see us.",
+            "cn": "来看看我们。"
+          },
+          {
+            "time": 133.49,
+            "en": "We're always happy to see new people.",
+            "cn": "我们总是很高兴看到新朋友。"
+          }
+        ]
       }
     ]
   },
