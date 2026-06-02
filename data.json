@@ -186,7 +186,6 @@
       {
         "key": "u001",
         "title": "Unit 1A",
-        " audio": "T0_U01A",
         "lines": [
           {
             "time": 0.5,
@@ -208,12 +207,12 @@
             "en": "Nice to meet you.",
             "cn": "很高兴见到你。"
           }
-        ]
+        ],
+        "audio": "T0_U01A"
       },
       {
         "key": "u002",
         "title": "Unit 1B",
-        " audio": "T0_U01B",
         "lines": [
           {
             "time": 0.5,
@@ -230,7 +229,8 @@
             "en": "When's your birthday?",
             "cn": "你的生日是什么时候？"
           }
-        ]
+        ],
+        "audio": "T0_U01B"
       },
       {
         "key": "u003",
