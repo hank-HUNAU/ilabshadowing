@@ -720,7 +720,7 @@ class App {
     localStorage.setItem(LS.UNIT(this.key), i);
     
     const u = this.units[i];
-    console.log('[DEBUG open()]', { i, key: this.key, path: this.path, unit: u });
+    console.log('[DEBUG open()]', { i, key: this.path, unit: u });
     
     // 先显示弹窗（标题先显示数字）
     this.els.title.textContent = `Lesson ${parseInt(u.filename)}`;
@@ -732,6 +732,19 @@ class App {
     // 开始学习计时
     if (userManager) {
       userManager.startStudySession();
+    }
+    
+    // 默认全屏模式：打开时移除 windowed 类，添加 expanded 类（兼容旧版）
+    const inner = this.els.dlg.querySelector('.dialog-inner');
+    if (inner) {
+      inner.classList.remove('windowed');
+      inner.classList.add('expanded');
+      
+      // 更新图标状态
+      const icoExp = this.els.expand?.querySelector('.ico-expand');
+      const icoShr = this.els.expand?.querySelector('.ico-shrink');
+      if (icoExp) icoExp.style.display = 'none';
+      if (icoShr) icoShr.style.display = 'block';
     }
     
     // 先显示弹窗（不等待 LRC 加载）
@@ -1115,23 +1128,24 @@ class App {
       }
     });
     
-    // Expand/Maximize Toggle
+    // Expand/Fullscreeen Toggle
     if (this.els.expand) {
       this.els.expand.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         const inner = this.els.dlg.querySelector('.dialog-inner');
         if (inner) {
-          inner.classList.toggle('expanded');
+          // 切换 windowed 类（窗口模式）
+          inner.classList.toggle('windowed');
           
           // Toggle icons
-          const isExpanded = inner.classList.contains('expanded');
+          const isWindowed = inner.classList.contains('windowed');
           const icoExp = this.els.expand.querySelector('.ico-expand');
           const icoShr = this.els.expand.querySelector('.ico-shrink');
           
-          if (icoExp) icoExp.style.display = isExpanded ? 'none' : 'block';
-          if (icoShr) icoShr.style.display = isExpanded ? 'block' : 'none';
-          this.els.expand.setAttribute('aria-label', isExpanded ? '退出全屏' : '全屏模式');
+          if (icoExp) icoExp.style.display = isWindowed ? 'block' : 'none';
+          if (icoShr) icoShr.style.display = isWindowed ? 'none' : 'block';
+          this.els.expand.setAttribute('aria-label', isWindowed ? '全屏模式' : '退出全屏');
         }
       });
     }
