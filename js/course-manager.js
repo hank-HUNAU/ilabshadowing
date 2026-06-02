@@ -80,8 +80,6 @@ window.CourseManager = {
     // 计算进度
     const learnedCount = record.accuracyHistory?.length || 0;
     const progress = totalSentences > 0 ? Math.round((learnedCount / totalSentences) * 100) : 0;
-    const learnedCount = record.accuracyHistory?.length || 0;
-    const progress = totalSentences > 0 ? Math.round((learnedCount / totalSentences) * 100) : 0;
     
     // 计算待强化数量（正确率<80% 的题型）
     let weakCount = 0;

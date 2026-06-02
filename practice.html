@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#007aff">
   <title>学习中心 - Hankilab 学习中心</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="css/style.css?v=20260528">
-  <link rel="stylesheet" href="css/practice.css?v=20260529">
+  <link rel="stylesheet" href="css/practice.css?v=20260602-11">
 </head>
 <body>
   <div id="app">
-    <!-- 页面头部 -->
+    <!-- 顶部导航栏（固定 60px） -->
     <header class="practice-header">
       <a href="index.html" class="back-btn">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
@@ -19,431 +20,337 @@
         <span>返回应用</span>
       </a>
       <h1 class="page-title">学习中心</h1>
-      <a href="my-courses.html" class="nav-action-btn">
+      <button class="nav-action-btn" onclick="openCourseSelectDialog()">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
         </svg>
         <span>我的课程</span>
-      </a>
+      </button>
     </header>
 
-    <!-- 主要内容区 -->
+    <!-- Tab 切换栏（固定 50px） -->
+    <div class="tab-bar">
+      <button class="tab-item active" data-tab="overview" onclick="switchTab('overview')">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 3v18M6 14v4M12 10v8M24 6v12"/><path d="M8 13l3 3 5-6"/>
+        </svg>
+        学习概览
+      </button>
+      <button class="tab-item" data-tab="practice" onclick="switchTab('practice')">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        </svg>
+        专项练习
+      </button>
+      <button class="tab-item" data-tab="course" onclick="switchTab('course')">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h11z"/>
+        </svg>
+        课程详情
+      </button>
+    </div>
+
+    <!-- 主内容区（固定高度，无滚动） -->
     <main class="practice-main">
-      <!-- 练习统计 -->
-      <section class="learning-overview">
-        <h2><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;margin-right:6px"><path d="M18 3v18M6 14v4M12 10v8M24 6v12"/><path d="M8 13l3 3 5-6"/></svg>练习统计</h2>
-        <div class="type-stats-grid" id="typeStatsGrid">
-          <div class="type-stat-card">
-            <div class="type-stat-value"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4v16a5 5 0 005 5h1a5 5 0 005-5v-2a2 2 0 00-2-2 2 2 0 00-2 2v2a1 1 0 01-1 1h-1a1 1 0 01-1-1V4a1 1 0 011-1h1a1 1 0 011 1v2h2V4a3 3 0 00-3-3h-1a3 3 0 00-3 3z"/><circle cx="12" cy="13" r="2"/></svg> <span id="listeningAccuracy">0%</span></div>
-            <div class="type-stat-label">听音辨意</div>
-            <div class="type-stat-count" id="listeningCount">0/0</div>
+      <!-- Tab 1: 学习概览 -->
+      <section id="tab-overview" class="tab-panel active">
+        <div class="overview-grid">
+          <!-- 左侧：关键指标 -->
+          <div class="metrics-section">
+            <h2 class="section-title">关键指标</h2>
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-icon">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                  </svg>
+                </div>
+                <div class="metric-value" id="totalLearningTime">0h</div>
+                <div class="metric-label">累计学习</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-icon">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a5 5 0 005 5h4a5 5 0 005-5V9a2 2 0 00-2-2V7a5 5 0 00-5-5z"/><path d="M12 4v8M9 8h6"/>
+                  </svg>
+                </div>
+                <div class="metric-value" id="streakDays">0 天</div>
+                <div class="metric-label">连续学习</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-icon">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>
+                  </svg>
+                </div>
+                <div class="metric-value" id="masteredCourses">0 课</div>
+                <div class="metric-label">已掌握</div>
+              </div>
+            </div>
           </div>
-          <div class="type-stat-card">
-            <div class="type-stat-value"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg> <span id="speakingAccuracy">0%</span></div>
-            <div class="type-stat-label">跟读模仿</div>
-            <div class="type-stat-count" id="speakingCount">0/0</div>
+
+          <!-- 中间：题型正确率 -->
+          <div class="stats-section">
+            <h2 class="section-title">题型正确率</h2>
+            <div class="type-stats-grid" id="typeStatsGrid">
+              <div class="type-stat-card">
+                <div class="type-stat-icon">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M7 4v16a5 5 0 005 5h1a5 5 0 005-5v-2a2 2 0 00-2-2 2 2 0 00-2 2v2a1 1 0 01-1 1h-1a1 1 0 01-1-1V4a1 1 0 011-1h1a1 1 0 011 1v2h2V4a3 3 0 00-3-3h-1a3 3 0 00-3 3z"/><circle cx="12" cy="13" r="2"/>
+                  </svg>
+                </div>
+                <div class="type-stat-value" id="listeningAccuracy">0%</div>
+                <div class="type-stat-label">听音辨意</div>
+                <div class="type-stat-count" id="listeningCount">0/0</div>
+              </div>
+              <div class="type-stat-card">
+                <div class="type-stat-icon">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/>
+                  </svg>
+                </div>
+                <div class="type-stat-value" id="speakingAccuracy">0%</div>
+                <div class="type-stat-label">跟读模仿</div>
+                <div class="type-stat-count" id="speakingCount">0/0</div>
+              </div>
+              <div class="type-stat-card">
+                <div class="type-stat-icon">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 6h16M4 12h16M4 18h16"/><path d="M9 18v3M15 18v3M12 18v3M5 6V3M19 6V3"/>
+                  </svg>
+                </div>
+                <div class="type-stat-value" id="fillBlankAccuracy">0%</div>
+                <div class="type-stat-label">补全训练</div>
+                <div class="type-stat-count" id="fillBlankCount">0/0</div>
+              </div>
+              <div class="type-stat-card">
+                <div class="type-stat-icon">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 5h20M2 9h20M2 13h20M2 17h20"/><path d="M7 9v3M17 13v4M7 13v4M17 9v4"/>
+                  </svg>
+                </div>
+                <div class="type-stat-value" id="orderingAccuracy">0%</div>
+                <div class="type-stat-label">句子重组</div>
+                <div class="type-stat-count" id="orderingCount">0/0</div>
+              </div>
+              <div class="type-stat-card">
+                <div class="type-stat-icon">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 8h14M5 12h14M5 16h14"/><path d="M3 8v8M21 8v8M3 8l9-5 9 5"/>
+                  </svg>
+                </div>
+                <div class="type-stat-value" id="translationAccuracy">0%</div>
+                <div class="type-stat-label">翻译练习</div>
+                <div class="type-stat-count" id="translationCount">0/0</div>
+              </div>
+              <div class="type-stat-card placeholder">
+                <div class="placeholder-icon">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 3v18M3 12h18"/>
+                  </svg>
+                </div>
+                <div class="placeholder-text">更多统计</div>
+              </div>
+            </div>
           </div>
-          <div class="type-stat-card">
-            <div class="type-stat-value"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/><path d="M9 18v3M15 18v3M12 18v3M5 6V3M19 6V3"/></svg> <span id="fillBlankAccuracy">0%</span></div>
-            <div class="type-stat-label">补全训练</div>
-            <div class="type-stat-count" id="fillBlankCount">0/0</div>
-          </div>
-          <div class="type-stat-card">
-            <div class="type-stat-value"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 5h20M2 9h20M2 13h20M2 17h20"/><path d="M7 9v3M17 13v4M7 13v4M17 9v4"/></svg> <span id="orderingAccuracy">0%</span></div>
-            <div class="type-stat-label">句子重组</div>
-            <div class="type-stat-count" id="orderingCount">0/0</div>
-          </div>
-          <div class="type-stat-card">
-            <div class="type-stat-value"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 12h14M5 16h14"/><path d="M3 8v8M21 8v8M3 8l9-5 9 5"/></svg> <span id="translationAccuracy">0%</span></div>
-            <div class="type-stat-label">翻译练习</div>
-            <div class="type-stat-count" id="translationCount">0/0</div>
+
+          <!-- 右侧：当前课程 -->
+          <div class="course-section">
+            <h2 class="section-title">当前课程</h2>
+            <div class="current-course-banner" id="currentCourseBanner">
+              <div class="course-banner-info">
+                <h3 id="currentCourseTitle">选择课程开始学习</h3>
+                <div class="course-progress-bar" id="courseProgressBarContainer" style="display: none;">
+                  <div class="course-progress-fill" id="currentCourseProgressFill" style="width: 0%"></div>
+                </div>
+                <div class="course-stats" id="courseStatsContainer" style="display: none;">
+                  <span>已学 <strong id="currentCourseLearned">0</strong>句</span>
+                  <span>共 <strong id="currentCourseTotal">0</strong>句</span>
+                </div>
+              </div>
+              <div class="course-nav-arrows">
+                <button class="arrow-btn prev" onclick="navigateCourse(-1)" aria-label="上一课程">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 19l-7-7 7-7"/>
+                  </svg>
+                </button>
+                <div class="course-pager">
+                  <span id="currentCourseIndex">1</span> / <span id="totalCourses">0</span>
+                </div>
+                <button class="arrow-btn next" onclick="navigateCourse(1)" aria-label="下一课程">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <a href="index.html?tab=usercenter" class="report-link" target="_blank">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+              查看详细报告
+            </a>
           </div>
         </div>
-        <p class="hint" style="text-align:center;color:var(--text-secondary);font-size:0.9rem;margin:16px 0">
-          💡 查看详细学习报告，请返回 <a href="index.html" style="color:var(--primary);text-decoration:none">主应用 → 用户中心</a>
-        </p>
       </section>
 
-      <!-- 学习激励 -->
-      <section class="learning-motivation">
-        <div class="motivation-grid">
-          <div class="motivation-card">
-            <div class="motivation-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-            <div class="motivation-value" id="totalLearningTime">0h</div>
-            <div class="motivation-label">累计学习</div>
+      <!-- Tab 2: 专项练习 -->
+      <section id="tab-practice" class="tab-panel">
+        <div class="practice-section">
+          <div class="section-header">
+            <h2>专项练习</h2>
+            <span class="section-hint" id="practiceHint">选择题型开始练习</span>
           </div>
-          <div class="motivation-card">
-            <div class="motivation-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a5 5 0 005 5h4a5 5 0 005-5V9a2 2 0 00-2-2V7a5 5 0 00-5-5z"/><path d="M12 4v8M9 8h6"/></svg></div>
-            <div class="motivation-value" id="streakDays">0 天</div>
-            <div class="motivation-label">连续学习</div>
-          </div>
-          <div class="motivation-card">
-            <div class="motivation-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg></div>
-            <div class="motivation-value" id="masteredCourses">0 课</div>
-            <div class="motivation-label">已掌握</div>
+          
+          <div class="practice-grid">
+            <!-- 听音辨意 -->
+            <div class="practice-card" data-type="listening" onclick="startPractice('listening')">
+              <div class="practice-card-content">
+                <div class="practice-icon">
+                  <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M7 4v16a5 5 0 005 5h1a5 5 0 005-5v-2a2 2 0 00-2-2 2 2 0 00-2 2v2a1 1 0 01-1 1h-1a1 1 0 01-1-1V4a1 1 0 011-1h1a1 1 0 011 1v2h2V4a3 3 0 00-3-3h-1a3 3 0 00-3 3z"/><circle cx="12" cy="13" r="2"/>
+                  </svg>
+                </div>
+                <h3>听音辨意</h3>
+                <p class="practice-desc">听音频选择正确含义</p>
+                <div class="practice-stats">
+                  <span class="star-rating" id="listeningStars">★★★★★</span>
+                  <span class="remaining-count" id="listeningRemaining">待强化 0 句</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 跟读模仿 -->
+            <div class="practice-card" data-type="speaking" onclick="startPractice('speaking')">
+              <div class="practice-card-content">
+                <div class="practice-icon">
+                  <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/>
+                  </svg>
+                </div>
+                <h3>跟读模仿</h3>
+                <p class="practice-desc">跟读句子并录音</p>
+                <div class="practice-stats">
+                  <span class="star-rating" id="speakingStars">★★★★★</span>
+                  <span class="remaining-count" id="speakingRemaining">待强化 0 句</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 补全训练 -->
+            <div class="practice-card" data-type="fillBlank" onclick="startPractice('fillBlank')">
+              <div class="practice-card-content">
+                <div class="practice-icon">
+                  <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 6h16M4 12h16M4 18h16"/><path d="M9 18v3M15 18v3M12 18v3M5 6V3M19 6V3"/>
+                  </svg>
+                </div>
+                <h3>补全训练</h3>
+                <p class="practice-desc">补全句中缺失单词</p>
+                <div class="practice-stats">
+                  <span class="star-rating" id="fillBlankStars">★★★★★</span>
+                  <span class="remaining-count" id="fillBlankRemaining">待强化 0 句</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 句子重组 -->
+            <div class="practice-card" data-type="ordering" onclick="startPractice('ordering')">
+              <div class="practice-card-content">
+                <div class="practice-icon">
+                  <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 10H3"/><path d="M21 6l-4 4 4 4"/><path d="M7 14H21"/><path d="M3 18l4-4-4-4"/>
+                  </svg>
+                </div>
+                <h3>句子重组</h3>
+                <p class="practice-desc">拖拽单词组成句子</p>
+                <div class="practice-stats">
+                  <span class="star-rating" id="orderingStars">★★★★★</span>
+                  <span class="remaining-count" id="orderingRemaining">待强化 0 句</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 翻译练习 -->
+            <div class="practice-card full-width" data-type="translation" onclick="startPractice('translation')">
+              <div class="practice-card-content">
+                <div class="practice-icon">
+                  <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12M17 20l4-4M17 20l-4-4"/>
+                  </svg>
+                </div>
+                <h3>翻译练习</h3>
+                <p class="practice-desc">中译英 / 英译中</p>
+                <div class="practice-stats">
+                  <span class="star-rating" id="translationStars">★★★★★</span>
+                  <span class="remaining-count" id="translationRemaining">待强化 0 句</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- 听读训练 -->
-      <section class="practice-section">
-        <h2><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;margin-right:6px"><path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>听读训练</h2>
-        <div class="practice-grid">
-          <!-- 流程 1：听音辨意 -->
-          <div class="practice-card" data-type="listening" onclick="startPractice('listening')">
-            <div class="practice-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4v16a5 5 0 005 5h1a5 5 0 005-5v-2a2 2 0 00-2-2 2 2 0 00-2 2v2a1 1 0 01-1 1h-1a1 1 0 01-1-1V4a1 1 0 011-1h1a1 1 0 011 1v2h2V4a3 3 0 00-3-3h-1a3 3 0 00-3 3z"/><circle cx="12" cy="13" r="2"/></svg></div>
-            <h3>听音辨意</h3>
-            <p class="practice-desc">听音频选择正确含义</p>
-            <div class="practice-stats">
-              <span class="star-rating" id="listeningStars">★★★★★</span>
-              <span class="remaining-count" id="listeningRemaining">剩余 0 课</span>
-            </div>
+      <!-- Tab 3: 课程详情 -->
+      <section id="tab-course" class="tab-panel">
+        <div class="course-detail-section">
+          <div class="section-header">
+            <h2>课程单元</h2>
+            <span class="section-hint" id="unitHint">选择单元开始学习</span>
           </div>
-
-          <!-- 流程 2：跟读模仿 -->
-          <div class="practice-card" data-type="speaking" onclick="startPractice('speaking')">
-            <div class="practice-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg></div>
-            <h3>跟读模仿</h3>
-            <p class="practice-desc">跟读句子并录音</p>
-            <div class="practice-stats">
-              <span class="star-rating" id="speakingStars">★★★★★</span>
-              <span class="remaining-count" id="speakingRemaining">剩余 0 课</span>
-            </div>
-          </div>
-
-          <!-- 流程 3：补全训练 -->
-          <div class="practice-card" data-type="fillBlank" onclick="startPractice('fillBlank')">
-            <div class="practice-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/><path d="M9 18v3M15 18v3M12 18v3M5 6V3M19 6V3"/></svg></div>
-            <h3>补全训练</h3>
-            <p class="practice-desc">补全句中缺失单词</p>
-            <div class="practice-stats">
-              <span class="star-rating" id="fillBlankStars">★★★★★</span>
-              <span class="remaining-count" id="fillBlankRemaining">剩余 0 课</span>
-            </div>
-          </div>
-
-          <!-- 流程 4：句子重组 -->
-          <div class="practice-card" data-type="ordering" onclick="startPractice('ordering')">
-            <div class="practice-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 10H3"/><path d="M21 6l-4 4 4 4"/><path d="M7 14H21"/><path d="M3 18l4-4-4-4"/></svg></div>
-            <h3>句子重组</h3>
-            <p class="practice-desc">拖拽单词组成句子</p>
-            <div class="practice-stats">
-              <span class="star-rating" id="orderingStars">★★★★★</span>
-              <span class="remaining-count" id="orderingRemaining">剩余 0 课</span>
-            </div>
-          </div>
-
-          <!-- 流程 5：翻译练习 -->
-          <div class="practice-card" data-type="translation" onclick="startPractice('translation')">
-            <div class="practice-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12M17 20l4-4M17 20l-4-4"/></svg></div>
-            <h3>翻译练习</h3>
-            <p class="practice-desc">中译英 / 英译中</p>
-            <div class="practice-stats">
-              <span class="star-rating" id="translationStars">★★★★★</span>
-              <span class="remaining-count" id="translationRemaining">剩余 0 课</span>
-            </div>
+          <div class="unit-grid" id="unitGrid">
+            <!-- 动态生成单元卡片 -->
           </div>
         </div>
       </section>
     </main>
 
-    <!-- 练习界面（隐藏，点击练习时显示）- 卡片左右翻页 -->
-    <div id="practiceContainer" class="practice-container" style="display: none;">
-      <div class="practice-card-wrapper">
-        <!-- 顶部导航 -->
-        <div class="card-nav-header">
-          <button class="nav-btn" id="prevSentenceBtn" aria-label="上一句">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M15 19l-7-7 7-7"/>
-            </svg>
-          </button>
-          <div class="card-progress">
-            <span id="sentenceCounter">1/7</span>
-            <span style="margin: 0 8px;">|</span>
-            <span id="courseTitle">Lesson 1-2</span>
-          </div>
-          <button class="nav-btn" id="nextSentenceBtn" aria-label="下一句">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 5l7 7-7 7"/>
+    <!-- 底部翻页器（固定 60px） -->
+    <div class="bottom-pager" id="bottomPager" style="display: none;">
+      <button class="pager-btn" onclick="prevPage()" aria-label="上一页">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 19l-7-7 7-7"/>
+        </svg>
+        上一页
+      </button>
+      <div class="pager-indicator">
+        <span id="currentPage">1</span> / <span id="totalPages">3</span>
+      </div>
+      <button class="pager-btn" onclick="nextPage()" aria-label="下一页">
+        下一页
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- 课程选择弹窗（全屏扁平设计） -->
+    <div id="courseSelectDialog" class="course-select-dialog-wrapper" style="display: none;">
+      <div class="dialog-content">
+        <div class="dialog-header">
+          <h2>选择课程</h2>
+          <button class="close-btn" onclick="closeCourseSelectDialog()" aria-label="关闭">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12"/>
             </svg>
           </button>
         </div>
-        
-        <!-- 卡片内容区 -->
-        <div class="card-content" id="cardContent">
-          <!-- 动态渲染题目 -->
-        </div>
-        
-        <!-- 底部操作区 -->
-        <div class="card-actions">
-          <button class="btn-secondary" id="exitPracticeBtn" onclick="exitPractice()">
-            退出练习
-          </button>
-          <button class="btn-primary" id="submitAnswerBtn" style="display: none;">
-            提交答案
-          </button>
+        <div class="dialog-body">
+          <!-- 课程网格 -->
+          <div class="course-grid" id="courseGrid"></div>
         </div>
       </div>
     </div>
 
-  <!-- 学习报告弹窗 -->
-  <dialog id="reportDialog" class="pwa-dialog">
-    <div class="pwa-dialog-content" style="max-width: 600px;">
-      <div class="dialog-header-row">
-        <h3>📈 学习报告</h3>
-        <button class="close-icon" onclick="document.getElementById('reportDialog').close()">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M18 6L6 18M6 6l12 12"/>
-          </svg>
-        </button>
-      </div>
-      <div id="reportDialogContent" class="report-content">
-        <!-- 动态生成 -->
-      </div>
-    </div>
-  </dialog>
+    <!-- 练习界面（隐藏） -->
+    <div id="practiceContainer" class="practice-container" style="display: none;"></div>
+  </div>
 
-  <script src="js/version-manager.js?v=20260528"></script>
-  <script src="js/toast.js?v=20260528"></script>
-  <script src="js/user-manager.js?v=20260528"></script>
-  <script src="js/sf-icons.js?v=20260528"></script>
-  <script src="js/data-sync.js?v=20260529"></script>
-  <script src="js/review-system.js?v=20260528"></script>
-  <script src="js/course-manager.js?v=20260529"></script>
-  <script src="js/course-practice-engine.js?v=20260529"></script>
-  <script>
-    // 页面加载
-    document.addEventListener('DOMContentLoaded', async () => {
-      // 等待全局实例初始化
-      await new Promise(resolve => {
-        const checkInit = () => {
-          if (window.reviewSystem && window.PracticeEngine) {
-            resolve();
-          } else {
-            setTimeout(checkInit, 50);
-          }
-        };
-        checkInit();
-      });
-      
-      // 更新 UI
-      updateLearningOverview();
-      updatePracticeStats();
-      updateLearningMotivation();
-      
-      // 绑定事件
-      document.getElementById('notificationBtn')?.addEventListener('click', () => {
-        toast.info('复习提醒功能已移除');
-      });
-      
-      // 键盘支持
-      document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') {
-          window.exitPractice();
-        }
-      });
-    });
-
-    // 更新学习概览（练习统计）
-    function updateLearningOverview() {
-      if (!window.dataSync) return;
-      
-      const accuracy = dataSync.getQuestionTypeAccuracy();
-      
-      document.getElementById('listeningAccuracy').textContent = (accuracy.listening.accuracy || 0) + '%';
-      document.getElementById('listeningCount').textContent = accuracy.listening.correct + '/' + accuracy.listening.total;
-      
-      document.getElementById('speakingAccuracy').textContent = (accuracy.speaking.accuracy || 0) + '%';
-      document.getElementById('speakingCount').textContent = accuracy.speaking.correct + '/' + accuracy.speaking.total;
-      
-      document.getElementById('fillBlankAccuracy').textContent = (accuracy.fillBlank.accuracy || 0) + '%';
-      document.getElementById('fillBlankCount').textContent = accuracy.fillBlank.correct + '/' + accuracy.fillBlank.total;
-      
-      document.getElementById('orderingAccuracy').textContent = (accuracy.ordering.accuracy || 0) + '%';
-      document.getElementById('orderingCount').textContent = accuracy.ordering.correct + '/' + accuracy.ordering.total;
-      
-      document.getElementById('translationAccuracy').textContent = (accuracy.translation.accuracy || 0) + '%';
-      document.getElementById('translationCount').textContent = accuracy.translation.correct + '/' + accuracy.translation.total;
-    }
-
-    // 更新学习激励
-    function updateLearningMotivation() {
-      if (!window.reviewSystem) return;
-      
-      const stats = reviewSystem.getLearningStats();
-      
-      // 累计学习时长（转换为小时）
-      const hours = (stats.weeklyMinutes / 60).toFixed(1);
-      document.getElementById('totalLearningTime').textContent = hours + 'h';
-      
-      // 连续学习天数
-      document.getElementById('streakDays').textContent = stats.streak + '天';
-      
-      // 已掌握课程
-      document.getElementById('masteredCourses').textContent = stats.mastered + '课';
-    }
-
-    // 开始练习
-    function startPractice(type) {
-      if (!window.CoursePractice) return;
-      window.CoursePractice.init(type);
-    }
-
-    // 退出练习（返回学习中心）
-    function exitPractice() {
-      if (!window.CoursePractice) return;
-      window.CoursePractice.exit();
-    }
-
-    // 更新练习统计
-    function updatePracticeStats() {
-      const stats = reviewSystem.getPracticeStats();
-      
-      // 更新各题型数据
-      Object.entries(stats).forEach(([type, data]) => {
-        const starsEl = document.getElementById(`${type}Stars`);
-        const remainingEl = document.getElementById(`${type}Remaining`);
-        const cardEl = document.querySelector(`.practice-card[data-type="${type}"]`);
-        
-        if (starsEl) {
-          const starCount = Math.round(data.accuracy / 20);
-          starsEl.textContent = '★'.repeat(starCount) + '☆'.repeat(5 - starCount);
-        }
-        
-        if (remainingEl) {
-          remainingEl.textContent = `待强化${data.remaining}课`;
-        }
-        
-        // 正确率<80% 添加待强化样式
-        if (cardEl) {
-          if (data.accuracy < 80) {
-            cardEl.classList.add('weak-item');
-          } else {
-            cardEl.classList.remove('weak-item');
-          }
-        }
-      });
-    }
-
-    // 显示学习报告
-    function showReport() {
-      const container = document.getElementById('reportDialogContent');
-      const stats = reviewSystem.getLearningStats();
-      
-      container.innerHTML = `
-        <div class="report-section">
-          <h3>📊 本周学习</h3>
-          <div class="weekly-chart">
-            ${stats.weeklyData.map((min, i) => `
-              <div class="bar-item">
-                <div class="bar" style="height: ${min / 2}px;"></div>
-                <span class="label">${['一', '二', '三', '四', '五', '六', '日'][i]}</span>
-                <span class="value">${min}m</span>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-        
-        <div class="report-section">
-          <h3>🧠 记忆进度</h3>
-          <div class="memory-progress">
-            <div class="progress-item">
-              <span class="label">新学</span>
-              <div class="progress-bar">
-                <div class="fill" style="width: ${stats.newPercent}%"></div>
-              </div>
-              <span class="value">${stats.newCount}句</span>
-            </div>
-            <div class="progress-item">
-              <span class="label">复习中</span>
-              <div class="progress-bar">
-                <div class="fill" style="width: ${stats.reviewingPercent}%"></div>
-              </div>
-              <span class="value">${stats.reviewingCount}句</span>
-            </div>
-            <div class="progress-item">
-              <span class="label">已掌握</span>
-              <div class="progress-bar">
-                <div class="fill" style="width: ${stats.masteredPercent}%"></div>
-              </div>
-              <span class="value">${stats.mastered}句</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="report-section">
-          <h3>📝 题型正确率</h3>
-          <div class="accuracy-list">
-            ${Object.entries(stats.typeAccuracy).map(([type, acc]) => `
-              <div class="accuracy-item">
-                <span class="type">${getTypeName(type)}</span>
-                <div class="progress-bar">
-                  <div class="fill" style="width: ${acc}%"></div>
-                </div>
-                <span class="value">${acc}%</span>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
-      
-      document.getElementById('reportDialog').showModal();
-    }
-
-    function getTypeName(type) {
-      const names = {
-        listening: '🎧 听力',
-        fillBlank: '✍️ 拼写',
-        ordering: '🔀 排序',
-        translation: '🌐 翻译',
-        speaking: '🎤 口语'
-      };
-      return names[type] || type;
-    }
-    
-    // 解析 URL 参数，支持直接打开单句练习和课程练习
-    window.addEventListener('DOMContentLoaded', () => {
-      const params = new URLSearchParams(window.location.search);
-      
-      // 课程练习模式：从 my-courses.html 跳转
-      const bookKey = params.get('book');
-      const unitKey = params.get('unit');
-      
-      if (bookKey && unitKey) {
-        console.log('[Practice Mode] Course practice:', { bookKey, unitKey });
-        
-        // 初始化课程练习
-        if (window.CoursePractice) {
-          // 默认使用听音辨意题型，后续可以在 UI 中选择题型
-          window.CoursePractice.init('listening', { bookKey, unitKey });
-        }
-        return;
-      }
-      
-      // 单句练习模式（原有逻辑）
-      const sentenceId = params.get('sentence');
-      const en = params.get('en');
-      const zh = params.get('zh');
-      const audio = params.get('audio');
-      
-      if (sentenceId && en) {
-        // 直接练习模式：从 URL 参数加载句子
-        console.log('[Practice Mode] Direct practice:', { sentenceId, en, zh, audio });
-        
-        // 初始化练习引擎
-        if (window.PracticeEngine) {
-          const engine = new PracticeEngine();
-          const sentence = {
-            id: sentenceId,
-            sentence: en,
-            translation: zh,
-            audio: audio
-          };
-          engine.init('review', [sentence]);
-        }
-      }
-    });
-  </script>
+  <script src="js/data-store.js?v=20260528"></script>
+  <script src="js/user-progress.js?v=20260528"></script>
+  <script src="js/course-manager.js?v=20260602-2"></script>
+  <script src="js/practice-engine.js?v=20260528"></script>
+  <script src="js/practice.js?v=20260602-11"></script>
 </body>
 </html>
