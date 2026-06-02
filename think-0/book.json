@@ -1,14 +1,19 @@
 {
   "units": [
     {
-      "filename": "Unit 04-4 Culture",
-      "title": "Unit 4-4 Culture",
-      "lesson_num": "4-4"
+      "filename": "T0_U01A",
+      "title": "Unit 1A",
+      "lesson_num": "1A"
     },
     {
-      "filename": "Unit 10-1 Reading",
-      "title": "Unit 10-1 Reading",
-      "lesson_num": "10-1"
+      "filename": "T0_U01B",
+      "title": "Unit 1B",
+      "lesson_num": "1B"
+    },
+    {
+      "filename": "Unit 05-1 Reading A",
+      "title": "Unit 5-1 Robotics Club",
+      "lesson_num": "5-1"
     }
   ]
 }
