@@ -187,50 +187,291 @@
         "key": "u004",
         "title": "Unit 4-4 Culture",
         "audio": "Unit 04-4 Culture",
-        "lines": []
+        "lines": [
+          {
+            "time": 7.01,
+            "en": "Parks Around the World",
+            "cn": "世界各地的公园"
+          },
+          {
+            "time": 9.37,
+            "en": "A. Villa Borghese, Rome, Italy",
+            "cn": "A.意大利罗马 Borghese 别墅"
+          },
+          {
+            "time": 14.47,
+            "en": "Villa Borghese is a big public park.",
+            "cn": "博尔盖塞别墅（Villa Borghese）是一个大型公共公园"
+          },
+          {
+            "time": 19.19,
+            "en": "There are beautiful gardens, trees and some fountains too.",
+            "cn": "这里还有美丽的花园、树木和一些喷泉。"
+          },
+          {
+            "time": 25.5,
+            "en": "People also call it the Park of Museums because there are many interesting museums there.",
+            "cn": "人们也称之为博物馆公园，因为那里有许多有趣的博物馆。"
+          },
+          {
+            "time": 34.07,
+            "en": "B. Golden Gate Park, San Francisco, the US.",
+            "cn": "B. 美国旧金山金门公园。"
+          },
+          {
+            "time": 40.78,
+            "en": "Everyone knows the Golden Gate Bridge,",
+            "cn": "大家都知道金门大桥，"
+          },
+          {
+            "time": 43.59,
+            "en": "but did you know that there is the Golden Gate Park in San Francisco too?",
+            "cn": "但您知道旧金山也有金门公园吗？"
+          },
+          {
+            "time": 49.92,
+            "en": "It's very big, 4.8 kilometers long, almost 1 kilometer wide,",
+            "cn": "它非常大，长 4.8 公里，宽近 1 公里，"
+          },
+          {
+            "time": 56.84,
+            "en": "and at one end you can see the sea.",
+            "cn": "一端可以看到大海"
+          },
+          {
+            "time": 61.82,
+            "en": "C. Chapel Tepec Park, Mexico City, Mexico.",
+            "cn": "C.墨西哥墨西哥城 Chapel Tepec 公园。"
+          },
+          {
+            "time": 68.03,
+            "en": "Chapel Tepec Park is an important green space in this big city.",
+            "cn": "特佩克教堂公园（Chapel Tepec Park）是这座大城市的重要绿地。"
+          },
+          {
+            "time": 74.34,
+            "en": "It has a lake and a hill with a castle on it.",
+            "cn": "它有一个湖泊和一座山，上面有一座城堡。"
+          },
+          {
+            "time": 78.65,
+            "en": "People in Mexico City love going there.",
+            "cn": "墨西哥城的人们喜欢去那里。"
+          },
+          {
+            "time": 83.51,
+            "en": "D. El Parque del Buen Retiro, Madrid, Spain.",
+            "cn": "D. El Parque del Buen Retiro，西班牙马德里。"
+          },
+          {
+            "time": 89.9,
+            "en": "In Madrid there is a very big park called Buen Retiro.",
+            "cn": "马德里有一个非常大的公园，名为 Buen Retiro。"
+          },
+          {
+            "time": 95.59,
+            "en": "There are trees and paths and a lovely rose garden too.",
+            "cn": "这里有树木和小径，还有一个可爱的玫瑰花园。"
+          },
+          {
+            "time": 101.37,
+            "en": "There is also a beautiful glass palace.",
+            "cn": "还有一座美丽的玻璃宫殿。"
+          },
+          {
+            "time": 106.62,
+            "en": "E. The Iguana Park, Guayaquil, Ecuador.",
+            "cn": "E.鬣蜥公园，厄瓜多尔瓜亚基尔。"
+          },
+          {
+            "time": 112.51,
+            "en": "The park's real name is Parque Seminario,",
+            "cn": "公园的真名是 Parque Seminario，"
+          },
+          {
+            "time": 116.31,
+            "en": "but everyone calls it the Iguana Park because it is full of iguanas.",
+            "cn": "但每个人都称之为鬣蜥公园，因为它充满了鬣蜥。"
+          },
+          {
+            "time": 123.09,
+            "en": "The iguanas are very friendly.",
+            "cn": "鬣蜥非常友好。"
+          },
+          {
+            "time": 126.48,
+            "en": "People go there and feed them.",
+            "cn": "人们去那里喂它们。"
+          },
+          {
+            "time": 130.53,
+            "en": "F. Mount Faber Park, Singapore.",
+            "cn": "F.新加坡 Mount Faber 公园。"
+          },
+          {
+            "time": 135.68,
+            "en": "On a mountain near Singapore, there is a park called Mount Faber.",
+            "cn": "在新加坡附近的一座山上，有一个名为 Mount Faber 的公园。"
+          },
+          {
+            "time": 141.47,
+            "en": "You can get there by cable car.",
+            "cn": "您可以乘坐缆车前往。"
+          },
+          {
+            "time": 145.18,
+            "en": "In the park, you can walk on a long path or on an amazing bridge.",
+            "cn": "在公园里，您可以在长途跋涉或令人惊叹的桥梁上漫步。"
+          },
+          {
+            "time": 151.56,
+            "en": "You get a great view of the city.",
+            "cn": "您可以欣赏到城市的美景。"
+          }
+        ]
       },
       {
         "key": "u010",
         "title": "Unit 10-1 Reading",
         "audio": "Unit 10-1 Reading",
-        "lines": []
+        "lines": [
+          {
+            "time": 6.24,
+            "en": "She was the first woman in space.",
+            "cn": "第一位进入太空的女性"
+          },
+          {
+            "time": 10.16,
+            "en": "Valentina Tereshkova was born in Russia on the 6th of March 1937.",
+            "cn": "瓦伦蒂娜·捷列什科娃于 1937 年 3 月 6 日出生在俄罗斯。"
+          },
+          {
+            "time": 18.16,
+            "en": "Her father was a driver, and her mother was a factory worker.",
+            "cn": "她的父亲是一名司机，母亲是一名工厂工人。"
+          },
+          {
+            "time": 24.21,
+            "en": "Valentina was a worker in a factory too.",
+            "cn": "瓦伦蒂娜也是一家工厂的工人。"
+          },
+          {
+            "time": 28.51,
+            "en": "Her hobby was skydiving,",
+            "cn": "她的爱好是跳伞，"
+          },
+          {
+            "time": 30.96,
+            "en": "and it was her dream to be an astronaut and to go into space.",
+            "cn": "她的梦想是成为一名宇航员并进入太空。"
+          },
+          {
+            "time": 37.7,
+            "en": "In 1962 there was a big competition to find new astronauts.",
+            "cn": "1962 年，有一场寻找新宇航员的大型竞赛。"
+          },
+          {
+            "time": 44.89,
+            "en": "There were 400 people interested in going to space.",
+            "cn": "有 400 人有兴趣去太空。"
+          },
+          {
+            "time": 50.74,
+            "en": "The training program wasn't very easy,",
+            "cn": "培训计划并不容易，"
+          },
+          {
+            "time": 53.71,
+            "en": "but Tereshkova was hard-working,",
+            "cn": "但捷列什科娃很勤奋，"
+          },
+          {
+            "time": 56.84,
+            "en": "and she was the lucky one.",
+            "cn": "她是个幸运的人。"
+          },
+          {
+            "time": 60.89,
+            "en": "Tereshkova's big day was the 16th of June 1963,",
+            "cn": "捷列什科娃的大日子是 1963 年 6 月 16 日，"
+          },
+          {
+            "time": 66.64,
+            "en": "and she was ready.",
+            "cn": "她已经准备好了。"
+          },
+          {
+            "time": 70.17,
+            "en": "The name of her spacecraft was Vostok-6,",
+            "cn": "她的宇宙飞船的名字是东方 6 号，"
+          },
+          {
+            "time": 74.08,
+            "en": "and Tereshkova was the first woman in space.",
+            "cn": "捷列什科娃是第一位进入太空的女性"
+          },
+          {
+            "time": 79.14,
+            "en": "The flight was very difficult because there were many technical problems,",
+            "cn": "这次飞行非常困难，因为有很多技术问题，"
+          },
+          {
+            "time": 84.51,
+            "en": "and Tereshkova wasn't very well for most of the flight.",
+            "cn": "捷列什科娃在大部分航班上表现不佳"
+          },
+          {
+            "time": 89.84,
+            "en": "She was in space for three days.",
+            "cn": "她在太空中待了三天。"
+          },
+          {
+            "time": 93.48,
+            "en": "She is the only woman to fly into space alone.",
+            "cn": "她是唯一一个独自飞入太空的女性。"
+          },
+          {
+            "time": 98.9,
+            "en": "After that she was very famous all over the world.",
+            "cn": "从那以后，她在世界各地都很出名。"
+          },
+          {
+            "time": 104.34,
+            "en": "Her face was on stamps in many countries.",
+            "cn": "她的脸出现在许多国家的邮票上。"
+          },
+          {
+            "time": 108.98,
+            "en": "In the year 2000 there was a big celebration in London,",
+            "cn": "2000 年，伦敦举办了一场盛大的庆祝活动，"
+          },
+          {
+            "time": 114.51,
+            "en": "and Valentina Tereshkova was named the woman of the century.",
+            "cn": "瓦伦蒂娜·捷列什科娃被评为世纪女性。"
+          },
+          {
+            "time": 121.76,
+            "en": "At the opening ceremony of the Winter Olympics in Russia in 2014,",
+            "cn": "在 2014 年俄罗斯冬奥会开幕式上，"
+          },
+          {
+            "time": 127.53,
+            "en": "Valentina Tereshkova was one of the carriers of the Olympic flag.",
+            "cn": "瓦伦蒂娜·捷列什科娃是奥林匹克旗手。"
+          },
+          {
+            "time": 134.05,
+            "en": "These were very important moments for her.",
+            "cn": "这些对她来说是非常重要的时刻。"
+          }
+        ]
       },
       {
         "key": "u005",
         "title": "Unit 5-1 Robotics Club",
         "audio": "Unit 05-1 Reading A",
-        "lines": [
-          {
-            "time": 6.33,
-            "en": "Robotics Club is cool.",
-            "cn": "机器人俱乐部很酷。"
-          },
-          {
-            "time": 10.51,
-            "en": "Our school has a Robotics Club and it's brilliant.",
-            "cn": "我们学校有一个机器人俱乐部，非常棒。"
-          },
-          {
-            "time": 15.82,
-            "en": "I know this because I go to it.",
-            "cn": "我知道这一点，因为我去了。"
-          },
-          {
-            "time": 20.64,
-            "en": "So what is a Robotics Club?",
-            "cn": "那么，什么是机器人俱乐部？"
-          },
-          {
-            "time": 24.0,
-            "en": "Easy.",
-            "cn": "简单！"
-          },
-          {
-            "time": 25.44,
-            "en": "It's a club for building robots and I love robots.",
-            "cn": "这是一个制造机器人的俱乐部，我喜欢机器人。"
-          }
-        ]
+        "lines": []
       }
     ]
   },
