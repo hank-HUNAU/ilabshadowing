@@ -3,6 +3,23 @@
  * 支持手势滑动和左右箭头按钮
  */
 
+// Supabase 配置（与 main.js 保持一致）
+const SUPABASE_URL = 'https://jikhdympaifsmubmwilp.supabase.co';
+const SUPABASE_BUCKETS = {
+  NCE1: 'nce1-audio',
+  THINK_0: 'think0-audio',
+  THINK_F: 'think0-audio'
+};
+
+// 获取音频 URL 工具函数
+function getAudioUrl(filename, bookPath, key) {
+  if (!filename) return '';
+  
+  const bucket = SUPABASE_BUCKETS[key] || SUPABASE_BUCKETS.NCE1;
+  const encodedFilename = encodeURIComponent(filename);
+  return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${encodedFilename}.mp3`;
+}
+
 class CoursePracticeEngine {
   constructor() {
     this.currentCourse = null;      // 当前课程数据
@@ -94,24 +111,75 @@ class CoursePracticeEngine {
         return null;
       }
       
+      // 获取音频文件基础信息
+      const audioFile = unit.audio || null;
+      const audioURL = getAudioUrl(audioFile, null, bookKey);
+      
       // 构建课程数据
       return {
         courseId,
         bookKey,
         unitKey,
         title: unit.title,
+        audioFile,
+        audioURL,
         sentences: unit.lines?.map((line, idx) => ({
           id: idx,
+          index: idx,
+          sentence: line.en,
           en: line.en,
+          translation: line.cn,
           zh: line.cn,
-          audio: line.audio,
-          time: line.time
+          time: line.time,
+          audio: audioURL,  // 使用课程级别的音频 URL
+          questions: this.buildQuestionsFromLine(line)  // 构建练习题
         })) || []
       };
     } catch (error) {
       console.error('加载课程失败:', error);
       return null;
     }
+  }
+  
+  // 从单行数据构建练习题（兼容 units 格式）
+  buildQuestionsFromLine(line) {
+    const en = line.en;
+    const cn = line.cn;
+    
+    // 简单示例：生成干扰选项（实际应该从题库获取）
+    const fakeOptions = this.generateFakeOptions(en, cn);
+    
+    return {
+      listening: {
+        options: [
+          { text: cn, correct: true },
+          ...fakeOptions.correct.slice(0, 3).map(o => ({ text: o, correct: false }))
+        ].sort(() => Math.random() - 0.5)
+      },
+      fillBlank: {
+        template: en,
+        options: [en],
+        answer: en,
+        hint: '完整句子'
+      },
+      ordering: {
+        words: en.split(' ').sort(() => Math.random() - 0.5),
+        answer: en.split(' ')
+      },
+      translation: cn
+    };
+  }
+  
+  // 生成干扰选项（简单实现）
+  generateFakeOptions(correctEn, correctCn) {
+    // 这只是一个占位实现，实际应该从题库获取相似句子
+    return {
+      correct: [
+        '这是干扰选项 1',
+        '这是干扰选项 2',
+        '这是干扰选项 3'
+      ]
+    };
   }
   
   // 加载所有课程
