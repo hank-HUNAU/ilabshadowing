@@ -2787,7 +2787,7 @@ body.hide-en .line-en { display: none; }
     padding-bottom: calc(12px + env(safe-area-inset-bottom));
   }
 
-  .controls-row { gap: 10px; }
+  .controls-row { gap: 14px; }
   
   /* 手机端：隐藏次要按钮，显示更多按钮 */
   #timerBtn, #speedBtn, #transBtn {
@@ -2859,6 +2859,21 @@ body.hide-en .line-en { display: none; }
     width: 95%;
     height: 90vh;
   }
+
+  /* 平板端课程卡片优化 - 5列布局 */
+  .unit-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+  }
+
+  .unit-card {
+    min-height: 100px;
+    padding: 18px 14px;
+  }
+
+  .unit-num {
+    font-size: 1.6rem;
+  }
 }
 
 /* 桌面端适配 */
@@ -2880,12 +2895,17 @@ body.hide-en .line-en { display: none; }
     background: var(--bg);
     z-index: 100;
   }
+
+  /* 横屏播放器高度限制 */
+  .dialog-inner {
+    max-height: 600px;
+  }
   
   /* 弹窗适配横屏 */
   .pwa-dialog-content,
   .player-dialog .dialog-inner {
     max-width: 80vw;
-    max-height: 90vh;
+    max-height: 600px;
   }
   
   /* 课程网格优化 */

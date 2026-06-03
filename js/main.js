@@ -1,3 +1,17 @@
+/* 触觉反馈通用函数 */
+function triggerHapticFeedback(intensity = 'light') {
+  if (!navigator.vibrate) return;
+
+  const patterns = {
+    light: 15,
+    medium: 30,
+    heavy: 50
+  };
+
+  const duration = patterns[intensity] || 20;
+  navigator.vibrate(duration);
+}
+
 /* 全局常量 */
 const SPEEDS = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
 const REPEAT_COUNTS = [1, 2, 3, 5, 10, 99]; // 重复次数选项
@@ -1109,6 +1123,7 @@ class App {
           e.stopPropagation();
           const lineIdx = +favoriteBtn.dataset.lineI;
           this.toggleLineFavorite(lineIdx);
+          triggerHapticFeedback('light');
           console.log('[Favorite Click] Toggled line', lineIdx, '- no audio play');
           return;
         }
@@ -1117,6 +1132,7 @@ class App {
         const line = e.target.closest('.line');
         if (line) {
           this.playLine(+line.dataset.i);
+          triggerHapticFeedback('light');
         }
       });
     }
@@ -1127,6 +1143,7 @@ class App {
         this.repeatCount = REPEAT_COUNTS[nextIdx];
         localStorage.setItem(LS.REPEAT, this.repeatCount);
         this.updateRepeatCounts();
+        triggerHapticFeedback('light');
       });
     }
     
@@ -1137,6 +1154,7 @@ class App {
         if (menuDialog) {
           menuDialog.showModal();
         }
+        triggerHapticFeedback('light');
       });
     }
     
@@ -1146,9 +1164,11 @@ class App {
       mobileMenuDialog.addEventListener('click', e => {
         const menuItem = e.target.closest('.menu-item');
         if (!menuItem) return;
-        
+
+        triggerHapticFeedback('light');
+
         const action = menuItem.dataset.action;
-        
+
         switch (action) {
           case 'timer':
             if (this.els.timer) this.els.timer.click();
@@ -1194,7 +1214,10 @@ class App {
     // 课程网格点击 - 打开播放器
     this.els.unitGrid.addEventListener('click', e => {
       const card = e.target.closest('.unit-card');
-      if (card) this.open(+card.dataset.i);
+      if (card) {
+        this.open(+card.dataset.i);
+        triggerHapticFeedback('light');
+      }
     });
     
     // 收藏网格点击 - 打开对应句子
@@ -1307,6 +1330,7 @@ class App {
     if (this.els.timer) {
       this.els.timer.addEventListener('click', () => {
         this.toggleTimer();
+        triggerHapticFeedback('light');
       });
     }
     
@@ -1437,6 +1461,7 @@ class App {
       this.els.audio.playbackRate = this.spd;
       localStorage.setItem(LS.SPD, this.spd);
       this.syncUI();
+      triggerHapticFeedback('light');
     });
     
     // Translation display mode
@@ -1445,6 +1470,7 @@ class App {
       this.tr = this.displayModes[(idx + 1) % this.displayModes.length];
       localStorage.setItem(LS.TR, this.tr);
       this.applyTr();
+      triggerHapticFeedback('light');
     });
     
     // ESC
