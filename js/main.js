@@ -1488,6 +1488,7 @@ let touchStartX = 0;
 let touchStartY = 0;
 let touchEndX = 0;
 let touchEndY = 0;
+let isEdgeSwipe = false; // 标记是否为屏幕边缘滑动
 
 function initMobileGestures() {
   if (window.innerWidth <= 768) {
@@ -1499,6 +1500,10 @@ function initMobileGestures() {
 function handleTouchStart(e) {
   touchStartX = e.changedTouches[0].screenX;
   touchStartY = e.changedTouches[0].screenY;
+  
+  // 检测是否为屏幕边缘滑动（系统侧滑返回区域）
+  const screenWidth = window.innerWidth;
+  isEdgeSwipe = touchStartX < 30 || touchStartX > screenWidth - 30;
 }
 
 function handleTouchEnd(e) {
@@ -1570,7 +1575,14 @@ function handleSwipe() {
   const diffX = touchEndX - touchStartX;
   const diffY = touchEndY - touchStartY;
   
-  // 水平滑动（切换课程）
+  // 如果是屏幕边缘滑动，优先让系统处理（侧滑返回）
+  if (isEdgeSwipe && Math.abs(diffX) > 30 && Math.abs(diffY) < 30) {
+    // 不阻止默认行为，让系统处理侧滑返回
+    console.log('[Gesture] Edge swipe detected, ignoring in-app gesture');
+    return;
+  }
+  
+  // 水平滑动（切换课程）- 在播放器打开时生效
   if (Math.abs(diffX) > 50 && Math.abs(diffY) < 30) {
     const appInstance = window.app;
     if (!appInstance || !appInstance.els?.dlg?.open) return;
@@ -1715,6 +1727,77 @@ function detectLowEndDevice() {
 // DOM 加载完成后检测设备
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', detectLowEndDevice);
+  document.addEventListener('DOMContentLoaded', initMobileBottomNav);
+  document.addEventListener('DOMContentLoaded', autoDarkMode);
 } else {
   detectLowEndDevice();
+  initMobileBottomNav();
+  autoDarkMode();
+}
+
+// ========== 深色模式自动切换 (根据时间) ==========
+function autoDarkMode() {
+  // 如果用户已手动设置主题，不自动切换
+  if (localStorage.getItem('theme')) {
+    return;
+  }
+  
+  const hour = new Date().getHours();
+  // 晚上 8 点到早上 6 点自动开启深色模式
+  const isNight = hour >= 20 || hour < 6;
+  
+  if (isNight) {
+    document.documentElement.classList.add('dark-mode');
+    console.log('[DarkMode] Auto-enabled for night time');
+  } else {
+    document.documentElement.classList.remove('dark-mode');
+  }
+}
+
+// ========== 移动端底部导航栏初始化 ==========
+function initMobileBottomNav() {
+  const bottomNav = document.getElementById('mobileBottomNav');
+  if (!bottomNav) return;
+  
+  // 检测设备类型，仅在移动端显示
+  function updateNavVisibility() {
+    if (window.innerWidth <= 767) {
+      bottomNav.style.display = 'flex';
+      document.body.classList.add('has-bottom-nav');
+    } else {
+      bottomNav.style.display = 'none';
+      document.body.classList.remove('has-bottom-nav');
+    }
+  }
+  
+  // 初始化显示状态
+  updateNavVisibility();
+  
+  // 监听窗口大小变化
+  window.addEventListener('resize', updateNavVisibility);
+  
+  // 更新激活状态
+  function updateActiveNav() {
+    const items = bottomNav.querySelectorAll('.nav-item');
+    items.forEach(item => item.classList.remove('active'));
+    
+    // 根据当前页面设置激活状态
+    if (app.els.favoritePage?.style.display === 'flex') {
+      bottomNav.querySelector('[data-nav="favorites"]')?.classList.add('active');
+    } else if (app.els.unitPage?.style.display === 'flex') {
+      // 在课程页面时激活首页
+      bottomNav.querySelector('[data-nav="home"]')?.classList.add('active');
+    } else {
+      bottomNav.querySelector('[data-nav="home"]')?.classList.add('active');
+    }
+  }
+  
+  // 页面切换时更新激活状态
+  const originalRestoreBookPage = app.restoreBookPage?.bind(app);
+  if (originalRestoreBookPage) {
+    app.restoreBookPage = function() {
+      originalRestoreBookPage();
+      updateActiveNav();
+    };
+  }
 }
