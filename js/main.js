@@ -598,6 +598,7 @@ class App {
     this.els.bookTitle.textContent = book.title;
     this.els.bookPage.style.display = 'none';
     this.els.unitPage.style.display = 'flex';
+    this.els.unitPage.classList.add('page-transition');
     localStorage.setItem(LS.LAST_PAGE, 'unit');
     
     // 加载课程列表
@@ -653,6 +654,11 @@ class App {
     const isThink = (this.key === 'THINK_0' || this.key === 'THINK_F');
     this.els.unitGrid.classList.toggle('think-layout', isThink);
     
+    // 获取当前书籍的进度数据
+    const progressData = (userManager?.progress && this.key) ? userManager.progress[this.key] : null;
+    const completedUnits = progressData?.completedUnits || [];
+    const unitProgress = progressData?.unitProgress || {};
+    
     this.els.unitGrid.innerHTML = this.units.map((u, i) => {
       // NCE1: 从 lesson_num 提取纯数字（如 "Lesson 1" → "1"）
       // Think: 直接使用 lesson_num（如 "10-1"）
@@ -667,10 +673,33 @@ class App {
       // Think Level 系列显示标题，NCE1 不显示
       const showTitle = isThink;
       
+      // 进度数据
+      const isCompleted = completedUnits.includes(i);
+      const progress = unitProgress[`lesson_${i}`] || unitProgress[`${this.key}_unit_${i}`] || 0;
+      const hasProgress = progress > 0;
+      
+      // 环形进度条 circumference = 2 * π * r = 2 * 3.14159 * 12 ≈ 75.4
+      const circumference = 75.4;
+      const offset = circumference - (progress / 100) * circumference;
+      
       return `
-      <div class="unit-card ${isThink ? 'think-unit' : ''}" data-i="${i}">
+      <div class="unit-card ${isThink ? 'think-unit' : ''}" data-i="${i}" style="position: relative;">
         <div class="unit-num">${num}</div>
         ${showTitle && u.title ? `<div class="unit-title">${u.title}</div>` : ''}
+        ${isCompleted ? `
+          <div class="complete-badge" title="已完成">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
+          </div>
+        ` : (hasProgress ? `
+          <svg class="progress-ring" width="32" height="32" viewBox="0 0 32 32">
+            <circle class="progress-ring-bg" stroke-width="4" fill="transparent" r="12" cx="16" cy="16"/>
+            <circle class="progress-ring-fill" stroke-width="4" fill="transparent" r="12" cx="16" cy="16"
+              stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
+              style="stroke-linecap: round"/>
+          </svg>
+        ` : '')}
       </div>`;
     }).join('');
   }
@@ -1079,7 +1108,11 @@ class App {
     
     // 返回课本选择
     this.els.backToBooks.addEventListener('click', () => {
-      this.showBookPage();
+      this.els.unitPage.style.display = 'none';
+      this.els.unitPage.classList.remove('page-transition');
+      this.els.bookPage.style.display = 'flex';
+      this.els.bookPage.classList.add('page-transition');
+      localStorage.setItem(LS.LAST_PAGE, 'book');
     });
     
     // 课程网格点击 - 打开播放器
@@ -1513,3 +1546,32 @@ function handleSwipe() {
 window.toggleFoldCard = toggleFoldCard;
 window.restoreFoldState = restoreFoldState;
 window.updateDashboard = updateDashboard;
+
+// 波纹效果 - 触摸设备增强反馈
+function createRipple(event) {
+  const button = event.currentTarget;
+  const circle = document.createElement('span');
+  const diameter = Math.max(button.clientWidth, button.clientHeight);
+  const radius = diameter / 2;
+
+  const rect = button.getBoundingClientRect();
+  circle.style.width = circle.style.height = `${diameter}px`;
+  circle.style.left = `${event.clientX - rect.left - radius}px`;
+  circle.style.top = `${event.clientY - rect.top - radius}px`;
+  circle.classList.add('ripple');
+
+  const ripple = button.querySelector('.ripple');
+  if (ripple) {
+    ripple.remove();
+  }
+
+  button.appendChild(circle);
+}
+
+// 为所有按钮添加波纹效果
+document.addEventListener('DOMContentLoaded', () => {
+  const buttons = document.querySelectorAll('.ctrl-btn, .icon-btn, .empty-state-action');
+  buttons.forEach(btn => {
+    btn.addEventListener('click', createRipple);
+  });
+});
