@@ -421,7 +421,7 @@ class App {
           </svg>
           <h3 class="empty-state-title">暂无收藏</h3>
           <p class="empty-state-desc">播放课文时点击句子右侧的星星图标，收藏喜欢的句子</p>
-          <button class="empty-state-action" onclick="document.getElementById('showFavorites').click()">去浏览课程</button>
+          <button class="empty-state-action" onclick="app.restoreBookPage()">去浏览课程</button>
         </div>
       `;
       this.els.favoriteCount.textContent = '0 句';
@@ -481,6 +481,14 @@ class App {
   }
 
   async loadBooks() {
+    // 显示骨架屏
+    this.els.bookGrid.innerHTML = `
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+    `;
+    
     try {
       const data = await fetch('data.json').then(r => r.json());
       const allBooks = data.books || [];
@@ -558,8 +566,25 @@ class App {
       if (book) {
         this.openBook(book.key);
       } else {
-        this.showBookPage();
+        // book not found, reset
+        localStorage.removeItem(LS.LAST_PAGE);
       }
+    }
+  }
+  
+  // 恢复课本选择页面（从空状态引导）
+  restoreBookPage() {
+    if (this.els.favoritePage) {
+      this.els.favoritePage.style.display = 'none';
+    }
+    if (this.els.unitPage) {
+      this.els.unitPage.style.display = 'none';
+    }
+    if (this.els.bookPage) {
+      this.els.bookPage.style.display = 'flex';
+    }
+    localStorage.setItem(LS.LAST_PAGE, 'book');
+  }
     } else {
       this.showBookPage();
     }
