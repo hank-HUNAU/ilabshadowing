@@ -129,7 +129,7 @@
             <span id="durTime" class="time-text">0:00</span>
           </div>
           
-          <div class="controls-row">
+<div class="controls-row">
             <button id="playBtn" class="ctrl-btn main-play" aria-label="播放">
               <svg class="ico-play" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
                 <polygon points="5 3 19 12 5 21 5 3"/>
@@ -163,7 +163,7 @@
             
             <button id="speedBtn" class="ctrl-btn tag-btn" title="播放速度">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px">
-                <path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8z"/><path d="M12 6v6l4 2"/>
+                <path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 8 0 01-8 8z"/><path d="M12 6v6l4 2"/>
               </svg>
               <span id="speedLabel">1.0x</span>
             </button>
@@ -174,8 +174,51 @@
               </svg>
               <span id="transLabel">双语</span>
             </button>
+
+            <button id="moreBtn" class="ctrl-btn icon-btn tag-btn mobile-only" title="更多选项">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
+              </svg>
+            </button>
           </div>
         </footer>
+      </div>
+    </dialog>
+
+    <!-- 手机端更多选项弹窗 -->
+    <dialog id="mobileMenuDialog" class="pwa-dialog">
+      <div class="pwa-dialog-content" style="max-width:320px;border-radius:20px">
+        <div class="dialog-header-row">
+          <h3>更多选项</h3>
+          <button class="icon-btn close-icon" onclick="document.getElementById('mobileMenuDialog').close()">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <div class="mobile-menu-list">
+          <button class="menu-item" data-action="timer">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+            </svg>
+            <span>定时关闭</span>
+            <span class="menu-value" id="mobileTimerLabel">关闭</span>
+          </button>
+          <button class="menu-item" data-action="speed">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 8 0 01-8 8z"/><path d="M12 6v6l4 2"/>
+            </svg>
+            <span>播放速度</span>
+            <span class="menu-value" id="mobileSpeedLabel">1.0x</span>
+          </button>
+          <button class="menu-item" data-action="trans">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+            <span>显示模式</span>
+            <span class="menu-value" id="mobileTransLabel">双语</span>
+          </button>
+        </div>
       </div>
     </dialog>
     

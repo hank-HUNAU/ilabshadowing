@@ -2789,6 +2789,15 @@ body.hide-en .line-en { display: none; }
 
   .controls-row { gap: 10px; }
   
+  /* 手机端：隐藏次要按钮，显示更多按钮 */
+  #timerBtn, #speedBtn, #transBtn {
+    display: none;
+  }
+  
+  #moreBtn {
+    display: flex !important;
+  }
+  
   .main-play { width: 48px; height: 48px; }
   .tag-btn { padding: 6px 10px; font-size: 0.75rem; }
   
@@ -4620,4 +4629,68 @@ body,
 .btn-small:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-glow);
+}
+
+/* ========== 手机端更多菜单 ========== */
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mobile-only {
+    display: flex;
+  }
+}
+
+.mobile-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: transparent;
+  border: none;
+  outline: none;
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.menu-item:hover {
+  background: var(--bg-secondary);
+  transform: translateX(4px);
+}
+
+.menu-item:active {
+  transform: scale(0.98);
+  background: var(--bg-secondary);
+}
+
+.menu-item svg {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--text-secondary);
+}
+
+.menu-item span {
+  flex: 1;
+}
+
+.menu-value {
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  padding: 4px 8px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
 }

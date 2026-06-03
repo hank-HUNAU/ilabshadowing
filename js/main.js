@@ -218,6 +218,10 @@ class App {
       trL: document.getElementById('transLabel'),
       repeat: document.getElementById('repeatBtn'),
       repeatCount: document.getElementById('repeatCount'),
+      more: document.getElementById('moreBtn'),
+      mobileTimerLabel: document.getElementById('mobileTimerLabel'),
+      mobileSpeedLabel: document.getElementById('mobileSpeedLabel'),
+      mobileTransLabel: document.getElementById('mobileTransLabel'),
       audio: document.getElementById('audio')
     };
 
@@ -1042,7 +1046,11 @@ class App {
   }
 
   syncUI() {
-    this.els.spdL.textContent = `${this.spd}x`;
+    const speedLabel = `${this.spd}x`;
+    this.els.spdL.textContent = speedLabel;
+    if (this.els.mobileSpeedLabel) {
+      this.els.mobileSpeedLabel.textContent = speedLabel;
+    }
     this.modeLabel();
     this.updateRepeatCounts();
   }
@@ -1067,7 +1075,11 @@ class App {
     }
     
     const labels = { bilingual: '双语', 'en-only': '英文', 'cn-only': '中文' };
-    this.els.trL.textContent = labels[this.tr] || '双语';
+    const label = labels[this.tr] || '双语';
+    this.els.trL.textContent = label;
+    if (this.els.mobileTransLabel) {
+      this.els.mobileTransLabel.textContent = label;
+    }
   }
 
   saveTime(t) { localStorage.setItem(LS.TIME(this.key, this.idx), t); }
@@ -1115,6 +1127,41 @@ class App {
         this.repeatCount = REPEAT_COUNTS[nextIdx];
         localStorage.setItem(LS.REPEAT, this.repeatCount);
         this.updateRepeatCounts();
+      });
+    }
+    
+    // 手机端更多按钮
+    if (this.els.more) {
+      this.els.more.addEventListener('click', () => {
+        const menuDialog = document.getElementById('mobileMenuDialog');
+        if (menuDialog) {
+          menuDialog.showModal();
+        }
+      });
+    }
+    
+    // 手机端菜单项点击
+    const mobileMenuDialog = document.getElementById('mobileMenuDialog');
+    if (mobileMenuDialog) {
+      mobileMenuDialog.addEventListener('click', e => {
+        const menuItem = e.target.closest('.menu-item');
+        if (!menuItem) return;
+        
+        const action = menuItem.dataset.action;
+        
+        switch (action) {
+          case 'timer':
+            if (this.els.timer) this.els.timer.click();
+            break;
+          case 'speed':
+            if (this.els.spd) this.els.spd.click();
+            break;
+          case 'trans':
+            if (this.els.tr) this.els.tr.click();
+            break;
+        }
+        
+        mobileMenuDialog.close();
       });
     }
     
@@ -1457,12 +1504,18 @@ class App {
     this.updateTimerDisplay = function() {
       if (!this.els.timerLabel) return;
       
+      const label = this.timerMinutes === 0 ? '关闭' : `${this.timerMinutes}分`;
+      
+      this.els.timerLabel.textContent = label;
       if (this.timerMinutes === 0) {
-        this.els.timerLabel.textContent = '关闭';
         this.els.timer.classList.remove('active');
       } else {
-        this.els.timerLabel.textContent = `${this.timerMinutes}分`;
         this.els.timer.classList.add('active');
+      }
+      
+      // 同步更新手机菜单标签
+      if (this.els.mobileTimerLabel) {
+        this.els.mobileTimerLabel.textContent = label;
       }
     };
   }
