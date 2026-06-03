@@ -1616,27 +1616,6 @@ function handleSwipe() {
     }
   }
 }
-  
-  // 水平滑动（切换课程）- 在播放器打开时生效
-  if (Math.abs(diffX) > 50 && Math.abs(diffY) < 30) {
-    const appInstance = window.app;
-    if (!appInstance || !appInstance.els?.dlg?.open) return;
-    
-    if (diffX > 0) {
-      // 向右滑动 - 上一课
-      if (appInstance.idx > 0) {
-        appInstance.open(appInstance.idx - 1);
-        toast.info('上一课');
-      }
-    } else {
-      // 向左滑动 - 下一课
-      if (appInstance.idx < appInstance.units.length - 1) {
-        appInstance.open(appInstance.idx + 1);
-        toast.info('下一课');
-      }
-    }
-  }
-}
 
 // 导出折叠卡片函数到全局作用域
 window.toggleFoldCard = toggleFoldCard;
