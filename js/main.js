@@ -585,16 +585,6 @@ class App {
     }
     localStorage.setItem(LS.LAST_PAGE, 'book');
   }
-    } else {
-      this.showBookPage();
-    }
-  }
-
-  showBookPage() {
-    this.els.bookPage.style.display = 'flex';
-    this.els.unitPage.style.display = 'none';
-    localStorage.setItem(LS.LAST_PAGE, 'book');
-  }
 
   openBook(key, toUnitIdx = null, toLineIdx = null) {
     this.key = key;
