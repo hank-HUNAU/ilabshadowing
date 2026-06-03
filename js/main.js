@@ -209,6 +209,10 @@ class App {
       backToBooksFromFav: document.getElementById('backToBooksFromFav'),
       showFavorites: document.getElementById('showFavorites'),
       favCountBadge: document.getElementById('favCountBadge'),
+      pullToRefresh: document.getElementById('pullToRefresh'),
+      pullToRefreshFav: document.getElementById('pullToRefreshFav'),
+      longPressMenu: document.getElementById('longPressMenu'),
+      closeLongPressMenu: document.getElementById('closeLongPressMenu'),
       dlg: document.getElementById('playerDialog'),
       title: document.getElementById('unitTitle'),
       close: document.getElementById('closeBtn'),
@@ -260,6 +264,11 @@ class App {
     
     // 检查是否应该直接进入课程页面
     this.restoreLastPage();
+    
+    // 初始化下拉刷新（仅手机端）
+    if (window.innerWidth <= 767) {
+      this.initPullToRefresh();
+    }
   }
   
   updateFavBadge() {
@@ -439,7 +448,73 @@ class App {
     
     localStorage.setItem(LS.FAVORITES, JSON.stringify(this.favorites));
   }
-  
+
+  // 手机端底部导航栏导航
+  navigateBottomNav(page, direction = 'forward') {
+    // 更新导航栏状态
+    const bottomNav = document.getElementById('bottomNav');
+    if (bottomNav) {
+      bottomNav.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.page === page) {
+          item.classList.add('active');
+        }
+      });
+    }
+
+    // 收藏页面需要渲染
+    if (page === 'favorite' && this.els.favoritePage.style.display === 'none') {
+      this.renderFavorites();
+    }
+
+    // 页面切换（带动画）
+    this.transitionPage(page, direction);
+  }
+
+  // 页面转场动画
+  transitionPage(targetPage, direction = 'forward') {
+    const pages = {
+      book: this.els.bookPage,
+      unit: this.els.unitPage,
+      favorite: this.els.favoritePage
+    };
+
+    // 找到当前显示的页面
+    let currentPage = null;
+    for (const [key, page] of Object.entries(pages)) {
+      if (page && page.style.display !== 'none') {
+        currentPage = key;
+        break;
+      }
+    }
+
+    if (currentPage === targetPage) return;
+
+    const enterClass = direction === 'forward' ? 'page-enter' : 'page-exit-reverse';
+    const exitClass = direction === 'forward' ? 'page-exit' : 'page-enter-reverse';
+
+    // 当前页面退出动画
+    if (currentPage && pages[currentPage]) {
+      pages[currentPage].classList.add(exitClass);
+      setTimeout(() => {
+        pages[currentPage].style.display = 'none';
+        pages[currentPage].classList.remove(exitClass);
+      }, 300);
+    }
+
+    // 目标页面进入动画
+    if (pages[targetPage]) {
+      pages[targetPage].style.display = 'flex';
+      pages[targetPage].classList.add(enterClass);
+      setTimeout(() => {
+        pages[targetPage].classList.add('page-active');
+      }, 50);
+      setTimeout(() => {
+        pages[targetPage].classList.remove(enterClass, 'page-active');
+      }, 350);
+    }
+  }
+
   renderFavorites() {
     if (this.favorites.length === 0) {
       this.els.favoriteGrid.innerHTML = `
@@ -827,6 +902,11 @@ class App {
     // 先显示弹窗（不等待 LRC 加载）
     this.els.dlg.showModal();
     
+    // 添加下拉关闭手势（仅手机端）
+    if (window.innerWidth <= 767) {
+      this.setupPullToClose();
+    }
+    
     // 异步加载 LRC
     const lrcUrl = getLrcUrl(u.filename, this.path, this.key);
     let txt = this.cache.get(lrcUrl);
@@ -1101,6 +1181,20 @@ class App {
   fmt(s) { if (!isFinite(s)) return '0:00'; return `${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`; }
 
   bind() {
+    // 手机端底部导航栏
+    const bottomNav = document.getElementById('bottomNav');
+    if (bottomNav) {
+      const navItems = bottomNav.querySelectorAll('.nav-item');
+      navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          const page = item.dataset.page;
+          this.navigateBottomNav(page);
+          triggerHapticFeedback('light');
+        });
+      });
+    }
+
     // 收藏工具栏事件（已删除，改用行内收藏按钮）
     // 收藏页面入口
     if (this.els.showFavorites) {
@@ -1219,6 +1313,56 @@ class App {
         triggerHapticFeedback('light');
       }
     });
+
+    // 手机端长按菜单
+    if (window.innerWidth <= 767 && this.els.longPressMenu) {
+      let longPressTimer = null;
+      let longPressedCard = null;
+
+      // 长按课程卡片
+      this.els.unitGrid.addEventListener('touchstart', e => {
+        const card = e.target.closest('.unit-card');
+        if (card) {
+          longPressedCard = card;
+          longPressTimer = setTimeout(() => {
+            this.showLongPressMenu(+card.dataset.i);
+            triggerHapticFeedback('medium');
+          }, 500);
+        }
+      }, { passive: true });
+
+      this.els.unitGrid.addEventListener('touchend', () => {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      });
+
+      this.els.unitGrid.addEventListener('touchmove', () => {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      });
+
+      // 长按菜单项点击
+      const menuItems = this.els.longPressMenu.querySelectorAll('.menu-item');
+      menuItems.forEach(item => {
+        item.addEventListener('click', () => {
+          const action = item.dataset.action;
+          const unitIdx = this.els.longPressMenu.dataset.unitIdx;
+          
+          if (unitIdx !== undefined) {
+            this.handleLongPressAction(action, +unitIdx);
+          }
+          
+          this.els.longPressMenu.close();
+          triggerHapticFeedback('light');
+        });
+      });
+
+      // 关闭长按菜单
+      this.els.closeLongPressMenu.addEventListener('click', () => {
+        this.els.longPressMenu.close();
+        triggerHapticFeedback('light');
+      });
+    }
     
     // 收藏网格点击 - 打开对应句子
     this.els.favoriteGrid.addEventListener('click', e => {
@@ -1286,6 +1430,202 @@ class App {
       this.els.dlg.close(); 
       this.els.audio.pause(); 
     });
+
+    // 手机端下拉关闭播放器手势
+    this.setupPullToClose = function() {
+      let startY = 0;
+      let currentY = 0;
+      let isDragging = false;
+      const dialogInner = this.els.dlg.querySelector('.dialog-inner');
+      const threshold = 150; // 拉动阈值
+
+      const handleTouchStart = (e) => {
+        // 只在顶部区域触发
+        const touch = e.touches[0];
+        if (touch.clientY < 100) {
+          startY = touch.clientY;
+          isDragging = true;
+          currentY = startY;
+        }
+      };
+
+      const handleTouchMove = (e) => {
+        if (!isDragging) return;
+        currentY = e.touches[0].clientY;
+        const diff = currentY - startY;
+
+        if (diff > 0) {
+          dialogInner.style.transform = `translateY(${diff}px)`;
+          dialogInner.style.opacity = 1 - diff / 400;
+        }
+      };
+
+      const handleTouchEnd = (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        const diff = currentY - startY;
+
+        if (diff > threshold) {
+          // 关闭播放器
+          dialogInner.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+          dialogInner.style.transform = 'translateY(100%)';
+          dialogInner.style.opacity = '0';
+          
+          setTimeout(() => {
+            if (this.els.close) this.els.close.click();
+            dialogInner.style.transition = '';
+            dialogInner.style.transform = '';
+            dialogInner.style.opacity = '';
+          }, 300);
+        } else {
+          // 回弹
+          dialogInner.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease';
+          dialogInner.style.transform = '';
+          dialogInner.style.opacity = '';
+          
+          setTimeout(() => {
+            dialogInner.style.transition = '';
+          }, 300);
+        }
+      };
+
+      this.els.dlg.addEventListener('touchstart', handleTouchStart, { passive: true });
+      this.els.dlg.addEventListener('touchmove', handleTouchMove, { passive: true });
+      this.els.dlg.addEventListener('touchend', handleTouchEnd);
+    };
+
+    // 下拉刷新功能
+    this.initPullToRefresh = function() {
+      const setupRefresh = (indicator, gridElement, refreshCallback) => {
+        if (!indicator || !gridElement) return;
+
+        let startY = 0;
+        let currentY = 0;
+        let isDragging = false;
+        let isRefreshing = false;
+        const threshold = 80;
+
+        const handleTouchStart = (e) => {
+          if (isRefreshing) return;
+          const touch = e.touches[0];
+          const scrollTop = gridElement.scrollTop;
+          
+          if (scrollTop <= 0 && touch.clientY < 100) {
+            startY = touch.clientY;
+            isDragging = true;
+          }
+        };
+
+        const handleTouchMove = (e) => {
+          if (!isDragging || isRefreshing) return;
+          currentY = e.touches[0].clientY;
+          const diff = currentY - startY;
+
+          if (diff > 0) {
+            indicator.classList.add('pulling');
+            indicator.style.height = Math.min(diff, 80) + 'px';
+            indicator.style.marginBottom = Math.min(diff / 2, 16) + 'px';
+            
+            const text = indicator.querySelector('.refresh-text');
+            if (text) {
+              text.textContent = diff > threshold ? '释放立即刷新' : '下拉刷新';
+            }
+          }
+        };
+
+        const handleTouchEnd = (e) => {
+          if (!isDragging || isRefreshing) return;
+          isDragging = false;
+          const diff = currentY - startY;
+
+          if (diff > threshold) {
+            // 触发刷新
+            isRefreshing = true;
+            indicator.classList.remove('pulling');
+            indicator.classList.add('refreshing');
+            
+            const text = indicator.querySelector('.refresh-text');
+            if (text) text.textContent = '正在刷新...';
+            
+            triggerHapticFeedback('medium');
+
+            // 执行刷新回调
+            refreshCallback().then(() => {
+              setTimeout(() => {
+                indicator.classList.remove('refreshing');
+                indicator.style.height = '0';
+                indicator.style.marginBottom = '0';
+                isRefreshing = false;
+                triggerHapticFeedback('light');
+              }, 500);
+            });
+          } else {
+            // 回弹
+            indicator.classList.remove('pulling');
+            indicator.style.height = '0';
+            indicator.style.marginBottom = '0';
+          }
+        };
+
+        gridElement.addEventListener('touchstart', handleTouchStart, { passive: true });
+        gridElement.addEventListener('touchmove', handleTouchMove, { passive: true });
+        gridElement.addEventListener('touchend', handleTouchEnd);
+      };
+
+      // 课程列表下拉刷新
+      setupRefresh(
+        this.els.pullToRefresh,
+        this.els.unitGrid,
+        async () => {
+          // 重新加载当前书籍
+          if (this.book) {
+            await this.loadUnits(this.book.key);
+          }
+        }
+      );
+
+      // 收藏列表下拉刷新
+      setupRefresh(
+        this.els.pullToRefreshFav,
+        this.els.favoriteGrid,
+        async () => {
+          // 重新渲染收藏
+          this.renderFavorites();
+        }
+      );
+    };
+
+    // 显示长按菜单
+    this.showLongPressMenu = function(unitIdx) {
+      if (!this.els.longPressMenu) return;
+      
+      this.els.longPressMenu.dataset.unitIdx = unitIdx;
+      this.els.longPressMenu.showModal();
+    };
+
+    // 处理长按菜单操作
+    this.handleLongPressAction = function(action, unitIdx) {
+      if (!userManager) return;
+
+      const unitKey = this.units[unitIdx]?.key;
+      if (!unitKey) return;
+
+      switch (action) {
+        case 'mark-completed':
+          userManager.markCompleted(this.key, unitIdx);
+          this.renderUnitCards();
+          toast.info('已标记为完成');
+          break;
+        case 'mark-uncompleted':
+          userManager.unmarkCompleted(this.key, unitIdx);
+          this.renderUnitCards();
+          toast.info('已取消完成标记');
+          break;
+        case 'play':
+          this.open(unitIdx);
+          break;
+      }
+    };
     
     // Nav
     this.els.prev.addEventListener('click', () => {
