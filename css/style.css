@@ -40,6 +40,62 @@
     --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
     --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.6);
   }
+  
+  /* 暗黑模式卡片增强 */
+  .book-card,
+  .unit-card {
+    background: rgba(30, 30, 30, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  
+  /* 暗黑模式对话框增强 */
+  .player-dialog .dialog-inner,
+  .pwa-dialog-content {
+    background: rgba(30, 30, 30, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  /* 暗黑模式输入框优化 */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    background: rgba(44, 44, 46, 0.5);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text);
+  }
+  
+  input[type="text"]::placeholder,
+  input[type="email"]::placeholder,
+  input[type="password"]::placeholder {
+    color: var(--text-tertiary);
+  }
+  
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus {
+    border-color: var(--primary);
+    background: rgba(44, 44, 46, 0.8);
+  }
+  
+  /* 暗黑模式进度环优化 */
+  .progress-ring-bg {
+    stroke: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* 暗黑模式骨架屏优化 */
+  .skeleton {
+    background: linear-gradient(90deg, 
+      rgba(255, 255, 255, 0.08) 25%, 
+      rgba(255, 255, 255, 0.12) 50%, 
+      rgba(255, 255, 255, 0.08) 75%);
+  }
+  
+  /* 暗黑模式空状态优化 */
+  .empty-state-icon {
+    color: var(--text-tertiary);
+    opacity: 0.4;
+  }
 }
 
 /* 骨架屏动画 */
@@ -308,6 +364,169 @@ dialog::backdrop {
     transform: scale(4);
     opacity: 0;
   }
+}
+
+/* 字体排印优化 */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+h1 { font-size: 1.8rem; }
+h2 { font-size: 1.4rem; }
+h3 { font-size: 1.1rem; }
+h4 { font-size: 1rem; }
+h5 { font-size: 0.9rem; }
+h6 { font-size: 0.85rem; }
+
+/* 文本层级优化 */
+.site-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.dialog-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.book-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.book-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.unit-num {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.unit-title {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.empty-state-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.empty-state-desc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* 按钮文本优化 */
+.ctrl-btn,
+.icon-btn,
+.empty-state-action {
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.main-play {
+  font-size: 0; /* 图标按钮，隐藏文本 */
+}
+
+/* 标签文本优化 */
+.time-text,
+.unit-count,
+.fav-badge {
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 辅助文本优化 */
+small,
+.text-small {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+}
+
+.text-muted {
+  color: var(--text-secondary);
+}
+
+/* 滚动条美化 - Webkit 浏览器 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* 暗黑模式滚动条优化 */
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  ::-webkit-scrollbar-thumb:active {
+    background: rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* Firefox 滚动条优化 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+  * {
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  }
+}
+
+/* 特定区域滚动条优化 */
+.lyrics-scroll,
+.unit-grid,
+.book-grid,
+.changelog-list,
+#favoriteGrid {
+  scrollbar-width: thin;
+}
+
+.lyrics-scroll::-webkit-scrollbar,
+.unit-grid::-webkit-scrollbar,
+.book-grid::-webkit-scrollbar,
+.changelog-list::-webkit-scrollbar,
+#favoriteGrid::-webkit-scrollbar {
+  width: 6px;
 }
 
 @keyframes fade-in {
@@ -885,11 +1104,13 @@ body {
   color: var(--text);
   letter-spacing: -0.01em;
   line-height: 1.4;
+  transition: all 0.2s ease;
 }
 
 .line.active .line-en {
   color: var(--primary);
   font-weight: 700;
+  transform: scale(1.02);
 }
 
 .line-cn {
@@ -897,6 +1118,12 @@ body {
   color: var(--text-secondary);
   font-weight: 400;
   line-height: 1.4;
+  transition: opacity 0.2s ease;
+}
+
+.line.active .line-cn {
+  color: var(--text);
+  opacity: 0.9;
 }
 
 body.hide-cn .line-cn { display: none; }
