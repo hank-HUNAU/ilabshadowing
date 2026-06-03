@@ -978,14 +978,13 @@ body {
 }
 
 .unit-grid.think-layout {
-  grid-template-columns: repeat(6, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
 }
 
 .unit-grid.think-layout .unit-card {
-  width: 150px;
-  height: 75px;
-  padding: 12px 14px;
+  min-height: 110px;
+  padding: 20px 16px;
 }
 
 .unit-grid.think-layout .unit-num {
@@ -995,8 +994,12 @@ body {
 }
 
 .unit-grid.think-layout .unit-title {
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   z-index: 1;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* 播放弹窗 - 默认全屏 */
@@ -2892,13 +2895,21 @@ body.hide-en .line-en { display: none; }
   }
 
   .unit-grid.think-layout {
-    grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
   }
 
   .unit-grid.think-layout .unit-card {
-    aspect-ratio: 4/1;
-    padding: 8px 12px;
+    padding: 16px 12px;
+    min-height: 100px;
+  }
+
+  .unit-grid.think-layout .unit-num {
+    font-size: 1.4rem;
+  }
+
+  .unit-grid.think-layout .unit-title {
+    font-size: 0.7rem;
   }
 }
 
