@@ -2937,6 +2937,91 @@ body.hide-en .line-en { display: none; }
   backface-visibility: hidden;
 }
 
+/* ========== P2 - 深色模式渐变过渡 ========== */
+
+/* 深色模式平滑过渡 */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body,
+#app,
+.book-page,
+.unit-page,
+.player-dialog,
+.pwa-dialog {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 深色模式类 */
+.dark-mode {
+  color-scheme: dark;
+}
+
+.dark-mode :root {
+  --bg: #000000;
+  --bg-secondary: #1c1c1e;
+  --card: rgba(30, 30, 30, 0.6);
+  --card-solid: #2c2c2e;
+  --text: #f5f5f7;
+  --text-secondary: #aeaeb2;
+  --text-tertiary: #6e6e73;
+  --border: rgba(255, 255, 255, 0.1);
+  --border-light: rgba(255, 255, 255, 0.06);
+}
+
+/* 深色模式开关按钮样式 */
+.dark-mode-toggle {
+  position: fixed;
+  top: max(16px, var(--safe-area-top, 0px));
+  right: max(16px, var(--safe-area-right, 0px));
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--card-solid);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 999;
+  box-shadow: var(--shadow-md);
+  transition: all 0.2s ease;
+}
+
+.dark-mode-toggle:active {
+  transform: scale(0.9);
+}
+
+.dark-mode-toggle svg {
+  width: 22px;
+  height: 22px;
+  color: var(--text);
+}
+
+.dark-mode-toggle .sun-icon {
+  display: none;
+}
+
+.dark-mode-toggle .moon-icon {
+  display: block;
+}
+
+.dark-mode .dark-mode-toggle .sun-icon {
+  display: block;
+}
+
+.dark-mode .dark-mode-toggle .moon-icon {
+  display: none;
+}
+
+/* 移动端隐藏开关（使用自动切换） */
+@media (max-width: 767px) {
+  .dark-mode-toggle {
+    display: none;
+  }
+}
+
 /* ========== P1 - 底部导航栏优化 (拇指热区) ========== */
 
 @media (max-width: 767px) {
@@ -3006,11 +3091,53 @@ body.hide-en .line-en { display: none; }
   }
 }
 
-/* 桌面端隐藏底部导航栏 */
-@media (min-width: 768px) {
-  .mobile-bottom-nav {
-    display: none !important;
+  /* 桌面端隐藏底部导航栏 */
+  @media (min-width: 768px) {
+    .mobile-bottom-nav {
+      display: none !important;
+    }
   }
+}
+
+/* ========== P2 - 底部导航栏细节完善 ========== */
+
+/* 导航项点击反馈 */
+.mobile-bottom-nav .nav-item:active {
+  transform: scale(0.9);
+  background: rgba(0, 122, 255, 0.1);
+  border-radius: 12px;
+}
+
+/* 导航项激活指示器 */
+.mobile-bottom-nav .nav-item.active svg {
+  stroke: var(--primary);
+  fill: rgba(0, 122, 255, 0.1);
+}
+
+.mobile-bottom-nav .nav-item.active .nav-label {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* 导航栏阴影增强 */
+.mobile-bottom-nav {
+  box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05),
+              0 -4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* 暗黑模式导航栏优化 */
+@media (prefers-color-scheme: dark) {
+  .mobile-bottom-nav {
+    background: rgba(30, 30, 30, 0.95);
+    border-top-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.05),
+                0 -4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .mobile-bottom-nav .nav-item:active {
+    background: rgba(0, 122, 255, 0.2);
+  }
+}
 }
     min-height: auto;
     border-radius: var(--radius-md);

@@ -1582,6 +1582,41 @@ function handleSwipe() {
     return;
   }
   
+  // 防误触：垂直滑动优先
+  if (Math.abs(diffY) > Math.abs(diffX)) {
+    // 垂直滑动，忽略水平手势
+    return;
+  }
+  
+  // 水平滑动（切换课程） - 在播放器打开时生效
+  if (Math.abs(diffX) > 50 && Math.abs(diffY) < 30) {
+    const appInstance = window.app;
+    if (!appInstance || !appInstance.els?.dlg?.open) return;
+    
+    if (diffX > 0) {
+      // 向右滑动 - 上一课
+      if (appInstance.idx > 0) {
+        appInstance.open(appInstance.idx - 1);
+        toast.info('上一课');
+        // 触觉反馈
+        if (navigator.vibrate) {
+          navigator.vibrate(30);
+        }
+      }
+    } else {
+      // 向左滑动 - 下一课
+      if (appInstance.idx < appInstance.units.length - 1) {
+        appInstance.open(appInstance.idx + 1);
+        toast.info('下一课');
+        // 触觉反馈
+        if (navigator.vibrate) {
+          navigator.vibrate(30);
+        }
+      }
+    }
+  }
+}
+  
   // 水平滑动（切换课程）- 在播放器打开时生效
   if (Math.abs(diffX) > 50 && Math.abs(diffY) < 30) {
     const appInstance = window.app;
@@ -1754,6 +1789,79 @@ function autoDarkMode() {
   }
 }
 
+// ========== 深色模式手动切换 ==========
+function toggleDarkMode() {
+  const isDark = document.documentElement.classList.toggle('dark-mode');
+  
+  // 保存用户偏好
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  
+  // 触觉反馈
+  if (navigator.vibrate) {
+    navigator.vibrate(20);
+  }
+  
+  console.log('[DarkMode]', isDark ? 'Enabled' : 'Disabled');
+}
+
+// 初始化深色模式开关
+function initDarkModeToggle() {
+  // 创建开关按钮
+  const toggle = document.createElement('button');
+  toggle.className = 'dark-mode-toggle';
+  toggle.setAttribute('aria-label', '切换深色模式');
+  toggle.setAttribute('title', '切换深色模式');
+  toggle.innerHTML = `
+    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="5"/>
+      <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+    </svg>
+    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+    </svg>
+  `;
+  
+  toggle.addEventListener('click', toggleDarkMode);
+  
+  // 恢复到用户上次设置
+  const userTheme = localStorage.getItem('theme');
+  if (userTheme === 'dark') {
+    document.documentElement.classList.add('dark-mode');
+  } else if (userTheme === 'light') {
+    document.documentElement.classList.remove('dark-mode');
+  }
+  
+  // 添加到页面
+  document.body.appendChild(toggle);
+}
+
+// DOM 加载完成后初始化
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    detectLowEndDevice();
+    initMobileBottomNav();
+    autoDarkMode();
+    initDarkModeToggle();
+  });
+} else {
+  detectLowEndDevice();
+  initMobileBottomNav();
+  autoDarkMode();
+  initDarkModeToggle();
+}
+  
+  const hour = new Date().getHours();
+  // 晚上 8 点到早上 6 点自动开启深色模式
+  const isNight = hour >= 20 || hour < 6;
+  
+  if (isNight) {
+    document.documentElement.classList.add('dark-mode');
+    console.log('[DarkMode] Auto-enabled for night time');
+  } else {
+    document.documentElement.classList.remove('dark-mode');
+  }
+}
+
 // ========== 移动端底部导航栏初始化 ==========
 function initMobileBottomNav() {
   const bottomNav = document.getElementById('mobileBottomNav');
@@ -1776,28 +1884,61 @@ function initMobileBottomNav() {
   // 监听窗口大小变化
   window.addEventListener('resize', updateNavVisibility);
   
-  // 更新激活状态
-  function updateActiveNav() {
-    const items = bottomNav.querySelectorAll('.nav-item');
-    items.forEach(item => item.classList.remove('active'));
-    
-    // 根据当前页面设置激活状态
-    if (app.els.favoritePage?.style.display === 'flex') {
-      bottomNav.querySelector('[data-nav="favorites"]')?.classList.add('active');
-    } else if (app.els.unitPage?.style.display === 'flex') {
-      // 在课程页面时激活首页
-      bottomNav.querySelector('[data-nav="home"]')?.classList.add('active');
-    } else {
-      bottomNav.querySelector('[data-nav="home"]')?.classList.add('active');
-    }
+  // 导航状态持久化
+  function saveNavState(navName) {
+    localStorage.setItem('mobile-nav-active', navName);
   }
+  
+  function loadNavState() {
+    return localStorage.getItem('mobile-nav-active') || 'home';
+  }
+  
+  // 更新激活状态
+  function updateActiveNav(navName) {
+    const items = bottomNav.querySelectorAll('.nav-item');
+    items.forEach(item => {
+      const isActive = item.dataset.nav === navName;
+      item.classList.toggle('active', isActive);
+    });
+    saveNavState(navName);
+  }
+  
+  // 绑定点击事件
+  bottomNav.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const navName = item.dataset.nav;
+      updateActiveNav(navName);
+      
+      // 触觉反馈
+      if (navigator.vibrate) {
+        navigator.vibrate(20);
+      }
+    });
+  });
   
   // 页面切换时更新激活状态
   const originalRestoreBookPage = app.restoreBookPage?.bind(app);
   if (originalRestoreBookPage) {
     app.restoreBookPage = function() {
       originalRestoreBookPage();
-      updateActiveNav();
+      updateActiveNav('home');
     };
   }
+  
+  // 收藏页激活状态
+  if (app.els.favoritePage) {
+    const originalRenderFavorites = app.renderFavorites?.bind(app);
+    if (originalRenderFavorites) {
+      app.renderFavorites = function() {
+        originalRenderFavorites();
+        if (this.els.favoritePage?.style.display === 'flex') {
+          updateActiveNav('favorites');
+        }
+      };
+    }
+  }
+  
+  // 恢复上次导航状态
+  const lastNav = loadNavState();
+  updateActiveNav(lastNav);
 }
