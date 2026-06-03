@@ -1690,3 +1690,31 @@ function animateStreakFire(element) {
     element.classList.remove('streak-fire');
   }, 3000);
 }
+
+// ========== 低端设备检测 ==========
+function detectLowEndDevice() {
+  // 检测设备内存和 CPU 核心数
+  const isLowEnd = (
+    // 设备内存 < 4GB
+    (navigator.deviceMemory && navigator.deviceMemory < 4) ||
+    // CPU 核心数 < 4
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) ||
+    // 网络速度慢
+    (navigator.connection && navigator.connection.saveData)
+  );
+  
+  // 老旧 iOS 设备检测（iPhone 6/7/8 等）
+  const isOldIOS = /iPhone OS (9|10|11|12|13)_/.test(navigator.userAgent);
+  
+  if (isLowEnd || isOldIOS) {
+    document.documentElement.classList.add('low-end-device');
+    console.log('[Performance] Low-end device detected, reducing animations');
+  }
+}
+
+// DOM 加载完成后检测设备
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', detectLowEndDevice);
+} else {
+  detectLowEndDevice();
+}
