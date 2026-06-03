@@ -338,6 +338,13 @@ class App {
       });
       this.updateLineFavoriteIcon(lineIdx, true);
       console.log('[Favorite] Added sentence to favorites');
+      
+      // 触觉反馈（移动端）
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+      
+      // 星星弹跳动画已通过 CSS 实现
     }
     
     localStorage.setItem(LS.FAVORITES, JSON.stringify(this.favorites));
@@ -432,9 +439,14 @@ class App {
     this.els.favoriteGrid.innerHTML = this.favorites.map((f, i) => {
       const num = f.lessonTitle.match(/\d+/)?.[0] || i + 1;
       return `
-      <div class="unit-card" data-fav-idx="${i}" style="min-height:60px;align-items:flex-start;text-align:left;">
+      <div class="unit-card favorite-item" data-fav-idx="${i}" style="min-height:60px;align-items:flex-start;text-align:left;position:relative;">
         <div class="unit-num" style="font-size:1rem;margin-bottom:4px;">${num}</div>
         <div class="unit-title" style="font-size:0.75rem;white-space:normal;line-height:1.3;">${f.sentence.substring(0, 30)}${f.sentence.length > 30 ? '...' : ''}</div>
+        <button class="favorite-delete-btn" data-fav-idx="${i}" aria-label="删除收藏" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:var(--text-tertiary);cursor:pointer;padding:8px;border-radius:50%;transition:all 0.2s;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
       </div>`;
     }).join('');
   }
@@ -973,13 +985,26 @@ class App {
       // 全部重复完成，停止播放
       this.els.audio.pause();
       this.allRepeatCount = 0;
+      
+      // 检查是否刚完成该课程
+      const wasCompleted = userManager.progress[this.key]?.completedUnits?.includes(this.idx);
+      
       // 更新课程进度
       if (userManager) {
         userManager.updateProgress(this.key, this.idx, this.repeatCount);
       }
+      
       // 同步到数据模块
       if (window.dataSync && this.book?.key) {
         window.updateCourseProgress(this.book.key, this.units[this.idx].key, this.repeatCount);
+      }
+      
+      // 如果刚完成，触发完成动画
+      if (!wasCompleted && userManager.progress[this.key]?.completedUnits?.includes(this.idx)) {
+        const card = this.els.unitGrid.querySelector(`.unit-card[data-i="${this.idx}"]`);
+        if (card) {
+          triggerCompleteAnimation(card);
+        }
       }
     }
   }
@@ -1123,6 +1148,30 @@ class App {
     
     // 收藏网格点击 - 打开对应句子
     this.els.favoriteGrid.addEventListener('click', e => {
+      // 检查是否点击了删除按钮
+      const deleteBtn = e.target.closest('.favorite-delete-btn');
+      if (deleteBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const favIdx = +deleteBtn.dataset.favIdx;
+        if (favIdx >= 0 && favIdx < this.favorites.length) {
+          // 删除收藏
+          this.favorites.splice(favIdx, 1);
+          localStorage.setItem(LS.FAVORITES, JSON.stringify(this.favorites));
+          this.updateFavBadge();
+          this.renderFavorites();
+          
+          // 触觉反馈
+          if (navigator.vibrate) {
+            navigator.vibrate(50);
+          }
+          
+          toast.success('已删除收藏');
+        }
+        return;
+      }
+      
+      // 正常点击卡片
       const card = e.target.closest('.unit-card');
       if (card) {
         const favIdx = +card.dataset.favIdx;
@@ -1546,6 +1595,9 @@ function handleSwipe() {
 window.toggleFoldCard = toggleFoldCard;
 window.restoreFoldState = restoreFoldState;
 window.updateDashboard = updateDashboard;
+window.triggerCompleteAnimation = triggerCompleteAnimation;
+window.createConfetti = createConfetti;
+window.animateStreakFire = animateStreakFire;
 
 // 波纹效果 - 触摸设备增强反馈
 function createRipple(event) {
@@ -1575,3 +1627,66 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', createRipple);
   });
 });
+
+// 礼花特效 - 完成课程时触发
+function createConfetti(x, y) {
+  const colors = ['#fbbf24', '#34c759', '#007aff', '#ff3b30', '#af52de', '#ff9500'];
+  const count = 30; // 礼花数量
+  
+  for (let i = 0; i < count; i++) {
+    const confetti = document.createElement('div');
+    confetti.classList.add('confetti');
+    confetti.style.left = (x || Math.random() * window.innerWidth) + 'px';
+    confetti.style.top = (y || -20) + 'px';
+    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.animationDelay = (Math.random() * 0.5) + 's';
+    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+    
+    document.body.appendChild(confetti);
+    
+    // 动画结束后移除
+    setTimeout(() => {
+      confetti.remove();
+    }, 2000);
+  }
+}
+
+// 完成课程动画
+function triggerCompleteAnimation(cardElement) {
+  if (!cardElement) return;
+  
+  // 添加完成光晕动画
+  cardElement.classList.add('complete-animate');
+  
+  // 获取卡片位置
+  const rect = cardElement.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  
+  // 触发礼花特效
+  setTimeout(() => {
+    createConfetti(centerX, centerY);
+    
+    // 触觉反馈
+    if (navigator.vibrate) {
+      navigator.vibrate([50, 100, 50]);
+    }
+  }, 300);
+  
+  // 移除动画类
+  setTimeout(() => {
+    cardElement.classList.remove('complete-animate');
+  }, 1000);
+}
+
+// 学习 streak 火焰效果
+function animateStreakFire(element) {
+  if (!element) return;
+  
+  element.classList.add('streak-fire');
+  
+  // 3 秒后移除动画
+  setTimeout(() => {
+    element.classList.remove('streak-fire');
+  }, 3000);
+}
