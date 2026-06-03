@@ -1828,18 +1828,6 @@ if (document.readyState === 'loading') {
   autoDarkMode();
   initDarkModeToggle();
 }
-  
-  const hour = new Date().getHours();
-  // 晚上 8 点到早上 6 点自动开启深色模式
-  const isNight = hour >= 20 || hour < 6;
-  
-  if (isNight) {
-    document.documentElement.classList.add('dark-mode');
-    console.log('[DarkMode] Auto-enabled for night time');
-  } else {
-    document.documentElement.classList.remove('dark-mode');
-  }
-}
 
 // ========== 移动端底部导航栏初始化 ==========
 function initMobileBottomNav() {
