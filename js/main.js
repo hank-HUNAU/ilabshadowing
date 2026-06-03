@@ -158,6 +158,9 @@ class App {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     this.useSilenceDetection = !isMobile;
     
+    // preRoll：前移 150ms 补偿 MP3 seek 解码精度
+    this.preRoll = 0.15;
+
     // 动态提前量配置：根据句子间隔自动调整
     this.leadTimeMap = {
       short: { gap: 0.5, lead: 0.15 },    // 间隔<500ms：提前 150ms
@@ -931,9 +934,10 @@ class App {
     this.silenceDetected = false;
     this.silenceStartTime = null;
     
-    // 计算实际开始播放时间
+    // 计算实际开始播放时间（前移 preRoll 补偿 MP3 解码精度）
+    const seekTime = Math.max(0, line.time - this.preRoll);
     const startTime = Math.max(0, line.time);
-    this.els.audio.currentTime = startTime;
+    this.els.audio.currentTime = seekTime;
     this.cur = i;
     this.highlight();
     this.showFavoriteToolbar();
@@ -1289,9 +1293,9 @@ class App {
               
               const needRepeat = this.repeatCount >= 99 || this.singleRepeatCount < this.repeatCount;
               if (needRepeat) {
-                // 重复当前句
+                // 重复当前句（前移 preRoll 补偿解码精度）
                 setTimeout(() => {
-                  this.els.audio.currentTime = this.lines[this.cur].time;
+                  this.els.audio.currentTime = Math.max(0, this.lines[this.cur].time - this.preRoll);
                   this.els.audio.play();
                   this.silenceDetected = false;
                   this.silenceStartTime = null;
@@ -1325,7 +1329,7 @@ class App {
           const needRepeat = this.repeatCount >= 99 || this.singleRepeatCount < this.repeatCount;
           
           if (needRepeat) {
-            this.els.audio.currentTime = this.lines[this.cur].time;
+            this.els.audio.currentTime = Math.max(0, this.lines[this.cur].time - this.preRoll);
             this.els.audio.play();
           } else {
             this.bound = null;
