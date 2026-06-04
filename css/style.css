@@ -125,7 +125,7 @@
 }
 
 .skeleton-title {
-  height: 24px;
+  height: 20px;
   width: 80%;
   margin-bottom: 12px;
 }
@@ -270,7 +270,7 @@
   top: 8px;
   right: 8px;
   width: 24px;
-  height: 24px;
+  height: 20px;
   background: linear-gradient(135deg, #34c759, #30d158);
   border-radius: 50%;
   display: flex;
@@ -947,7 +947,7 @@ body {
 
 .refresh-icon {
   width: 24px;
-  height: 24px;
+  height: 20px;
   margin-bottom: 8px;
   transition: transform 0.3s ease;
 }
@@ -1279,7 +1279,7 @@ body {
 .line-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 .line-content {
@@ -2887,7 +2887,7 @@ body.hide-en .line-en { display: none; }
 
 /* 重复次数按钮 */
 #repeatSingleBtn, #repeatAllBtn {
-  gap: 4px;
+  gap: 3px;
 }
 
 #repeatSingleBtn.active, #repeatAllBtn.active {
@@ -2972,7 +2972,7 @@ body.hide-en .line-en { display: none; }
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 3px;
     min-width: 0;
     text-decoration: none;
     color: var(--text-secondary);
@@ -2985,7 +2985,7 @@ body.hide-en .line-en { display: none; }
 
 .nav-icon {
   width: 28px;
-  height: 28px;
+  height: 22px;
 }
 
   .nav-label {
@@ -3342,7 +3342,7 @@ body,
     bottom: 0;
     left: 0;
     right: 0;
-    height: calc(60px + var(--safe-area-bottom, 0px));
+    height: calc(56px + var(--safe-area-bottom, 0px));
     background: var(--card-solid);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -3350,7 +3350,7 @@ body,
     display: flex;
     justify-content: space-around;
     align-items: flex-start;
-    padding-top: 10px;
+    padding-top: 8px;
     padding-bottom: var(--safe-area-bottom, 0px);
     z-index: 1000;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
@@ -3360,7 +3360,7 @@ body,
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     padding: 8px 16px;
     min-width: 60px;
     color: var(--text-tertiary);
@@ -3374,18 +3374,18 @@ body,
   }
   
   .mobile-bottom-nav .nav-item svg {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
   }
   
   .mobile-bottom-nav .nav-label {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     font-weight: 500;
   }
   
   /* 为底部导航栏预留空间 */
   body.has-bottom-nav #app {
-    padding-bottom: calc(60px + var(--safe-area-bottom, 0px) + 24px);
+    padding-bottom: calc(56px + var(--safe-area-bottom, 0px) + 24px);
   }
   
   /* 收藏删除按钮位置优化 - 右下角拇指热区 */
@@ -4281,7 +4281,7 @@ body,
 .calendar-heatmap {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 3px;
   padding: 16px 0;
 }
 
@@ -4567,7 +4567,7 @@ body,
   top: 16px;
   right: 16px;
   width: 24px;
-  height: 24px;
+  height: 20px;
   border-radius: 50%;
   border: 2px solid var(--border);
   display: flex;
@@ -4579,7 +4579,7 @@ body,
 @media (min-width: 768px) {
   .course-card .check-icon {
     width: 28px;
-    height: 28px;
+    height: 22px;
   }
 }
 
@@ -4936,7 +4936,7 @@ body,
 .mobile-menu-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .menu-item {
@@ -4984,4 +4984,311 @@ body,
   padding: 4px 8px;
   background: var(--bg-secondary);
   border-radius: var(--radius-sm);
+}
+
+/* ========== 边缘返回手势 - iOS 风格 ========== */
+
+/* 防止默认的边缘返回手势与自定义手势冲突 */
+body {
+  touch-action: pan-x pan-y;
+}
+
+/* 边缘返回指示器 */
+.edge-back-indicator {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.edge-back-indicator.active {
+  opacity: 1;
+}
+
+/* 边缘返回进度条 */
+.edge-back-progress {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--primary);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.05s linear;
+  pointer-events: none;
+  z-index: 10001;
+}
+
+.edge-back-progress.active {
+  transform: scaleY(0.5);
+}
+
+/* 边缘触摸区域高亮 */
+.edge-touch-zone {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  background: linear-gradient(to right, var(--primary) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.1s ease;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.edge-touch-zone.active {
+  opacity: 0.1;
+}
+
+/* 页面转场动画优化 */
+.page-enter {
+  animation: pageEnter 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.page-exit {
+  animation: pageExit 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.page-enter-reverse {
+  animation: pageEnterReverse 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.page-exit-reverse {
+  animation: pageExitReverse 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pageEnter {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pageExit {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-30%);
+    opacity: 0;
+  }
+}
+
+@keyframes pageEnterReverse {
+  from {
+    transform: translateX(-30%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pageExitReverse {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* 防止边缘返回时滚动 */
+.edge-gesture-active {
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* ========== 边缘返回手势 - iOS 风格 ========== */
+
+/* 防止默认的边缘返回手势与自定义手势冲突 */
+body {
+  touch-action: pan-x pan-y;
+}
+
+/* 边缘返回指示器 */
+.edge-back-indicator {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.edge-back-indicator.active {
+  opacity: 1;
+}
+
+/* 边缘返回进度条 */
+.edge-back-progress {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--primary);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.05s linear;
+  pointer-events: none;
+  z-index: 10001;
+}
+
+.edge-back-progress.active {
+  transform: scaleY(0.5);
+}
+
+/* 边缘触摸区域高亮 */
+.edge-touch-zone {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  background: linear-gradient(to right, var(--primary) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.1s ease;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.edge-touch-zone.active {
+  opacity: 0.1;
+}
+
+/* 防止边缘返回时滚动 */
+.edge-gesture-active {
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* ========== 底部导航美观度优化 ========== */
+
+/* 优化移动端底部导航 - 更精致的设计 */
+.mobile-bottom-nav {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* 导航项优化 */
+.mobile-bottom-nav .nav-item {
+  padding: 6px 12px;
+  gap: 2px;
+  position: relative;
+}
+
+/* 图标样式优化 */
+.mobile-bottom-nav .nav-item svg {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 激活状态 - 精致的视觉反馈 */
+.mobile-bottom-nav .nav-item.active svg {
+  stroke: var(--primary);
+  stroke-width: 2.5px;
+  transform: translateY(-2px);
+}
+
+/* 激活时的文字样式 */
+.mobile-bottom-nav .nav-item.active .nav-label {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.65rem;
+}
+
+/* 点击效果优化 */
+.mobile-bottom-nav .nav-item:active {
+  transform: scale(0.92);
+  background: rgba(0, 122, 255, 0.08);
+  border-radius: 8px;
+}
+
+/* 激活时的背景效果 */
+.mobile-bottom-nav .nav-item.active::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 2px;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.mobile-bottom-nav .nav-item.active:hover::before {
+  opacity: 1;
+}
+
+/* 桌面端底部导航优化 */
+.bottom-nav {
+  background: var(--card-solid);
+  border-top: 1px solid var(--border-light);
+}
+
+.bottom-nav .nav-item {
+  gap: 2px;
+  padding: 6px 12px;
+}
+
+.bottom-nav .nav-icon {
+  width: 22px;
+  height: 22px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bottom-nav .nav-item.active .nav-icon {
+  stroke: var(--primary);
+  stroke-width: 2.5px;
+  transform: translateY(-1px);
+}
+
+.bottom-nav .nav-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.bottom-nav .nav-item.active .nav-label {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* 暗黑模式优化 */
+@media (prefers-color-scheme: dark) {
+  .mobile-bottom-nav {
+    background: rgba(30, 30, 30, 0.98);
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+  
+  .mobile-bottom-nav .nav-item:active {
+    background: rgba(0, 122, 255, 0.15);
+  }
+  
+  .bottom-nav {
+    background: var(--card-solid);
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
 }
