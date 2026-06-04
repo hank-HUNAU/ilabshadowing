@@ -145,15 +145,14 @@ class Lrc {
   static getLearningSentenceCount(lines) {
     let count = 0;
     for (const line of lines) {
-      // 排除章节标题（以字母+点号开头，如 "A.", "B."）
-      if (/^[A-H]\.\s/.test(line.en)) continue;
+      const en = line.en.trim();
       
-      // 排除明显的内容标题（包含特定关键词或过短）
-      const content = line.en.trim();
-      if (content.includes('|') && content.split('|').length > 1) {
-        // 包含中文翻译，可能是章节标题
-        const enPart = content.split('|')[0].trim();
-        if (enPart.match(/^[A-H]\.\s/) || enPart.length < 10) continue;
+      // 排除章节标题（以字母+点号开头，如 "A.", "B."）
+      if (/^[A-H]\.\s/.test(en)) continue;
+      
+      // 排除标题：不包含句号/问号/感叹号/逗号结尾的文本
+      if (!en.endsWith('.') && !en.endsWith('?') && !en.endsWith('!') && !en.endsWith(',')) {
+        continue;
       }
       
       count++;
