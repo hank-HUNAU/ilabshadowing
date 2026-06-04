@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>学习统计 - Shadowing App</title>
+  <link rel="stylesheet" href="css/style.css?v=20260604-2">
+  <link rel="icon" href="icons/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/icon-144.png">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <style>
+    /* 统计页面顶部导航栏 */
+    .stats-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 44px;
+      padding: 0 16px;
+      padding-top: max(12px, env(safe-area-inset-top));
+      padding-bottom: 12px;
+      background: var(--card-solid);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+    }
+
+    .stats-header h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .stats-header-btn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .stats-header-btn:hover {
+      background: var(--bg-secondary);
+    }
+
+    .stats-content {
+      padding: calc(44px + max(12px, env(safe-area-inset-top)) + 16px) 16px 80px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* 总览卡片 */
+    .dashboard-panel {
+      background: var(--card);
+      backdrop-filter: blur(var(--blur));
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .dashboard-panel h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 16px;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .dash-card {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      text-align: center;
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .dash-card:active {
+      transform: scale(0.97);
+    }
+
+    .dash-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .dash-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .dash-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    /* 学习趋势 */
+    .trend-section {
+      background: var(--card);
+      backdrop-filter: blur(var(--blur));
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .trend-section h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 16px;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .trend-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .trend-tab {
+      padding: 8px 16px;
+      border: none;
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      border-radius: 20px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .trend-tab.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .trend-chart {
+      height: 200px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .trend-bar {
+      flex: 1;
+      background: var(--primary);
+      border-radius: 4px 4px 0 0;
+      transition: height 0.3s ease;
+      position: relative;
+      min-height: 8px;
+    }
+
+    .trend-bar:hover {
+      opacity: 0.8;
+    }
+
+    .trend-bar::after {
+      content: attr(data-value);
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .trend-label {
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+    }
+
+    /* 课程进度列表 */
+    .progress-section {
+      background: var(--card);
+      backdrop-filter: blur(var(--blur));
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .progress-section h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 16px;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .progress-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .progress-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .progress-item:active {
+      transform: scale(0.98);
+    }
+
+    .progress-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .progress-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .progress-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+
+    .progress-meta {
+      font-size: 0.85rem;
+      color: var(--text-tertiary);
+      display: flex;
+      gap: 12px;
+    }
+
+    .progress-bar-container {
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--accent-gradient);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-percent {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--primary);
+      min-width: 55px;
+      text-align: right;
+      letter-spacing: -0.01em;
+    }
+
+    /* 学习日历 */
+    .calendar-section {
+      background: var(--card);
+      backdrop-filter: blur(var(--blur));
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .calendar-section h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 16px;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .calendar-heatmap {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+      padding: 16px 0;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-secondary);
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .calendar-day:hover {
+      transform: scale(1.2);
+      z-index: 1;
+    }
+
+    .calendar-day.level-0 { background: var(--bg-secondary); }
+    .calendar-day.level-1 { background: #c6e48b; }
+    .calendar-day.level-2 { background: #7bc96f; }
+    .calendar-day.level-3 { background: #239652; }
+    .calendar-day.level-4 { background: #196332; }
+
+    .calendar-label {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    .calendar-legend {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-top: 12px;
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+    }
+
+    /* 响应式 */
+    @media (min-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .stats-content {
+        padding: calc(44px + 16px) 24px 80px;
+      }
+
+      .progress-item {
+        padding: 20px;
+      }
+
+      .progress-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 1.8rem;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .calendar-day.level-1 { background: #3a6e3a; }
+      .calendar-day.level-2 { background: #2d5a2d; }
+      .calendar-day.level-3 { background: #1e3d1e; }
+      .calendar-day.level-4 { background: #0f1e0f; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 统计页面顶部导航栏 -->
+  <header class="stats-header">
+    <h1>学习统计</h1>
+    <div style="display: flex; gap: 8px;">
+      <button class="stats-header-btn" onclick="refreshStats()" aria-label="刷新">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M23 4v6h-6M1 20v-6h6"/>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+      </button>
+      <button class="stats-header-btn" onclick="showShareStats()" aria-label="分享">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+          <polyline points="16 6 12 2 8 6"/>
+          <line x1="12" y1="2" x2="12" y2="15"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- 统计页面内容 -->
+  <main class="stats-content">
+    <!-- 学习总览 -->
+    <section class="dashboard-panel">
+      <h4>📊 学习总览</h4>
+      <div class="dashboard-grid">
+        <div class="dash-card" onclick="showDetail('totalTime')">
+          <div class="dash-icon">⏱️</div>
+          <div class="dash-value" id="dashTotalTime">0h</div>
+          <div class="dash-label">累计学习</div>
+        </div>
+        <div class="dash-card" onclick="showDetail('streak')">
+          <div class="dash-icon">🔥</div>
+          <div class="dash-value" id="dashStreak">0 天</div>
+          <div class="dash-label">连续学习</div>
+        </div>
+        <div class="dash-card" onclick="showDetail('favorites')">
+          <div class="dash-icon">⭐</div>
+          <div class="dash-value" id="dashFavorites">0 句</div>
+          <div class="dash-label">收藏句子</div>
+        </div>
+        <div class="dash-card" onclick="showDetail('courses')">
+          <div class="dash-icon">📚</div>
+          <div class="dash-value" id="dashCourses">0 课</div>
+          <div class="dash-label">完成课程</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 学习趋势 -->
+    <section class="trend-section">
+      <h4>📈 学习趋势</h4>
+      <div class="trend-tabs">
+        <button class="trend-tab active" onclick="switchTrendTab('week')">周</button>
+        <button class="trend-tab" onclick="switchTrendTab('month')">月</button>
+        <button class="trend-tab" onclick="switchTrendTab('year')">年</button>
+      </div>
+      <div class="trend-chart" id="trendChart">
+        <!-- 动态渲染 -->
+      </div>
+    </section>
+
+    <!-- 课程进度 -->
+    <section class="progress-section">
+      <h4>📈 课程进度</h4>
+      <div class="progress-list" id="courseProgressList">
+        <!-- 动态渲染 -->
+      </div>
+    </section>
+
+    <!-- 学习日历 -->
+    <section class="calendar-section">
+      <h4>📅 学习日历</h4>
+      <div class="calendar-heatmap" id="calendarHeatmap">
+        <!-- 动态渲染 -->
+      </div>
+      <div class="calendar-legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background: var(--bg-secondary);"></div>
+          <span>无</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #c6e48b;"></div>
+          <span>少</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #7bc96f;"></div>
+          <span>中</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #239652;"></div>
+          <span>多</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #196332;"></div>
+          <span>极多</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 底部导航栏 -->
+  <nav id="bottomNav" class="bottom-nav">
+    <a href="index.html" class="nav-item" aria-label="学习">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+      <span class="nav-label">学习</span>
+    </a>
+    <a href="favorite.html" class="nav-item" aria-label="收藏">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+      <span class="nav-label">收藏</span>
+    </a>
+    <a href="stats.html" class="nav-item active" aria-label="统计">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 20V10"/>
+        <path d="M18 20V4"/>
+        <path d="M6 20v-4"/>
+      </svg>
+      <span class="nav-label">统计</span>
+    </a>
+    <a href="settings.html" class="nav-item" aria-label="设置">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+      <span class="nav-label">设置</span>
+    </a>
+  </nav>
+
+  <script src="js/stats.js?v=20260604-2"></script>
+</body>
+</html>
