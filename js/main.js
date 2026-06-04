@@ -946,21 +946,29 @@ class App {
     const unitProgress = progressData?.unitProgress || {};
     
     this.els.unitGrid.innerHTML = this.units.map((u, i) => {
-      // NCE1: 从 lesson_num 提取纯数字（如 "Lesson 1" → "1"）
-      // Think: 从lesson_num提取"Unit X-Y"和"Description"
       let num;
       let description = '';
+      let type = 'reading';
+      
       if (isThink) {
-        // 从lesson_num（现已与filename一致）提取：第一行为"Unit X-Y"，第二行为"Description"
         const lesson = u.lesson_num || '';
         const parts = lesson.split(' ').filter(p => p);
         
         if (parts.length >= 3) {
-          // parts: ["Unit", "04-4", "Culture"] 或 ["Unit", "10-1", "Reading"]
-          num = `${parts[0]} ${parts[1]}`;  // "Unit 04-4"
-          description = parts.slice(2).join(' ');  // "Culture" 或 "Reading"
+          num = `${parts[0]} ${parts[1]}`;
+          description = parts.slice(2).join(' ');
+          
+          const desc = description.toLowerCase();
+          if (desc.includes('culture') || desc.includes('文化')) {
+            type = 'culture';
+          } else if (desc.includes('math') || desc.includes('数学')) {
+            type = 'math';
+          } else if (desc.includes('reading') || desc.includes('阅读')) {
+            type = 'reading';
+          } else if (desc.includes('science') || desc.includes('科学')) {
+            type = 'science';
+          }
         } else if (parts.length === 2) {
-          // 只有"Unit X-Y"的情况
           num = lesson;
         } else {
           num = lesson;
@@ -970,38 +978,76 @@ class App {
         num = numMatch ? numMatch[1] : u.filename;
       }
       
-      // Think Level 系列显示描述，NCE1 不显示
-      const showTitle = isThink && description;
-      
-      // 进度数据
       const isCompleted = completedUnits.includes(i);
       const progress = unitProgress[`lesson_${i}`] || unitProgress[`${this.key}_unit_${i}`] || 0;
       const hasProgress = progress > 0;
+      const totalLines = u.lines || 5;
+      const completedLines = Math.round((progress / 100) * totalLines);
       
-      // 环形进度条 circumference = 2 * π * r = 2 * 3.14159 * 12 ≈ 75.4
-      const circumference = 75.4;
-      const offset = circumference - (progress / 100) * circumference;
+      const typeLabels = {
+        'reading': '阅读',
+        'culture': '文化',
+        'math': '数学',
+        'science': '科学'
+      };
       
-      return `
-      <div class="unit-card ${isThink ? 'think-unit' : ''}" data-i="${i}" style="position: relative;">
-        <div class="unit-num">${num}</div>
-        ${showTitle ? `<div class="unit-title">${description}</div>` : ''}
-        ${isCompleted ? `
-          <div class="complete-badge" title="已完成">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-              <path d="M20 6L9 17l-5-5"/>
-            </svg>
+      const statusText = isCompleted ? '已完成' : (hasProgress ? '学习中' : '未开始');
+      const actionText = isCompleted ? '复习 ›' : (hasProgress ? '继续学习 ›' : '开始学习 ›');
+      
+      if (isThink) {
+        return `
+        <div class="unit-card ${isCompleted ? 'completed' : ''}" data-i="${i}" data-key="${u.key}">
+          <div class="card-header">
+            <span class="type-tag ${type}">${typeLabels[type]}</span>
+            <span class="status-badge">${statusText}</span>
           </div>
-        ` : (hasProgress ? `
-          <svg class="progress-ring" width="32" height="32" viewBox="0 0 32 32">
-            <circle class="progress-ring-bg" stroke-width="4" fill="transparent" r="12" cx="16" cy="16"/>
-            <circle class="progress-ring-fill" stroke-width="4" fill="transparent" r="12" cx="16" cy="16"
-              stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
-              style="stroke-linecap: round"/>
-          </svg>
-        ` : '')}
-      </div>`;
+          <div class="unit-num">${num}</div>
+          <div class="unit-title">${description}</div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: ${progress}%"></div>
+          </div>
+          <div class="card-footer">
+            <span class="duration">⏱ ${this.getUnitDuration(i)}</span>
+            <span class="progress-text">${completedLines}/${totalLines}</span>
+          </div>
+          <div class="card-action">
+            <span class="action-text">${actionText}</span>
+          </div>
+        </div>`;
+      } else {
+        const showTitle = isThink && description;
+        const circumference = 75.4;
+        const offset = circumference - (progress / 100) * circumference;
+        
+        return `
+        <div class="unit-card" data-i="${i}" style="position: relative;">
+          <div class="unit-num">${num}</div>
+          ${showTitle ? `<div class="unit-title">${description}</div>` : ''}
+          ${isCompleted ? `
+            <div class="complete-badge" title="已完成">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <path d="M20 6L9 17l-5-5"/>
+              </svg>
+            </div>
+          ` : (hasProgress ? `
+            <svg class="progress-ring" width="32" height="32" viewBox="0 0 32 32">
+              <circle class="progress-ring-bg" stroke-width="4" fill="transparent" r="12" cx="16" cy="16"/>
+              <circle class="progress-ring-fill" stroke-width="4" fill="transparent" r="12" cx="16" cy="16"
+                stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
+                style="stroke-linecap: round"/>
+            </svg>
+          ` : '')}
+        </div>`;
+      }
     }).join('');
+  }
+
+  getUnitDuration(index) {
+    const unit = this.units[index];
+    if (!unit) return '5 min';
+    const linesCount = unit.lines || 5;
+    const estimatedDuration = Math.max(3, Math.min(15, linesCount));
+    return `${estimatedDuration} min`;
   }
 
   async preloadLrcFiles() {
