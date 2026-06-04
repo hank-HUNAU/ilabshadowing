@@ -140,6 +140,26 @@ class Lrc {
     }
     return list.sort((a,b) => a.time - b.time);
   }
+  
+  // 计算真正的学习句子数量（排除章节标题和内容标题）
+  static getLearningSentenceCount(lines) {
+    let count = 0;
+    for (const line of lines) {
+      // 排除章节标题（以字母+点号开头，如 "A.", "B."）
+      if (/^[A-H]\.\s/.test(line.en)) continue;
+      
+      // 排除明显的内容标题（包含特定关键词或过短）
+      const content = line.en.trim();
+      if (content.includes('|') && content.split('|').length > 1) {
+        // 包含中文翻译，可能是章节标题
+        const enPart = content.split('|')[0].trim();
+        if (enPart.match(/^[A-H]\.\s/) || enPart.length < 10) continue;
+      }
+      
+      count++;
+    }
+    return count;
+  }
 }
 
 /* 主程序 */
@@ -981,7 +1001,9 @@ class App {
       const isCompleted = completedUnits.includes(i);
       const progress = unitProgress[`lesson_${i}`] || unitProgress[`${this.key}_unit_${i}`] || 0;
       const hasProgress = progress > 0;
-      const totalLines = u.lines || 5;
+      
+      // 使用缓存的句子数量，如果没有则使用默认值5
+      const totalLines = this.cache.get(`lineCount_${i}`) || 5;
       const completedLines = Math.round((progress / 100) * totalLines);
       
       const typeLabels = {
@@ -1043,20 +1065,33 @@ class App {
   }
 
   getUnitDuration(index) {
-    const unit = this.units[index];
-    if (!unit) return '5 min';
-    const linesCount = unit.lines || 5;
-    const estimatedDuration = Math.max(3, Math.min(15, linesCount));
+    // 使用缓存的句子数量，如果没有则使用默认值5
+    const lineCount = this.cache.get(`lineCount_${index}`) || 5;
+    const estimatedDuration = Math.max(3, Math.min(15, lineCount));
     return `${estimatedDuration} min`;
   }
 
   async preloadLrcFiles() {
     // 预加载所有 LRC 文件到缓存，点击播放时 0 延迟显示歌词
-    const promises = this.units.map(u => {
+    // 同时缓存每个课程的句子数量
+    const promises = this.units.map((u, i) => {
       const url = getLrcUrl(u.filename, this.path, this.key);
       return fetch(url).then(r => r.text()).then(lrc => {
         this.cache.set(url, lrc);
-      }).catch(() => {}); // 忽略失败
+        
+        // 解析LRC文件，获取句子数量
+        const lines = Lrc.parse(lrc);
+        const lineCount = Lrc.getLearningSentenceCount(lines);
+        
+        // 缓存句子数量（使用课程索引作为key）
+        this.cache.set(`lineCount_${i}`, lineCount);
+        
+        console.log('[Preload] Unit', i, 'filename:', u.filename, 'lineCount:', lineCount);
+      }).catch(() => {
+        // 如果LRC文件加载失败，缓存默认值
+        this.cache.set(`lineCount_${i}`, 5); // 默认5句
+        console.log('[Preload] Unit', i, 'filename:', u.filename, 'failed to load, using default 5');
+      });
     });
     await Promise.all(promises);
     console.log('[Preload] LRC files cached:', this.units.length);
