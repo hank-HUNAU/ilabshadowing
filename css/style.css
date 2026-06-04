@@ -3518,53 +3518,6 @@ body,
 /* ========== P1 - 底部导航栏优化 (拇指热区) ========== */
 
 @media (max-width: 767px) {
-  /* 移动端底部固定操作栏 - 拇指最佳操作区 */
-  .mobile-bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: calc(56px + var(--safe-area-bottom, 0px));
-    background: var(--card-solid);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-around;
-    align-items: flex-start;
-    padding-top: 8px;
-    padding-bottom: var(--safe-area-bottom, 0px);
-    z-index: 1000;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-  }
-  
-  .mobile-bottom-nav .nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    padding: 8px 16px;
-    min-width: 60px;
-    color: var(--text-tertiary);
-    transition: all 0.2s ease;
-    cursor: pointer;
-  }
-  
-  .mobile-bottom-nav .nav-item.active,
-  .mobile-bottom-nav .nav-item:active {
-    color: var(--primary);
-  }
-  
-  .mobile-bottom-nav .nav-item svg {
-    width: 20px;
-    height: 20px;
-  }
-  
-  .mobile-bottom-nav .nav-label {
-    font-size: 0.65rem;
-    font-weight: 500;
-  }
-  
   /* 为底部导航栏预留空间 */
   body.has-bottom-nav #app {
     padding-bottom: calc(56px + var(--safe-area-bottom, 0px) + 24px);
@@ -3582,55 +3535,6 @@ body,
   .controls-row {
     gap: 10px;
   }
-}
-
-  /* 桌面端隐藏底部导航栏 */
-  @media (min-width: 768px) {
-    .mobile-bottom-nav {
-      display: none !important;
-    }
-  }
-}
-
-/* ========== P2 - 底部导航栏细节完善 ========== */
-
-/* 导航项点击反馈 */
-.mobile-bottom-nav .nav-item:active {
-  transform: scale(0.9);
-  background: rgba(0, 122, 255, 0.1);
-  border-radius: 12px;
-}
-
-/* 导航项激活指示器 */
-.mobile-bottom-nav .nav-item.active svg {
-  stroke: var(--primary);
-  fill: rgba(0, 122, 255, 0.1);
-}
-
-.mobile-bottom-nav .nav-item.active .nav-label {
-  color: var(--primary);
-  font-weight: 600;
-}
-
-/* 导航栏阴影增强 */
-.mobile-bottom-nav {
-  box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05),
-              0 -4px 12px rgba(0, 0, 0, 0.08);
-}
-
-/* 暗黑模式导航栏优化 */
-@media (prefers-color-scheme: dark) {
-  .mobile-bottom-nav {
-    background: rgba(30, 30, 30, 0.95);
-    border-top-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.05),
-                0 -4px 12px rgba(0, 0, 0, 0.3);
-  }
-  
-  .mobile-bottom-nav .nav-item:active {
-    background: rgba(0, 122, 255, 0.2);
-  }
-}
 }
     min-height: auto;
     border-radius: var(--radius-md);
@@ -5365,66 +5269,6 @@ body {
 
 /* ========== 底部导航美观度优化 ========== */
 
-/* 优化移动端底部导航 - 更精致的设计 */
-.mobile-bottom-nav {
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-/* 导航项优化 */
-.mobile-bottom-nav .nav-item {
-  padding: 6px 12px;
-  gap: 2px;
-  position: relative;
-}
-
-/* 图标样式优化 */
-.mobile-bottom-nav .nav-item svg {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* 激活状态 - 精致的视觉反馈 */
-.mobile-bottom-nav .nav-item.active svg {
-  stroke: var(--primary);
-  stroke-width: 2.5px;
-  transform: translateY(-2px);
-}
-
-/* 激活时的文字样式 */
-.mobile-bottom-nav .nav-item.active .nav-label {
-  color: var(--primary);
-  font-weight: 600;
-  font-size: 0.65rem;
-}
-
-/* 点击效果优化 */
-.mobile-bottom-nav .nav-item:active {
-  transform: scale(0.92);
-  background: rgba(0, 122, 255, 0.08);
-  border-radius: 8px;
-}
-
-/* 激活时的背景效果 */
-.mobile-bottom-nav .nav-item.active::before {
-  content: '';
-  position: absolute;
-  top: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 3px;
-  background: var(--primary);
-  border-radius: 2px;
-  opacity: 0;
-  transition: all 0.3s ease;
-}
-
-.mobile-bottom-nav .nav-item.active:hover::before {
-  opacity: 1;
-}
-
 /* 桌面端底部导航优化 */
 .bottom-nav {
   background: var(--card-solid);
@@ -5460,15 +5304,6 @@ body {
 
 /* 暗黑模式优化 */
 @media (prefers-color-scheme: dark) {
-  .mobile-bottom-nav {
-    background: rgba(30, 30, 30, 0.98);
-    border-top-color: rgba(255, 255, 255, 0.08);
-  }
-  
-  .mobile-bottom-nav .nav-item:active {
-    background: rgba(0, 122, 255, 0.15);
-  }
-  
   .bottom-nav {
     background: var(--card-solid);
     border-top-color: rgba(255, 255, 255, 0.08);
