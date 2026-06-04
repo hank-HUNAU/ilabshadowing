@@ -769,17 +769,31 @@ class App {
     
     this.els.unitGrid.innerHTML = this.units.map((u, i) => {
       // NCE1: 从 lesson_num 提取纯数字（如 "Lesson 1" → "1"）
-      // Think: 直接使用 lesson_num（如 "10-1"）
+      // Think: 从lesson_num提取"Unit X-Y"和"Description"
       let num;
+      let description = '';
       if (isThink) {
-        num = u.lesson_num || u.filename;
+        // 从lesson_num（现已与filename一致）提取：第一行为"Unit X-Y"，第二行为"Description"
+        const lesson = u.lesson_num || '';
+        const parts = lesson.split(' ').filter(p => p);
+        
+        if (parts.length >= 3) {
+          // parts: ["Unit", "04-4", "Culture"] 或 ["Unit", "10-1", "Reading"]
+          num = `${parts[0]} ${parts[1]}`;  // "Unit 04-4"
+          description = parts.slice(2).join(' ');  // "Culture" 或 "Reading"
+        } else if (parts.length === 2) {
+          // 只有"Unit X-Y"的情况
+          num = lesson;
+        } else {
+          num = lesson;
+        }
       } else {
         const numMatch = u.lesson_num ? u.lesson_num.match(/(\d+)/) : null;
         num = numMatch ? numMatch[1] : u.filename;
       }
       
-      // Think Level 系列显示标题，NCE1 不显示
-      const showTitle = isThink;
+      // Think Level 系列显示描述，NCE1 不显示
+      const showTitle = isThink && description;
       
       // 进度数据
       const isCompleted = completedUnits.includes(i);
@@ -793,7 +807,7 @@ class App {
       return `
       <div class="unit-card ${isThink ? 'think-unit' : ''}" data-i="${i}" style="position: relative;">
         <div class="unit-num">${num}</div>
-        ${showTitle && u.title ? `<div class="unit-title">${u.title}</div>` : ''}
+        ${showTitle ? `<div class="unit-title">${description}</div>` : ''}
         ${isCompleted ? `
           <div class="complete-badge" title="已完成">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
