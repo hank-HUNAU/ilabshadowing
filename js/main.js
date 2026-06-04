@@ -2576,8 +2576,8 @@ function initMobileBottomNav() {
     };
   }
   
-  // 收藏页激活状态
-  if (app.els.favoritePage) {
+  // 收藏页激活状态（仅当favoritePage存在时）
+  if (app.els && app.els.favoritePage) {
     const originalRenderFavorites = app.renderFavorites?.bind(app);
     if (originalRenderFavorites) {
       app.renderFavorites = function() {

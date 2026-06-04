@@ -391,7 +391,7 @@
         <div style="background:var(--card-solid);border-radius:20px;padding:24px;width:90%;max-width:400px;max-height:80vh;overflow-y:auto;">
           <h3 style="margin:0 0 16px;">关于 Shadowing App</h3>
           <div style="font-size:0.95rem;line-height:1.6;color:var(--text-secondary);">
-            <p><strong>版本：</strong>v20260604-2</p>
+            <p><strong>版本：</strong>v20260604-3</p>
             <p><strong>更新日期：</strong>2026年6月4日</p>
             <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
             <h4 style="margin:0 0 8px;font-size:1rem;color:var(--text);">更新日志：</h4>
