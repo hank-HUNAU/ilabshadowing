@@ -1444,43 +1444,50 @@ body.hide-en .line-en { display: none; }
 .menu-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
+  gap: 14px;
+  padding: 16px 18px;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 1rem;
   color: var(--text);
   text-align: left;
   width: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .menu-item:active {
   background: var(--card-solid);
   transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .menu-item svg {
   flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  color: var(--primary);
 }
 
 .menu-item span {
   flex: 1;
+  font-weight: 500;
 }
 
 .menu-cancel {
   margin-top: 20px;
   width: 100%;
-  padding: 14px;
+  padding: 16px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 14px;
   font-size: 1rem;
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
+  font-weight: 500;
 }
 
 .menu-cancel:active {
@@ -2976,10 +2983,10 @@ body.hide-en .line-en { display: none; }
     color: var(--primary);
   }
 
-  .nav-icon {
-    width: 24px;
-    height: 24px;
-  }
+.nav-icon {
+  width: 28px;
+  height: 28px;
+}
 
   .nav-label {
     font-size: 10px;
@@ -3146,9 +3153,10 @@ body.hide-en .line-en { display: none; }
 }
 
 @media (max-width: 767px) and (orientation: landscape) {
-  /* 横屏时歌词区域增大 */
+  /* 横屏时歌词区域自适应 */
   .lyrics-scroll {
-    max-height: 60vh;
+    max-height: max(60vh, 55vh);
+    min-height: 40vh;
   }
   
   /* 控制栏保持可见 - 粘性定位 */

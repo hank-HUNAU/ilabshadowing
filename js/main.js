@@ -1501,8 +1501,10 @@ class App {
 
         let startY = 0;
         let currentY = 0;
+        let startX = 0;
         let isDragging = false;
         let isRefreshing = false;
+        let preventScroll = false;
         const threshold = 80;
 
         const handleTouchStart = (e) => {
@@ -1510,26 +1512,45 @@ class App {
           const touch = e.touches[0];
           const scrollTop = gridElement.scrollTop;
           
+          // 只在页面顶部且触摸位置在顶部100px内时启用
           if (scrollTop <= 0 && touch.clientY < 100) {
             startY = touch.clientY;
+            startX = touch.clientX;
             isDragging = true;
+            preventScroll = false;
           }
         };
 
         const handleTouchMove = (e) => {
           if (!isDragging || isRefreshing) return;
-          currentY = e.touches[0].clientY;
-          const diff = currentY - startY;
+          const touch = e.touches[0];
+          currentY = touch.clientY;
+          const diffY = currentY - startY;
+          const diffX = touch.clientX - startX;
 
-          if (diff > 0) {
+          // 检测是否为垂直滑动（防止水平滑动触发）
+          if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 30) {
+            // 水平滑动，不触发下拉刷新
+            isDragging = false;
+            return;
+          }
+
+          if (diffY > 0) {
+            // 向下拉动，防止原生滚动
+            preventScroll = true;
+            e.preventDefault();
+            
             indicator.classList.add('pulling');
-            indicator.style.height = Math.min(diff, 80) + 'px';
-            indicator.style.marginBottom = Math.min(diff / 2, 16) + 'px';
+            indicator.style.height = Math.min(diffY, 80) + 'px';
+            indicator.style.marginBottom = Math.min(diffY / 2, 16) + 'px';
             
             const text = indicator.querySelector('.refresh-text');
             if (text) {
-              text.textContent = diff > threshold ? '释放立即刷新' : '下拉刷新';
+              text.textContent = diffY > threshold ? '释放立即刷新' : '下拉刷新';
             }
+          } else {
+            // 向上滚动，允许原生滚动
+            isDragging = false;
           }
         };
 
@@ -1565,10 +1586,12 @@ class App {
             indicator.style.height = '0';
             indicator.style.marginBottom = '0';
           }
+          
+          preventScroll = false;
         };
 
         gridElement.addEventListener('touchstart', handleTouchStart, { passive: true });
-        gridElement.addEventListener('touchmove', handleTouchMove, { passive: true });
+        gridElement.addEventListener('touchmove', handleTouchMove, { passive: false });
         gridElement.addEventListener('touchend', handleTouchEnd);
       };
 
