@@ -141,23 +141,9 @@ class Lrc {
     return list.sort((a,b) => a.time - b.time);
   }
   
-  // 计算真正的学习句子数量（排除章节标题和内容标题）
+  // 计算句子数量（按LRC文件中的行数计算）
   static getLearningSentenceCount(lines) {
-    let count = 0;
-    for (const line of lines) {
-      const en = line.en.trim();
-      
-      // 排除章节标题（以字母+点号开头，如 "A.", "B."）
-      if (/^[A-H]\.\s/.test(en)) continue;
-      
-      // 排除标题：不包含句号/问号/感叹号/逗号结尾的文本
-      if (!en.endsWith('.') && !en.endsWith('?') && !en.endsWith('!') && !en.endsWith(',')) {
-        continue;
-      }
-      
-      count++;
-    }
-    return count;
+    return lines.length;
   }
 }
 
