@@ -12,22 +12,28 @@
   "categories": ["education", "productivity"],
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%233b82f6'/><text x='256' y='320' font-size='280' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>N</text></svg>",
+      "src": "/ilabshadowing/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/ilabshadowing/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%233b82f6'/><text x='256' y='320' font-size='280' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>N</text></svg>",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "/ilabshadowing/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%233b82f6'/><text x='256' y='320' font-size='280' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>N</text></svg>",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
+      "src": "/ilabshadowing/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
   "shortcuts": [
@@ -38,8 +44,9 @@
       "url": "/ilabshadowing/",
       "icons": [
         {
-          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%233b82f6'/><text x='256' y='320' font-size='280' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>N</text></svg>",
-          "sizes": "192x192"
+          "src": "/ilabshadowing/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     }
