@@ -64,6 +64,37 @@
       }
     });
     document.getElementById('dashCourses').textContent = `${completedCourses}课`;
+
+    // 更新学习提醒状态
+    updateReminderStatus();
+  }
+
+  // 更新学习提醒状态
+  function updateReminderStatus() {
+    const settings = JSON.parse(localStorage.getItem('nce_settings') || '{}');
+    const reminderStatus = document.getElementById('reminderStatus');
+
+    if (settings.studyReminder) {
+      reminderStatus.style.display = 'flex';
+
+      const freqLabels = {
+        'daily': '每天',
+        'weekdays': '工作日',
+        'weekends': '周末',
+        'weekly': '每周'
+      };
+
+      const time = settings.reminderTime || '20:00';
+      const freq = freqLabels[settings.reminderFrequency] || '每天';
+      document.getElementById('reminderStatusDesc').textContent = `${freq} ${time} 提醒`;
+    } else {
+      reminderStatus.style.display = 'none';
+    }
+  }
+
+  // 跳转到设置页面
+  function goToSettings() {
+    window.location.href = 'settings.html';
   }
 
   // 渲染学习趋势图表
@@ -332,6 +363,7 @@
   window.showDetail = showDetail;
   window.refreshStats = refreshStats;
   window.showShareStats = showShareStats;
+  window.goToSettings = goToSettings;
 
   // 页面加载完成后初始化
   if (document.readyState === 'loading') {

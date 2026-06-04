@@ -18,7 +18,13 @@
     darkMode: false,
     showTrans: true,
     hapticFeedback: true,
-    playbackSpeed: 1.0
+    playbackSpeed: 1.0,
+    studyReminder: false,
+    reminderTime: '20:00',
+    reminderFrequency: 'daily',
+    fontSize: 'medium',
+    colorTheme: 'blue',
+    showProgress: true
   };
 
   // 头像选项
@@ -165,12 +171,28 @@
       applyDarkMode(settings.darkMode);
     }
 
+    // 特殊处理学习提醒
+    if (settingKey === 'studyReminder') {
+      if (settings[settingKey]) {
+        // 启用提醒
+        testReminder(); // 先测试权限
+        scheduleReminder();
+        showToast('学习提醒已开启');
+      } else {
+        // 禁用提醒
+        if (window.reminderTimeout) {
+          clearTimeout(window.reminderTimeout);
+        }
+        showToast('学习提醒已关闭');
+      }
+    } else {
+      showToast(settings[settingKey] ? '已开启' : '已关闭');
+    }
+
     // 触觉反馈
     if (navigator.vibrate) {
       navigator.vibrate(20);
     }
-
-    showToast(settings[settingKey] ? '已开启' : '已关闭');
   }
 
   // 初始化设置开关
@@ -187,6 +209,68 @@
 
     // 应用暗黑模式
     applyDarkMode(settings.darkMode);
+
+    // 应用字体大小
+    if (settings.fontSize) {
+      applyFontSize(settings.fontSize);
+      const sizeLabels = {
+        'small': '小',
+        'medium': '中等',
+        'large': '大',
+        'xlarge': '特大'
+      };
+      const fontSizeDesc = document.getElementById('fontSizeDesc');
+      if (fontSizeDesc) {
+        fontSizeDesc.textContent = `当前：${sizeLabels[settings.fontSize]}`;
+      }
+    }
+
+    // 应用颜色主题
+    if (settings.colorTheme) {
+      applyColorTheme(settings.colorTheme);
+      const themeLabels = {
+        'blue': '蓝色',
+        'green': '绿色',
+        'orange': '橙色',
+        'purple': '紫色',
+        'pink': '粉色'
+      };
+      const colorThemeDesc = document.getElementById('colorThemeDesc');
+      if (colorThemeDesc) {
+        colorThemeDesc.textContent = `当前：${themeLabels[settings.colorTheme]}`;
+      }
+    }
+
+    // 更新提醒设置显示
+    if (settings.reminderTime) {
+      const reminderTimeDesc = document.getElementById('reminderTimeDesc');
+      if (reminderTimeDesc) {
+        reminderTimeDesc.textContent = `当前：每天 ${settings.reminderTime}`;
+      }
+    }
+
+    if (settings.reminderFrequency) {
+      const freqLabels = {
+        'daily': '每天',
+        'weekdays': '工作日',
+        'weekends': '周末',
+        'weekly': '每周'
+      };
+      const reminderFreqDesc = document.getElementById('reminderFreqDesc');
+      if (reminderFreqDesc) {
+        reminderFreqDesc.textContent = `当前：${freqLabels[settings.reminderFrequency]}`;
+      }
+    }
+
+    // 如果启用了学习提醒，启动提醒调度
+    if (settings.studyReminder) {
+      scheduleReminder();
+    }
+
+    // 请求通知权限
+    if ('Notification' in window && Notification.permission === 'default') {
+      // 不要自动请求，让用户主动触发
+    }
   }
 
   // 应用暗黑模式
@@ -258,29 +342,8 @@
 
   // 导出数据
   function exportData() {
-    const data = {
-      userInfo: loadUserInfo(),
-      settings: loadSettings(),
-      favorites: JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]'),
-      progress: JSON.parse(localStorage.getItem(LS.PROGRESS) || '{}'),
-      learningStats: JSON.parse(localStorage.getItem(LS.LEARNING_STATS) || '{}'),
-      exportDate: new Date().toISOString()
-    };
-
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `shadowing-backup-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    showToast('数据已导出');
-
-    // 触觉反馈
-    if (navigator.vibrate) {
-      navigator.vibrate(30);
-    }
+    // 重定向到新的导出选项对话框
+    showExportOptions();
   }
 
   // 导入数据
@@ -391,7 +454,7 @@
         <div style="background:var(--card-solid);border-radius:20px;padding:24px;width:90%;max-width:400px;max-height:80vh;overflow-y:auto;">
           <h3 style="margin:0 0 16px;">关于 Shadowing App</h3>
           <div style="font-size:0.95rem;line-height:1.6;color:var(--text-secondary);">
-            <p><strong>版本：</strong>v20260604-3</p>
+            <p><strong>版本：</strong>v20260604-4</p>
             <p><strong>更新日期：</strong>2026年6月4日</p>
             <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
             <h4 style="margin:0 0 8px;font-size:1rem;color:var(--text);">更新日志：</h4>
@@ -527,6 +590,680 @@
 
   // 导出函数到全局
   window.closeFeedbackDialog = closeFeedbackDialog;
+
+  // ========== 学习提醒功能 ==========
+
+  // 显示提醒时间设置
+  function showReminderTime() {
+    const settings = loadSettings();
+    const currentTime = settings.reminderTime || '20:00';
+
+    const timeHtml = `
+      <div id="reminderTimeDialog" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:2000;">
+        <div style="background:var(--card-solid);border-radius:20px;padding:24px;width:90%;max-width:400px;">
+          <h3 style="margin:0 0 16px;">设置提醒时间</h3>
+          <input type="time" id="reminderTimeInput" value="${currentTime}" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-secondary);color:var(--text);font-size:1.5rem;text-align:center;outline:none;margin-bottom:16px;">
+          <button onclick="saveReminderTime()" style="width:100%;padding:12px;background:var(--primary);color:white;border:none;border-radius:10px;cursor:pointer;">
+            保存时间
+          </button>
+          <button onclick="closeReminderTimeDialog()" style="width:100%;margin-top:8px;padding:12px;background:var(--bg-secondary);border:none;border-radius:10px;cursor:pointer;">
+            取消
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', timeHtml);
+
+    // 触觉反馈
+    if (navigator.vibrate) {
+      navigator.vibrate(20);
+    }
+  }
+
+  // 保存提醒时间
+  function saveReminderTime() {
+    const timeInput = document.getElementById('reminderTimeInput').value;
+    if (!timeInput) {
+      showToast('请选择时间');
+      return;
+    }
+
+    const settings = loadSettings();
+    settings.reminderTime = timeInput;
+    saveSettings(settings);
+
+    document.getElementById('reminderTimeDesc').textContent = `当前：每天 ${timeInput}`;
+    closeReminderTimeDialog();
+    scheduleReminder();
+
+    showToast(`提醒时间已设置为 ${timeInput}`);
+
+    // 触觉反馈
+    if (navigator.vibrate) {
+      navigator.vibrate(30);
+    }
+  }
+
+  // 关闭提醒时间对话框
+  function closeReminderTimeDialog() {
+    const dialog = document.getElementById('reminderTimeDialog');
+    if (dialog) {
+      dialog.remove();
+    }
+  }
+
+  // 显示提醒频率设置
+  function showReminderFrequency() {
+    const settings = loadSettings();
+    const currentFreq = settings.reminderFrequency || 'daily';
+
+    const frequencies = [
+      { value: 'daily', label: '每天' },
+      { value: 'weekdays', label: '工作日' },
+      { value: 'weekends', label: '周末' },
+      { value: 'weekly', label: '每周' }
+    ];
+
+    const freqHtml = `
+      <div id="reminderFreqDialog" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:2000;">
+        <div style="background:var(--card-solid);border-radius:20px;padding:24px;width:90%;max-width:400px;">
+          <h3 style="margin:0 0 16px;">设置提醒频率</h3>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            ${frequencies.map(freq => `
+              <button onclick="selectReminderFrequency('${freq.value}')" style="padding:12px;border:none;background:${freq.value === currentFreq ? 'var(--primary)' : 'var(--bg-secondary)'};color:${freq.value === currentFreq ? 'white' : 'var(--text)'};border-radius:10px;cursor:pointer;text-align:left;">
+                ${freq.label}
+              </button>
+            `).join('')}
+          </div>
+          <button onclick="closeReminderFreqDialog()" style="width:100%;margin-top:16px;padding:12px;background:var(--bg-secondary);border:none;border-radius:10px;cursor:pointer;">
+            取消
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', freqHtml);
+
+    // 触觉反馈
+    if (navigator.vibrate) {
+      navigator.vibrate(20);
+    }
+  }
+
+  // 选择提醒频率
+  function selectReminderFrequency(frequency) {
+    const settings = loadSettings();
+    settings.reminderFrequency = frequency;
+    saveSettings(settings);
+
+    const freqLabels = {
+      'daily': '每天',
+      'weekdays': '工作日',
+      'weekends': '周末',
+      'weekly': '每周'
+    };
+
+    document.getElementById('reminderFreqDesc').textContent = `当前：${freqLabels[frequency]}`;
+    closeReminderFreqDialog();
+    scheduleReminder();
+
+    showToast(`提醒频率已设置为${freqLabels[frequency]}`);
+
+    // 触觉反馈
+    if (navigator.vibrate) {
+      navigator.vibrate(30);
+    }
+  }
+
+  // 关闭提醒频率对话框
+  function closeReminderFreqDialog() {
+    const dialog = document.getElementById('reminderFreqDialog');
+    if (dialog) {
+      dialog.remove();
+    }
+  }
+
+  // 测试提醒
+  function testReminder() {
+    if (!('Notification' in window)) {
+      showToast('浏览器不支持通知');
+      return;
+    }
+
+    if (Notification.permission === 'granted') {
+      showNotification('测试提醒', '这是学习提醒测试通知');
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          showNotification('测试提醒', '这是学习提醒测试通知');
+        } else {
+          showToast('通知权限被拒绝');
+        }
+      });
+    } else {
+      showToast('请启用浏览器通知权限');
+    }
+
+    // 触觉反馈
+    if (navigator.vibrate) {
+      navigator.vibrate(30);
+    }
+  }
+
+  // 显示通知
+  function showNotification(title, body) {
+    const options = {
+      body: body,
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-96.png',
+      tag: 'study-reminder',
+      requireInteraction: false
+    };
+
+    try {
+      const notification = new Notification(title, options);
+      notification.onclick = () => {
+        window.focus();
+        notification.close();
+      };
+    } catch (e) {
+      console.error('通知发送失败:', e);
+    }
+  }
+
+  // 调度提醒
+  function scheduleReminder() {
+    const settings = loadSettings();
+    if (!settings.studyReminder) {
+      return;
+    }
+
+    // 清除之前的提醒
+    if (window.reminderTimeout) {
+      clearTimeout(window.reminderTimeout);
+    }
+
+    const [hours, minutes] = settings.reminderTime.split(':').map(Number);
+    const now = new Date();
+    const reminderTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+
+    // 如果今天的提醒时间已过，设置明天的提醒
+    if (reminderTime <= now) {
+      reminderTime.setDate(reminderTime.getDate() + 1);
+    }
+
+    const delay = reminderTime - now;
+
+    window.reminderTimeout = setTimeout(() => {
+      if (shouldSendReminder()) {
+        showNotification('学习提醒', '该开始学习了！保持学习习惯，每天进步一点！');
+      }
+      scheduleReminder(); // 调度下一次提醒
+    }, delay);
+  }
+
+  // 判断是否应该发送提醒
+  function shouldSendReminder() {
+    const settings = loadSettings();
+    const now = new Date();
+    const day = now.getDay(); // 0 = 周日, 6 = 周六
+
+    switch (settings.reminderFrequency) {
+      case 'daily':
+        return true;
+      case 'weekdays':
+        return day >= 1 && day <= 5;
+      case 'weekends':
+        return day === 0 || day === 6;
+      case 'weekly':
+        return day === 1; // 周一
+      default:
+        return true;
+    }
+  }
+
+  // ========== 界面设置功能 ==========
+
+  // 显示字体大小设置
+  function showFontSizeSetting() {
+    const settings = loadSettings();
+    const currentSize = settings.fontSize || 'medium';
+
+    const sizes = [
+      { value: 'small', label: '小', size: '0.9rem' },
+      { value: 'medium', label: '中等', size: '1rem' },
+      { value: 'large', label: '大', size: '1.1rem' },
+      { value: 'xlarge', label: '特大', size: '1.2rem' }
+    ];
+
+    const sizeHtml = `
+      <div id="fontSizeDialog" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:2000;">
+        <div style="background:var(--card-solid);border-radius:20px;padding:24px;width:90%;max-width:400px;">
+          <h3 style="margin:0 0 16px;">字体大小</h3>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            ${sizes.map(size => `
+              <button onclick="selectFontSize('${size.value}')" style="padding:16px;border:none;background:${size.value === currentSize ? 'var(--primary)' : 'var(--bg-secondary)'};color:${size.value === currentSize ? 'white' : 'var(--text)'};border-radius:10px;cursor:pointer;text-align:left;font-size:${size.size};">
+                ${size.label}
+                <div style="font-size:0.8rem;opacity:0.7;margin-top:4px;">示例文本</div>
+              </button>
+            `).join('')}
+          </div>
+          <button onclick="closeFontSizeDialog()" style="width:100%;margin-top:16px;padding:12px;background:var(--bg-secondary);border:none;border-radius:10px;cursor:pointer;">
+            取消
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', sizeHtml);
+
+    // 触觉反馈
+    if (navigator.vibrate) {
+      navigator.vibrate(20);
+    }
+  }
+
+  // 选择字体大小
+  function selectFontSize(size) {
+    const settings = loadSettings();
+    settings.fontSize = size;
+    saveSettings(settings);
+
+    const sizeLabels = {
+      'small': '小',
+      'medium': '中等',
+      'large': '大',
+      'xlarge': '特大'
+    };
+
+    document.getElementById('fontSizeDesc').textContent = `当前：${sizeLabels[size]}`;
+    closeFontSizeDialog();
+    applyFontSize(size);
+
+    showToast(`字体大小已设置为${sizeLabels[size]}`);
+
+    // 触觉反馈
+    if (navigator.vibrate) {
+      navigator.vibrate(30);
+    }
+  }
+
+  // 应用字体大小
+  function applyFontSize(size) {
+    const sizeMap = {
+      'small': '0.9rem',
+      'medium': '1rem',
+      'large': '1.1rem',
+      'xlarge': '1.2rem'
+    };
+
+    document.documentElement.style.setProperty('--base-font-size', sizeMap[size]);
+  }
+
+  // 关闭字体大小对话框
+  function closeFontSizeDialog() {
+    const dialog = document.getElementById('fontSizeDialog');
+    if (dialog) {
+      dialog.remove();
+    }
+  }
+
+  // 显示颜色主题设置
+  function showColorTheme() {
+    const settings = loadSettings();
+    const currentTheme = settings.colorTheme || 'blue';
+
+    const themes = [
+      { value: 'blue', label: '蓝色', color: '#007aff' },
+      { value: 'green', label: '绿色', color: '#34c759' },
+      { value: 'orange', label: '橙色', color: '#ff9500' },
+      { value: 'purple', label: '紫色', color: '#af52de' },
+      { value: 'pink', label: '粉色', color: '#ff2d55' }
+    ];
+
+    const themeHtml = `
+      <div id="colorThemeDialog" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:2000;">
+        <div style="background:var(--card-solid);border-radius:20px;padding:24px;width:90%;max-width:400px;">
+          <h3 style="margin:0 0 16px;">颜色主题</h3>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+            ${themes.map(theme => `
+              <button onclick="selectColorTheme('${theme.value}')" style="padding:16px;border:none;background:${theme.value === currentTheme ? 'var(--primary)' : 'var(--bg-secondary)'};color:${theme.value === currentTheme ? 'white' : 'var(--text)'};border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:8px;">
+                <div style="width:24px;height:24px;border-radius:50%;background:${theme.color};"></div>
+                ${theme.label}
+              </button>
+            `).join('')}
+          </div>
+          <button onclick="closeColorThemeDialog()" style="width:100%;margin-top:16px;padding:12px;background:var(--bg-secondary);border:none;border-radius:10px;cursor:pointer;">
+            取消
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', themeHtml);
+
+    // 触觉反馈
+    if (navigator.vibrate) {
+      navigator.vibrate(20);
+    }
+  }
+
+  // 选择颜色主题
+  function selectColorTheme(theme) {
+    const settings = loadSettings();
+    settings.colorTheme = theme;
+    saveSettings(settings);
+
+    const themeLabels = {
+      'blue': '蓝色',
+      'green': '绿色',
+      'orange': '橙色',
+      'purple': '紫色',
+      'pink': '粉色'
+    };
+
+    document.getElementById('colorThemeDesc').textContent = `当前：${themeLabels[theme]}`;
+    closeColorThemeDialog();
+    applyColorTheme(theme);
+
+    showToast(`颜色主题已设置为${themeLabels[theme]}`);
+
+    // 触觉反馈
+    if (navigator.vibrate) {
+      navigator.vibrate(30);
+    }
+  }
+
+  // 应用颜色主题
+  function applyColorTheme(theme) {
+    const colorMap = {
+      'blue': '#007aff',
+      'green': '#34c759',
+      'orange': '#ff9500',
+      'purple': '#af52de',
+      'pink': '#ff2d55'
+    };
+
+    document.documentElement.style.setProperty('--primary', colorMap[theme]);
+  }
+
+  // 关闭颜色主题对话框
+  function closeColorThemeDialog() {
+    const dialog = document.getElementById('colorThemeDialog');
+    if (dialog) {
+      dialog.remove();
+    }
+  }
+
+  // ========== 数据管理优化功能 ==========
+
+  // 显示导出选项
+  function showExportOptions() {
+    const exportHtml = `
+      <div id="exportOptionsDialog" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:2000;">
+        <div style="background:var(--card-solid);border-radius:20px;padding:24px;width:90%;max-width:400px;">
+          <h3 style="margin:0 0 16px;">导出格式</h3>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <button onclick="exportDataJSON()" style="padding:16px;border:none;background:var(--primary);color:white;border-radius:10px;cursor:pointer;text-align:left;">
+              <strong>JSON 格式</strong>
+              <div style="font-size:0.85rem;opacity:0.9;margin-top:4px;">完整数据备份，可导入恢复</div>
+            </button>
+            <button onclick="exportDataCSV()" style="padding:16px;border:none;background:var(--bg-secondary);color:var(--text);border-radius:10px;cursor:pointer;text-align:left;">
+              <strong>CSV 格式</strong>
+              <div style="font-size:0.85rem;opacity:0.7;margin-top:4px;">表格格式，可用Excel打开</div>
+            </button>
+            <button onclick="exportDataTXT()" style="padding:16px;border:none;background:var(--bg-secondary);color:var(--text);border-radius:10px;cursor:pointer;text-align:left;">
+              <strong>TXT 格式</strong>
+              <div style="font-size:0.85rem;opacity:0.7;margin-top:4px;">纯文本格式，易于分享</div>
+            </button>
+          </div>
+          <button onclick="closeExportOptionsDialog()" style="width:100%;margin-top:16px;padding:12px;background:var(--bg-secondary);border:none;border-radius:10px;cursor:pointer;">
+            取消
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', exportHtml);
+
+    // 触觉反馈
+    if (navigator.vibrate) {
+      navigator.vibrate(20);
+    }
+  }
+
+  // 导出为JSON格式
+  function exportDataJSON() {
+    const data = getAllData();
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    downloadFile(blob, `shadowing-backup-${new Date().toISOString().split('T')[0]}.json`);
+
+    // 保存数据历史
+    saveDataHistory('JSON格式完整备份');
+
+    closeExportOptionsDialog();
+    showToast('数据已导出为JSON格式');
+
+    // 触觉反馈
+    if (navigator.vibrate) {
+      navigator.vibrate(30);
+    }
+  }
+
+  // 导出为CSV格式
+  function exportDataCSV() {
+    const favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
+
+    let csvContent = 'data:text/csv;charset=utf-8,\uFEFF'; // BOM for Excel
+    csvContent += '日期,课程标题,句子\n';
+
+    favorites.forEach(fav => {
+      const date = new Date(fav.timestamp).toLocaleDateString('zh-CN');
+      const lessonTitle = fav.lessonTitle.replace(/,/g, '，');
+      const sentence = fav.sentence.replace(/,/g, '，');
+      csvContent += `${date},${lessonTitle},${sentence}\n`;
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    downloadFile(blob, `favorites-${new Date().toISOString().split('T')[0]}.csv`);
+
+    // 保存数据历史
+    saveDataHistory('CSV格式收藏数据');
+
+    closeExportOptionsDialog();
+    showToast('数据已导出为CSV格式');
+
+    // 触觉反馈
+    if (navigator.vibrate) {
+      navigator.vibrate(30);
+    }
+  }
+
+  // 导出为TXT格式
+  function exportDataTXT() {
+    const favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
+
+    let txtContent = '=== 我的英语收藏 ===\n\n';
+    txtContent += `导出时间：${new Date().toLocaleString('zh-CN')}\n`;
+    txtContent += `总计：${favorites.length}句\n\n`;
+
+    favorites.forEach((fav, index) => {
+      const date = new Date(fav.timestamp).toLocaleString('zh-CN');
+      txtContent += `${index + 1}. ${fav.sentence}\n`;
+      txtContent += `   课程：${fav.lessonTitle}\n`;
+      txtContent += `   时间：${date}\n\n`;
+    });
+
+    const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+    downloadFile(blob, `favorites-${new Date().toISOString().split('T')[0]}.txt`);
+
+    // 保存数据历史
+    saveDataHistory('TXT格式收藏文本');
+
+    closeExportOptionsDialog();
+    showToast('数据已导出为TXT格式');
+
+    // 触觉反馈
+    if (navigator.vibrate) {
+      navigator.vibrate(30);
+    }
+  }
+
+  // 获取所有数据
+  function getAllData() {
+    return {
+      userInfo: loadUserInfo(),
+      settings: loadSettings(),
+      favorites: JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]'),
+      progress: JSON.parse(localStorage.getItem(LS.PROGRESS) || '{}'),
+      learningStats: JSON.parse(localStorage.getItem(LS.LEARNING_STATS) || '{}'),
+      exportDate: new Date().toISOString()
+    };
+  }
+
+  // 下载文件
+  function downloadFile(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // 关闭导出选项对话框
+  function closeExportOptionsDialog() {
+    const dialog = document.getElementById('exportOptionsDialog');
+    if (dialog) {
+      dialog.remove();
+    }
+  }
+
+  // 显示数据历史
+  function showDataHistory() {
+    const dataHistory = getDataHistory();
+
+    if (dataHistory.length === 0) {
+      showToast('暂无数据历史记录');
+      return;
+    }
+
+    const historyHtml = `
+      <div id="dataHistoryDialog" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:2000;">
+        <div style="background:var(--card-solid);border-radius:20px;padding:24px;width:90%;max-width:400px;max-height:80vh;overflow-y:auto;">
+          <h3 style="margin:0 0 16px;">数据历史</h3>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            ${dataHistory.map((item, index) => `
+              <div style="padding:12px;background:var(--bg-secondary);border-radius:10px;display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div style="font-weight:600;color:var(--text);">${item.date}</div>
+                  <div style="font-size:0.85rem;color:var(--text-tertiary);">${item.description}</div>
+                </div>
+                <button onclick="restoreDataHistory(${index})" style="padding:8px 12px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;font-size:0.85rem;">
+                  恢复
+                </button>
+              </div>
+            `).join('')}
+          </div>
+          <button onclick="closeDataHistoryDialog()" style="width:100%;margin-top:16px;padding:12px;background:var(--bg-secondary);border:none;border-radius:10px;cursor:pointer;">
+            关闭
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', historyHtml);
+
+    // 触觉反馈
+    if (navigator.vibrate) {
+      navigator.vibrate(20);
+    }
+  }
+
+  // 获取数据历史
+  function getDataHistory() {
+    const history = JSON.parse(localStorage.getItem('dataHistory') || '[]');
+    return history.slice(0, 10); // 最多显示10条
+  }
+
+  // 恢复数据历史
+  function restoreDataHistory(index) {
+    const history = JSON.parse(localStorage.getItem('dataHistory') || '[]');
+    const item = history[index];
+
+    if (!item || !item.data) {
+      showToast('数据已失效');
+      return;
+    }
+
+    // 恢复数据
+    localStorage.setItem(LS.USER_INFO, JSON.stringify(item.data.userInfo));
+    localStorage.setItem(LS.SETTINGS, JSON.stringify(item.data.settings));
+    localStorage.setItem(LS.FAVORITES, JSON.stringify(item.data.favorites));
+    localStorage.setItem(LS.PROGRESS, JSON.stringify(item.data.progress));
+    localStorage.setItem(LS.LEARNING_STATS, JSON.stringify(item.data.learningStats));
+
+    closeDataHistoryDialog();
+    showToast('数据已恢复，页面将刷新');
+
+    // 触觉反馈
+    if (navigator.vibrate) {
+      navigator.vibrate([30, 50, 30]);
+    }
+
+    setTimeout(() => {
+      location.reload();
+    }, 1500);
+  }
+
+  // 关闭数据历史对话框
+  function closeDataHistoryDialog() {
+    const dialog = document.getElementById('dataHistoryDialog');
+    if (dialog) {
+      dialog.remove();
+    }
+  }
+
+  // 保存数据历史（在导出时调用）
+  function saveDataHistory(description) {
+    const history = JSON.parse(localStorage.getItem('dataHistory') || '[]');
+    const newData = {
+      date: new Date().toLocaleString('zh-CN'),
+      description: description,
+      data: getAllData(),
+      timestamp: Date.now()
+    };
+
+    history.unshift(newData);
+    // 最多保存10条历史记录
+    if (history.length > 10) {
+      history.pop();
+    }
+
+    localStorage.setItem('dataHistory', JSON.stringify(history));
+  }
+
+  // 导出函数到全局
+  window.showReminderTime = showReminderTime;
+  window.saveReminderTime = saveReminderTime;
+  window.closeReminderTimeDialog = closeReminderTimeDialog;
+  window.showReminderFrequency = showReminderFrequency;
+  window.selectReminderFrequency = selectReminderFrequency;
+  window.closeReminderFreqDialog = closeReminderFreqDialog;
+  window.testReminder = testReminder;
+  window.showFontSizeSetting = showFontSizeSetting;
+  window.selectFontSize = selectFontSize;
+  window.closeFontSizeDialog = closeFontSizeDialog;
+  window.showColorTheme = showColorTheme;
+  window.selectColorTheme = selectColorTheme;
+  window.closeColorThemeDialog = closeColorThemeDialog;
+  window.showExportOptions = showExportOptions;
+  window.exportDataJSON = exportDataJSON;
+  window.exportDataCSV = exportDataCSV;
+  window.exportDataTXT = exportDataTXT;
+  window.closeExportOptionsDialog = closeExportOptionsDialog;
+  window.showDataHistory = showDataHistory;
+  window.restoreDataHistory = restoreDataHistory;
+  window.closeDataHistoryDialog = closeDataHistoryDialog;
+
+  // 原有导出函数
+  window.exportData = showExportOptions;
 
   // 显示提示
   function showToast(message) {

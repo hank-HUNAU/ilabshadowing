@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>设置 - Shadowing App</title>
-  <link rel="stylesheet" href="css/style.css?v=20260604-3">
+  <link rel="stylesheet" href="css/style.css?v=20260604-4">
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="icons/icon-144.png">
   <meta name="theme-color" content="#ffffff">
@@ -505,16 +505,115 @@
       </div>
     </section>
 
+    <!-- 学习提醒 -->
+    <section class="settings-group">
+      <h4>🔔 学习提醒</h4>
+      <div class="settings-list">
+        <div class="setting-item" onclick="toggleSetting('studyReminder')">
+          <div class="setting-item-left">
+            <div class="setting-icon" style="background: rgba(255, 159, 10, 0.1);">⏰</div>
+            <div class="setting-info">
+              <div class="setting-title">学习提醒</div>
+              <div class="setting-desc">定时提醒学习</div>
+            </div>
+          </div>
+          <div class="setting-switch" id="studyReminderSwitch" data-setting="studyReminder"></div>
+        </div>
+
+        <div class="setting-item" onclick="showReminderTime()">
+          <div class="setting-item-left">
+            <div class="setting-icon" style="background: rgba(88, 86, 214, 0.1);">🕐</div>
+            <div class="setting-info">
+              <div class="setting-title">提醒时间</div>
+              <div class="setting-desc" id="reminderTimeDesc">当前：每天 20:00</div>
+            </div>
+          </div>
+          <svg class="setting-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+
+        <div class="setting-item" onclick="showReminderFrequency()">
+          <div class="setting-item-left">
+            <div class="setting-icon" style="background: rgba(255, 55, 95, 0.1);">📅</div>
+            <div class="setting-info">
+              <div class="setting-title">提醒频率</div>
+              <div class="setting-desc" id="reminderFreqDesc">当前：每天</div>
+            </div>
+          </div>
+          <svg class="setting-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+
+        <div class="setting-item" onclick="testReminder()">
+          <div class="setting-item-left">
+            <div class="setting-icon" style="background: rgba(52, 199, 89, 0.1);">🔔</div>
+            <div class="setting-info">
+              <div class="setting-title">测试提醒</div>
+              <div class="setting-desc">立即发送测试通知</div>
+            </div>
+          </div>
+          <svg class="setting-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 界面设置 -->
+    <section class="settings-group">
+      <h4>🎨 界面设置</h4>
+      <div class="settings-list">
+        <div class="setting-item" onclick="showFontSizeSetting()">
+          <div class="setting-item-left">
+            <div class="setting-icon" style="background: rgba(0, 122, 255, 0.1);">🔤</div>
+            <div class="setting-info">
+              <div class="setting-title">字体大小</div>
+              <div class="setting-desc" id="fontSizeDesc">当前：中等</div>
+            </div>
+          </div>
+          <svg class="setting-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+
+        <div class="setting-item" onclick="showColorTheme()">
+          <div class="setting-item-left">
+            <div class="setting-icon" style="background: rgba(52, 199, 89, 0.1);">🌈</div>
+            <div class="setting-info">
+              <div class="setting-title">颜色主题</div>
+              <div class="setting-desc" id="colorThemeDesc">当前：蓝色</div>
+            </div>
+          </div>
+          <svg class="setting-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+
+        <div class="setting-item" onclick="toggleSetting('showProgress')">
+          <div class="setting-item-left">
+            <div class="setting-icon" style="background: rgba(88, 86, 214, 0.1);">📊</div>
+            <div class="setting-info">
+              <div class="setting-title">显示进度</div>
+              <div class="setting-desc">在课程卡片上显示进度条</div>
+            </div>
+          </div>
+          <div class="setting-switch" id="showProgressSwitch" data-setting="showProgress"></div>
+        </div>
+      </div>
+    </section>
+
     <!-- 数据管理 -->
     <section class="settings-group">
       <h4>💾 数据管理</h4>
       <div class="settings-list">
-        <div class="setting-item" onclick="exportData()">
+        <div class="setting-item" onclick="showExportOptions()">
           <div class="setting-item-left">
             <div class="setting-icon" style="background: rgba(0, 122, 255, 0.1);">📤</div>
             <div class="setting-info">
               <div class="setting-title">导出数据</div>
-              <div class="setting-desc">备份学习数据到本地</div>
+              <div class="setting-desc">多格式备份学习数据</div>
             </div>
           </div>
           <svg class="setting-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -528,6 +627,25 @@
             <div class="setting-info">
               <div class="setting-title">导入数据</div>
               <div class="setting-desc">从备份恢复学习数据</div>
+            </div>
+          </div>
+          <svg class="setting-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+
+        <div class="setting-item" onclick="showDataHistory()">
+          <div class="setting-item-left">
+            <div class="setting-icon" style="background: rgba(255, 159, 10, 0.1);">📜</div>
+            <div class="setting-info">
+              <div class="setting-title">数据历史</div>
+              <div class="setting-desc">查看和管理数据历史</div>
+            </div>
+          </div>
+          <svg class="setting-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
             </div>
           </div>
           <svg class="setting-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -597,7 +715,7 @@
 
     <!-- 版本信息 -->
     <div class="version-info">
-      Shadowing App v20260604-3
+      Shadowing App v20260604-4
     </div>
   </main>
 
@@ -645,6 +763,6 @@
     </a>
   </nav>
 
-  <script src="js/settings.js?v=20260604-3"></script>
+  <script src="js/settings.js?v=20260604-4"></script>
 </body>
 </html>

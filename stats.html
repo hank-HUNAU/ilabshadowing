@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>学习统计 - Shadowing App</title>
-  <link rel="stylesheet" href="css/style.css?v=20260604-3">
+  <link rel="stylesheet" href="css/style.css?v=20260604-4">
   <link rel="icon" href="icons/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="icons/icon-144.png">
   <meta name="theme-color" content="#ffffff">
@@ -454,6 +454,18 @@
       </div>
     </section>
 
+    <!-- 学习提醒状态 -->
+    <section class="reminder-status" id="reminderStatus" style="display: none;">
+      <div class="reminder-status-icon">🔔</div>
+      <div class="reminder-status-info">
+        <div class="reminder-status-title">学习提醒已开启</div>
+        <div class="reminder-status-desc" id="reminderStatusDesc">每天 20:00 提醒</div>
+      </div>
+      <button onclick="goToSettings()" class="settings-btn" style="width: auto; padding: 8px 16px; background: var(--bg-secondary); border: 1px solid var(--border);">
+        设置
+      </button>
+    </section>
+
     <!-- 学习趋势 -->
     <section class="trend-section">
       <h4>📈 学习趋势</h4>
@@ -538,6 +550,6 @@
     </a>
   </nav>
 
-  <script src="js/stats.js?v=20260604-3"></script>
+  <script src="js/stats.js?v=20260604-4"></script>
 </body>
 </html>

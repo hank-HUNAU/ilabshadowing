@@ -5655,3 +5655,251 @@ body {
     background: rgba(255, 255, 255, 0.08);
   }
 }
+
+/* ========== 学习提醒和界面设置样式 ========== */
+
+/* 字体大小变量 */
+:root {
+  --base-font-size: 1rem;
+}
+
+html {
+  font-size: var(--base-font-size);
+}
+
+/* 颜色主题变量 */
+:root {
+  --primary: #007aff; /* 蓝色 */
+}
+
+/* 对话框样式优化 */
+.pwa-dialog-content {
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+/* 设置项样式优化 */
+.setting-item {
+  transition: all 0.2s ease;
+}
+
+.setting-item:active {
+  transform: scale(0.98);
+}
+
+.setting-switch {
+  transition: background 0.3s ease;
+}
+
+.setting-switch::after {
+  transition: transform 0.3s ease;
+}
+
+/* 学习提醒相关样式 */
+.reminder-status {
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.reminder-status-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+}
+
+.reminder-status-info {
+  flex: 1;
+}
+
+.reminder-status-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.reminder-status-desc {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+}
+
+/* 字体大小预览样式 */
+.font-size-preview {
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.font-size-sample {
+  line-height: 1.6;
+  color: var(--text);
+}
+
+/* 颜色主题样式 */
+.color-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.color-theme-option {
+  padding: 12px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-theme-option:active {
+  transform: scale(0.95);
+}
+
+.color-theme-option.active {
+  border-color: var(--primary);
+  background: rgba(0, 122, 255, 0.05);
+}
+
+.color-theme-color {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.color-theme-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* 数据历史样式 */
+.data-history-item {
+  padding: 12px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.data-history-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.data-history-date {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.data-history-desc {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.data-history-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* 按钮样式优化 */
+.settings-btn {
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.settings-btn:active {
+  transform: scale(0.98);
+  opacity: 0.8;
+}
+
+.settings-btn.primary {
+  background: var(--primary);
+  color: white;
+}
+
+.settings-btn.secondary {
+  background: var(--bg-secondary);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.settings-btn.option {
+  background: var(--bg-secondary);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.settings-btn.option.selected {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* 响应式优化 */
+@media (max-width: 479px) {
+  .color-theme-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  
+  .color-theme-option {
+    padding: 8px;
+  }
+  
+  .color-theme-color {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .color-theme-label {
+    font-size: 0.7rem;
+  }
+}
+
+/* 暗黑模式适配 */
+@media (prefers-color-scheme: dark) {
+  .reminder-status {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .color-theme-option {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .data-history-item {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
