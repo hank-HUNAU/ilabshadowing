@@ -1086,6 +1086,111 @@ body {
   z-index: 1;
 }
 
+/* NCE1增强卡片样式 */
+.unit-card.nce1-enhanced {
+  min-height: 90px;
+  padding: 10px 8px;
+  gap: 6px;
+}
+
+.unit-card.nce1-enhanced .status-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 2px 6px;
+  background: rgba(0, 122, 255, 0.1);
+  color: #007aff;
+  border-radius: 8px;
+  font-size: 9px;
+  font-weight: 600;
+  z-index: 2;
+  transition: all 0.2s ease;
+}
+
+.unit-card.nce1-enhanced.completed .status-badge {
+  background: rgba(38, 222, 129, 0.1);
+  color: #26de81;
+}
+
+.unit-card.nce1-enhanced .unit-num {
+  font-size: 1.8rem;
+  margin-bottom: 4px;
+  margin-top: 8px;
+}
+
+.unit-card.nce1-enhanced .progress-bar-container {
+  width: 100%;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 4px 0;
+}
+
+.unit-card.nce1-enhanced .progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #007aff, #5ac8fa);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.unit-card.nce1-enhanced.completed .progress-bar-fill {
+  background: linear-gradient(90deg, #26de81, #00d2d3);
+}
+
+.unit-card.nce1-enhanced .card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-top: 4px;
+}
+
+.unit-card.nce1-enhanced .duration,
+.unit-card.nce1-enhanced .progress-text {
+  font-size: 9px;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* NCE1增强卡片悬停效果 */
+.unit-card.nce1-enhanced:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.unit-card.nce1-enhanced:hover .status-badge {
+  transform: scale(1.05);
+}
+
+.unit-card.nce1-enhanced:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* NCE1增强卡片完成状态 */
+.unit-card.nce1-enhanced.completed {
+  background: linear-gradient(135deg, rgba(38, 222, 129, 0.05), rgba(0, 210, 211, 0.02));
+  border-color: rgba(38, 222, 129, 0.2);
+}
+
+/* 暗黑模式适配 */
+@media (prefers-color-scheme: dark) {
+  .unit-card.nce1-enhanced .progress-bar-container {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .unit-card.nce1-enhanced.completed {
+    background: linear-gradient(135deg, rgba(38, 222, 129, 0.1), rgba(0, 210, 211, 0.05));
+    border-color: rgba(38, 222, 129, 0.3);
+  }
+
+  .unit-card.nce1-enhanced:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  }
+}
+
 .unit-grid.think-layout {
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 20px;
@@ -3030,6 +3135,35 @@ body.hide-en .line-en { display: none; }
     min-height: auto;
   }
 
+  .unit-card.nce1-enhanced {
+    min-height: 85px;
+    padding: 8px 6px;
+    gap: 4px;
+  }
+
+  .unit-card.nce1-enhanced .unit-num {
+    font-size: 1.6rem;
+    margin-top: 6px;
+    margin-bottom: 2px;
+  }
+
+  .unit-card.nce1-enhanced .status-badge {
+    padding: 1px 4px;
+    font-size: 8px;
+    top: 4px;
+    right: 4px;
+  }
+
+  .unit-card.nce1-enhanced .progress-bar-container {
+    height: 2px;
+    margin: 2px 0;
+  }
+
+  .unit-card.nce1-enhanced .duration,
+  .unit-card.nce1-enhanced .progress-text {
+    font-size: 8px;
+  }
+
   .unit-num {
     font-size: 1.8rem;
     margin-bottom: 6px;
@@ -3141,6 +3275,30 @@ body.hide-en .line-en { display: none; }
     padding: 18px 14px;
   }
 
+  .unit-card.nce1-enhanced {
+    min-height: 95px;
+    padding: 12px 10px;
+  }
+
+  .unit-card.nce1-enhanced .unit-num {
+    font-size: 1.7rem;
+  }
+
+  .unit-card.nce1-enhanced .status-badge {
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+
+  .unit-card.nce1-enhanced .progress-bar-container {
+    height: 3px;
+    margin: 4px 0;
+  }
+
+  .unit-card.nce1-enhanced .duration,
+  .unit-card.nce1-enhanced .progress-text {
+    font-size: 10px;
+  }
+
   .unit-num {
     font-size: 1.6rem;
   }
@@ -3189,7 +3347,31 @@ body.hide-en .line-en { display: none; }
     min-height: 70px;
     padding: 12px 8px;
   }
-  
+
+  .unit-card.nce1-enhanced {
+    min-height: 80px;
+    padding: 10px 8px;
+  }
+
+  .unit-card.nce1-enhanced .unit-num {
+    font-size: 1.5rem;
+  }
+
+  .unit-card.nce1-enhanced .status-badge {
+    padding: 2px 6px;
+    font-size: 9px;
+  }
+
+  .unit-card.nce1-enhanced .progress-bar-container {
+    height: 2px;
+    margin: 3px 0;
+  }
+
+  .unit-card.nce1-enhanced .duration,
+  .unit-card.nce1-enhanced .progress-text {
+    font-size: 8px;
+  }
+
   .unit-num {
     font-size: 1.1rem;
   }

@@ -1027,23 +1027,16 @@ class App {
         const offset = circumference - (progress / 100) * circumference;
         
         return `
-        <div class="unit-card" data-i="${i}" style="position: relative;">
+        <div class="unit-card nce1-enhanced ${isCompleted ? 'completed' : ''}" data-i="${i}">
+          <div class="status-badge">${statusText}</div>
           <div class="unit-num">${num}</div>
-          ${showTitle ? `<div class="unit-title">${description}</div>` : ''}
-          ${isCompleted ? `
-            <div class="complete-badge" title="已完成">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                <path d="M20 6L9 17l-5-5"/>
-              </svg>
-            </div>
-          ` : (hasProgress ? `
-            <svg class="progress-ring" width="32" height="32" viewBox="0 0 32 32">
-              <circle class="progress-ring-bg" stroke-width="4" fill="transparent" r="12" cx="16" cy="16"/>
-              <circle class="progress-ring-fill" stroke-width="4" fill="transparent" r="12" cx="16" cy="16"
-                stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
-                style="stroke-linecap: round"/>
-            </svg>
-          ` : '')}
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: ${progress}%"></div>
+          </div>
+          <div class="card-footer">
+            <span class="duration">⏱ ${this.getUnitDuration(i)}</span>
+            <span class="progress-text">${completedLines}/${totalLines}</span>
+          </div>
         </div>`;
       }
     }).join('');
