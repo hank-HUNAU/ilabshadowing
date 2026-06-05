@@ -43,7 +43,10 @@ window.switchTab = function(tabName) {
 
   // 切换到篇章预听 Tab 时加载预听数据
   if (tabName === 'prelistening' && window.prelisteningManager) {
-    window.prelisteningManager.loadLessonData();
+    // 确保PrelisteningManager已初始化
+    window.prelisteningManager.init().catch(error => {
+      console.error('[PracticePage] 初始化PrelisteningManager失败:', error);
+    });
   }
 
   // 保存到 localStorage
