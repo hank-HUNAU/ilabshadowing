@@ -18,12 +18,12 @@ window.switchTab = function(tabName) {
   document.querySelectorAll('.tab-item').forEach(item => {
     item.classList.toggle('active', item.dataset.tab === tabName);
   });
-  
+
   // 更新 Tab 面板显示
   document.querySelectorAll('.tab-panel').forEach(panel => {
     panel.classList.toggle('active', panel.id === `tab-${tabName}`);
   });
-  
+
   // 控制底部翻页器显示
   const pager = document.getElementById('bottomPager');
   if (tabName === 'practice') {
@@ -35,12 +35,17 @@ window.switchTab = function(tabName) {
   } else {
     pager.style.display = 'none';
   }
-  
+
   // 切换到课程详情 Tab 时渲染单元列表
   if (tabName === 'course') {
     renderUnitGrid();
   }
-  
+
+  // 切换到篇章预听 Tab 时加载预听数据
+  if (tabName === 'prelistening' && window.prelisteningManager) {
+    window.prelisteningManager.loadLessonData();
+  }
+
   // 保存到 localStorage
   localStorage.setItem('practice_active_tab', tabName);
 };
@@ -317,7 +322,12 @@ async function initPracticePage() {
   // 恢复 Tab 状态
   const activeTab = localStorage.getItem('practice_active_tab') || 'overview';
   switchTab(activeTab);
-  
+
+  // 初始化篇章预听管理器
+  if (window.PrelisteningManager) {
+    window.prelisteningManager = new PrelisteningManager();
+  }
+
   // 加载当前课程
   const courseData = localStorage.getItem('current_course');
   if (courseData) {
@@ -329,14 +339,14 @@ async function initPracticePage() {
     const params = new URLSearchParams(window.location.search);
     const bookKey = params.get('book');
     const unitKey = params.get('unit');
-    
+
     if (bookKey && unitKey) {
       await CourseManager.ensureInit();
       const books = CourseManager.getAllBooks();
       const book = books.find(b => b.key === bookKey);
       const units = CourseManager.getUnitsByBook(bookKey);
       const unit = units.find(u => u.key === unitKey);
-      
+
       if (book && unit) {
         window.currentCourse = {
           bookKey,
@@ -349,7 +359,7 @@ async function initPracticePage() {
       }
     }
   }
-  
+
   // 加载统计数据
   loadStatistics();
 }

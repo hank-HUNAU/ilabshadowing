@@ -6,9 +6,10 @@
   <meta name="theme-color" content="#007aff">
   <title>学习中心 - Hankilab 学习中心</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="stylesheet" href="css/style.css?v=20260605-1">
-  <link rel="stylesheet" href="css/practice.css?v=20260605-1">
-  <link rel="stylesheet" href="css/vocabulary.css?v=20260605-1">
+  <link rel="stylesheet" href="css/style.css?v=20260605-2">
+  <link rel="stylesheet" href="css/practice.css?v=20260605-2">
+  <link rel="stylesheet" href="css/vocabulary.css?v=20260605-2">
+  <link rel="stylesheet" href="css/prelistening.css?v=20260605-2">
 </head>
 <body>
   <div id="app">
@@ -44,6 +45,22 @@
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
         </svg>
         词汇预习
+      </button>
+      <button class="tab-item" data-tab="prelistening" onclick="switchTab('prelistening')">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18V5l12-2v13"/>
+          <circle cx="6" cy="18" r="3"/>
+          <circle cx="18" cy="16" r="3"/>
+        </svg>
+        篇章预听
+      </button>
+      <button class="tab-item" data-tab="shadowing" onclick="switchTab('shadowing')">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/>
+          <path d="M19 10v2a7 7 0 01-14 0v-2"/>
+          <path d="M12 19v4M8 23h8"/>
+        </svg>
+        影子跟读
       </button>
       <button class="tab-item" data-tab="review" onclick="switchTab('review')">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
@@ -355,7 +372,178 @@
         </div>
       </section>
 
-      <!-- Tab 3: 词汇复习 -->
+      <!-- Tab 3: 篇章预听 -->
+      <section id="tab-prelistening" class="tab-panel">
+        <div class="prelistening-container">
+          <!-- 学习进度卡片 -->
+          <div class="learning-progress-card">
+            <div class="progress-info">
+              <h3 class="progress-title">今日预听进度</h3>
+              <div class="progress-stats">
+                <div class="progress-stat">
+                  <div class="progress-stat-value" id="todayCount">0</div>
+                  <div class="progress-stat-label">已完成</div>
+                </div>
+                <div class="progress-stat">
+                  <div class="progress-stat-value" id="dailyGoal">3</div>
+                  <div class="progress-stat-label">每日目标</div>
+                </div>
+                <div class="progress-stat">
+                  <div class="progress-stat-value" id="completionProgress">0%</div>
+                  <div class="progress-stat-label">完成度</div>
+                </div>
+              </div>
+            </div>
+            <div class="progress-actions">
+              <button id="startTestBtn" class="btn-secondary goal-btn">
+                开始测试
+              </button>
+            </div>
+          </div>
+
+          <!-- 音频播放器 -->
+          <div class="audio-player-section">
+            <div class="section-header">
+              <h3 class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 18V5l12-2v13"/>
+                  <circle cx="6" cy="18" r="3"/>
+                  <circle cx="18" cy="16" r="3"/>
+                </svg>
+                音频播放
+              </h3>
+              <span class="section-hint">听读原文，熟悉内容</span>
+            </div>
+
+            <div class="audio-controls">
+              <div class="audio-info">
+                <span class="audio-title" id="audioTitle">Unit 04-4 Culture</span>
+                <span class="audio-duration">
+                  <span id="currentTime">0:00</span> / <span id="totalDuration">0:00</span>
+                </span>
+              </div>
+
+              <div class="audio-playback-controls">
+                <button class="control-btn" id="stopBtn" title="停止">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1 4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z"/>
+                  </svg>
+                </button>
+                <button class="control-btn play-btn" id="playBtn" title="播放/暂停">
+                  <!-- 播放图标将通过JS动态更新 -->
+                </button>
+              </div>
+
+              <div class="speed-control">
+                <span style="font-size: 0.85rem; color: var(--text-secondary);">播放速度：</span>
+                <button class="speed-btn" data-speed="0.5">0.5x</button>
+                <button class="speed-btn" data-speed="0.75">0.75x</button>
+                <button class="speed-btn active" data-speed="1.0">1.0x</button>
+                <button class="speed-btn" data-speed="1.25">1.25x</button>
+                <button class="speed-btn" data-speed="1.5">1.5x</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 跟读练习区域 -->
+          <div class="shadowing-practice-section">
+            <div class="section-header">
+              <h3 class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+                </svg>
+                文本字幕
+              </h3>
+              <span class="section-hint">点击字幕跳转到对应时间</span>
+            </div>
+            <div class="subtitle-container" id="subtitleContainer">
+              <!-- 字幕将通过JS动态生成 -->
+              <div class="subtitle-line">加载字幕数据中...</div>
+            </div>
+          </div>
+
+          <!-- 每日目标设置 -->
+          <div class="daily-goal-section">
+            <div class="section-header">
+              <h3 class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                </svg>
+                每日目标设置
+              </h3>
+              <span class="section-hint">设置每天听读次数</span>
+            </div>
+            <div class="goal-input-container">
+              <div style="flex: 1;">
+                <label style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px; display: block;">
+                  每天听读次数（1-10次）：
+                </label>
+                <input type="number" class="goal-input" id="goalInput" min="1" max="10" value="3">
+              </div>
+              <div class="goal-buttons">
+                <button class="goal-btn btn-primary" id="saveGoalBtn">保存设置</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 学习流程导航 -->
+          <div class="learning-flow-nav">
+            <h3 class="section-title" style="margin-bottom: 16px;">学习流程</h3>
+            <div class="flow-steps">
+              <div class="flow-step">
+                <div class="step-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332-.477 4.5-1.747V6.253z"/>
+                  </svg>
+                </div>
+                <span class="step-label">词汇预习</span>
+              </div>
+              <div class="flow-step">
+                <div class="step-icon current">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a5 5 0 010-7.072m2.828 9.9L9 12l-2.828 2.828m5.656-8.485a5 5 0 010 7.072M9.172 15.656a5 5 0 010-7.072M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <span class="step-label">篇章预听</span>
+              </div>
+              <div class="flow-step">
+                <div class="step-icon locked">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 10v2a7 7 0 01-14 0v-2"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19v4M8 23h8"/>
+                  </svg>
+                </div>
+                <span class="step-label">影子跟读</span>
+              </div>
+              <div class="flow-step">
+                <div class="step-icon locked">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012 2h2a2 2 0 012-2m-6 5l2 2 4-4"/>
+                  </svg>
+                </div>
+                <span class="step-label">篇章测试</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 预听测试区域 -->
+        <div class="prelistening-test-section" id="prelisteningTestSection">
+          <div class="test-container">
+            <h3 class="section-title">预听测试</h3>
+            <div class="test-question" id="testQuestion">加载测试题目中...</div>
+            <div class="test-options" id="testOptions">
+              <!-- 选项将通过JS动态生成 -->
+            </div>
+            <div class="test-feedback" id="testFeedback"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab 5: 词汇复习 -->
       <section id="tab-review" class="tab-panel">
         <div class="review-container">
           <!-- 复习统计 -->
@@ -384,7 +572,23 @@
         </div>
       </section>
 
-      <!-- Tab 4: 课程详情 -->
+      <!-- Tab 3: 影子跟读 -->
+      <section id="tab-shadowing" class="tab-panel">
+        <div class="shadowing-container">
+          <!-- 影子跟读功能占位 -->
+          <div class="vocabulary-summary">
+            <h3 class="summary-title">影子跟读</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+              请完成词汇预习和篇章预听后再开始影子跟读练习
+            </p>
+            <button class="btn-continue" onclick="window.location.hash='index.html'">
+              开始跟读
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab 4: 篇章预听 -->
       <section id="tab-course" class="tab-panel">
         <div class="course-detail-section">
           <div class="section-header">
@@ -442,8 +646,9 @@
   <script src="js/data-store.js?v=20260528"></script>
   <script src="js/user-progress.js?v=20260528"></script>
   <script src="js/course-manager.js?v=20260602-2"></script>
-  <script src="js/practice-engine.js?v=20260605-1"></script>
-  <script src="js/practice.js?v=20260605-1"></script>
-  <script src="js/vocabulary-learning.js?v=20260605-1"></script>
+  <script src="js/practice-engine.js?v=20260605-2"></script>
+  <script src="js/practice.js?v=20260605-2"></script>
+  <script src="js/vocabulary-learning.js?v=20260605-2"></script>
+  <script src="js/prelistening.js?v=20260605-2"></script>
 </body>
 </html>
