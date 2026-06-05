@@ -6,8 +6,9 @@
   <meta name="theme-color" content="#007aff">
   <title>学习中心 - Hankilab 学习中心</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="stylesheet" href="css/style.css?v=20260528">
-  <link rel="stylesheet" href="css/practice.css?v=20260602-11">
+  <link rel="stylesheet" href="css/style.css?v=20260605-1">
+  <link rel="stylesheet" href="css/practice.css?v=20260605-1">
+  <link rel="stylesheet" href="css/vocabulary.css?v=20260605-1">
 </head>
 <body>
   <div id="app">
@@ -37,11 +38,25 @@
         </svg>
         学习概览
       </button>
+      <button class="tab-item" data-tab="vocabulary" onclick="switchTab('vocabulary')">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+        </svg>
+        词汇预习
+      </button>
+      <button class="tab-item" data-tab="review" onclick="switchTab('review')">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M1 4v6h6"/>
+          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+        </svg>
+        词汇复习
+      </button>
       <button class="tab-item" data-tab="practice" onclick="switchTab('practice')">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
         </svg>
-        专项练习
+        篇章测试
       </button>
       <button class="tab-item" data-tab="course" onclick="switchTab('course')">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
@@ -292,7 +307,84 @@
         </div>
       </section>
 
-      <!-- Tab 3: 课程详情 -->
+      <!-- Tab 2: 词汇预习 -->
+      <section id="tab-vocabulary" class="tab-panel">
+        <div class="vocabulary-learning-container">
+          <!-- 闪卡容器 -->
+          <div class="flashcard-container">
+            <div class="flashcard" id="vocabularyCard">
+              <!-- 卡片正面 -->
+              <div class="flashcard-front">
+                <div class="word-phonetic">/əˈbændən/</div>
+                <div class="word-text">abandon</div>
+                <div class="flip-hint">
+                  <span>点击查看释义</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              <!-- 卡片背面 -->
+              <div class="flashcard-back">
+                <div class="word-meaning">放弃，抛弃</div>
+                <div class="word-example">He abandoned his plan.</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 操作按钮 -->
+          <div class="action-buttons">
+            <button id="btnUnknown" class="btn-unknown">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              不认识
+            </button>
+            <button id="btnKnown" class="btn-known">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              认识
+            </button>
+          </div>
+          
+          <!-- 进度显示 -->
+          <div class="progress-indicator">
+            进度: <span id="vocabProgress">1/20</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab 3: 词汇复习 -->
+      <section id="tab-review" class="tab-panel">
+        <div class="review-container">
+          <!-- 复习统计 -->
+          <div class="review-stats">
+            <div class="review-stat-item">
+              <div class="review-stat-value" id="dueCount">0</div>
+              <div class="review-stat-label">待复习</div>
+            </div>
+            <div class="review-stat-item">
+              <div class="review-stat-value" id="masteredCount">0</div>
+              <div class="review-stat-label">已掌握</div>
+            </div>
+          </div>
+          
+          <!-- 复习卡片 -->
+          <div class="review-flashcard" id="reviewCard">
+            <div class="review-word" id="reviewWord">abandon</div>
+          </div>
+          
+          <!-- 评分按钮 -->
+          <div class="rating-buttons">
+            <button class="rating-btn" data-quality="0">忘记</button>
+            <button class="rating-btn" data-quality="3">模糊</button>
+            <button class="rating-btn" data-quality="5">记得</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab 4: 课程详情 -->
       <section id="tab-course" class="tab-panel">
         <div class="course-detail-section">
           <div class="section-header">
@@ -350,7 +442,8 @@
   <script src="js/data-store.js?v=20260528"></script>
   <script src="js/user-progress.js?v=20260528"></script>
   <script src="js/course-manager.js?v=20260602-2"></script>
-  <script src="js/practice-engine.js?v=20260528"></script>
-  <script src="js/practice.js?v=20260602-11"></script>
+  <script src="js/practice-engine.js?v=20260605-1"></script>
+  <script src="js/practice.js?v=20260605-1"></script>
+  <script src="js/vocabulary-learning.js?v=20260605-1"></script>
 </body>
 </html>
