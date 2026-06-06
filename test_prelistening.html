@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>篇章预听功能测试</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      padding: 20px;
+      background: var(--bg-primary, #f5f7fa);
+    }
+    .test-section {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .test-result {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    button {
+      padding: 8px 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>篇章预听功能测试</h1>
+  
+  <div class="test-section">
+    <h2>测试1: 检查PrelisteningManager类</h2>
+    <button onclick="testPrelisteningManager()">测试</button>
+    <div id="test1-result"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>测试2: 检查文件加载</h2>
+    <button onclick="testFileLoading()">测试</button>
+    <div id="test2-result"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>测试3: 检查CourseManager</h2>
+    <button onclick="testCourseManager()">测试</button>
+    <div id="test3-result"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>测试4: 检查全局课程信息</h2>
+    <button onclick="testGlobalCourse()">测试</button>
+    <div id="test4-result"></div>
+  </div>
+
+  <script>
+    // 动态加载必要的脚本
+    const scripts = [
+      'js/course-manager.js',
+      'js/prelistening.js'
+    ];
+    
+    let loadedScripts = 0;
+    
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+    
+    async function loadAllScripts() {
+      for (const src of scripts) {
+        try {
+          await loadScript(src);
+          console.log(`✅ ${src} 加载成功`);
+        } catch (error) {
+          console.error(`❌ ${src} 加载失败:`, error);
+        }
+      }
+      
+      // 加载完成后设置测试课程信息
+      if (window.CourseManager) {
+        try {
+          await CourseManager.ensureInit();
+          console.log('✅ CourseManager 初始化成功');
+        } catch (error) {
+          console.error('❌ CourseManager 初始化失败:', error);
+        }
+      }
+      
+      // 设置测试课程信息
+      window.currentCourse = {
+        bookKey: 'think-0',
+        unitKey: 'Unit 04-4 Culture',
+        title: 'Think Level 0 · Unit 4-4 Culture'
+      };
+      console.log('✅ 设置测试课程信息:', window.currentCourse);
+    }
+    
+    function showResult(elementId, message, type = 'info') {
+      const element = document.getElementById(elementId);
+      element.innerHTML = `<div class="test-result ${type}">${message}</div>`;
+    }
+    
+    function testPrelisteningManager() {
+      try {
+        if (typeof PrelisteningManager === 'undefined') {
+          showResult('test1-result', '❌ PrelisteningManager 类未定义', 'error');
+          return;
+        }
+        
+        showResult('test1-result', '✅ PrelisteningManager 类已定义', 'success');
+        
+        // 测试实例化
+        const manager = new PrelisteningManager();
+        showResult('test1-result', '✅ PrelisteningManager 实例化成功', 'success');
+        
+        // 检查方法
+        const methods = ['init', 'loadLessonData', 'initAudioPlayer', 'bindEvents', 'renderUI'];
+        const missingMethods = methods.filter(method => typeof manager[method] !== 'function');
+        
+        if (missingMethods.length > 0) {
+          showResult('test1-result', `❌ 缺少方法: ${missingMethods.join(', ')}`, 'error');
+        } else {
+          showResult('test1-result', '✅ 所有必需方法都存在', 'success');
+        }
+        
+      } catch (error) {
+        showResult('test1-result', `❌ 测试失败: ${error.message}`, 'error');
+      }
+    }
+    
+    async function testFileLoading() {
+      try {
+        const testUrl = '/think-0/Unit 04-4 Culture.lrc';
+        const response = await fetch(testUrl);
+        
+        if (response.ok) {
+          const content = await response.text();
+          showResult('test2-result', `✅ LRC文件加载成功 (${content.length} 字符)`, 'success');
+        } else {
+          showResult('test2-result', `⚠️ LRC文件加载失败 (HTTP ${response.status})，将使用fallback数据`, 'info');
+        }
+        
+        // 测试音频URL
+        const audioUrl = 'https://jikhdympaifsmubmwilp.supabase.co/storage/v1/object/public/audio/Think0/Unit 04-4 Culture.mp3';
+        const audioResponse = await fetch(audioUrl, { method: 'HEAD' });
+        
+        if (audioResponse.ok) {
+          showResult('test2-result', '✅ 音频文件URL可访问', 'success');
+        } else {
+          showResult('test2-result', `⚠️ 音频文件URL返回状态: ${audioResponse.status}`, 'info');
+        }
+        
+      } catch (error) {
+        showResult('test2-result', `❌ 测试失败: ${error.message}`, 'error');
+      }
+    }
+    
+    function testCourseManager() {
+      try {
+        if (typeof CourseManager === 'undefined') {
+          showResult('test3-result', '❌ CourseManager 未定义', 'error');
+          return;
+        }
+        
+        showResult('test3-result', '✅ CourseManager 已定义', 'success');
+        
+        // 检查方法
+        const methods = ['getAllBooks', 'getUnitsByBook', 'ensureInit'];
+        const missingMethods = methods.filter(method => typeof CourseManager[method] !== 'function');
+        
+        if (missingMethods.length > 0) {
+          showResult('test3-result', `❌ 缺少方法: ${missingMethods.join(', ')}`, 'error');
+        } else {
+          showResult('test3-result', '✅ 所有必需方法都存在', 'success');
+        }
+        
+        // 测试获取课程数据
+        try {
+          const books = CourseManager.getAllBooks();
+          showResult('test3-result', `✅ 获取到 ${books.length} 个课程`, 'success');
+          
+          const units = CourseManager.getUnitsByBook('think-0');
+          showResult('test3-result', `✅ Think Level 0 有 ${units.length} 个单元`, 'success');
+          
+        } catch (error) {
+          showResult('test3-result', `⚠️ 获取课程数据失败: ${error.message}`, 'info');
+        }
+        
+      } catch (error) {
+        showResult('test3-result', `❌ 测试失败: ${error.message}`, 'error');
+      }
+    }
+    
+    function testGlobalCourse() {
+      try {
+        if (!window.currentCourse) {
+          showResult('test4-result', '❌ 全局课程信息未设置', 'error');
+          return;
+        }
+        
+        const course = window.currentCourse;
+        showResult('test4-result', `
+          ✅ 全局课程信息已设置<br>
+          课程ID: ${course.bookKey}<br>
+          单元ID: ${course.unitKey}<br>
+          标题: ${course.title}
+        `, 'success');
+        
+        // 测试PrelisteningManager初始化
+        if (typeof PrelisteningManager !== 'undefined') {
+          const manager = new PrelisteningManager();
+          manager.init().then(() => {
+            showResult('test4-result', '✅ PrelisteningManager 初始化成功', 'success');
+          }).catch(error => {
+            showResult('test4-result', `⚠️ PrelisteningManager 初始化失败: ${error.message}`, 'info');
+          });
+        }
+        
+      } catch (error) {
+        showResult('test4-result', `❌ 测试失败: ${error.message}`, 'error');
+      }
+    }
+    
+    // 页面加载完成后加载脚本
+    window.addEventListener('DOMContentLoaded', loadAllScripts);
+  </script>
+</body>
+</html>

@@ -527,13 +527,148 @@
     background: var(--card);
     border-color: var(--border);
   }
-  
+
   .audio-info,
   .audio-playback-controls {
     background: var(--bg-secondary);
   }
-  
+
   .subtitle-container {
     background: var(--bg-secondary);
+  }
+}
+
+/* 步骤完成通知样式 */
+.step-completion-notification {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10000;
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  animation: notificationSlideIn 0.3s ease-out;
+  transition: opacity 0.3s ease;
+}
+
+@keyframes notificationSlideIn {
+  from {
+    transform: translate(-50%, -60%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+}
+
+.notification-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.notification-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.notification-message {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.notification-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.notification-actions .btn-continue,
+.notification-actions .btn-primary {
+  flex: 2;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.notification-actions .btn-continue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.notification-actions .btn-continue:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.notification-actions .btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.notification-actions .btn-primary:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+}
+
+.notification-actions .btn-dismiss {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.notification-actions .btn-dismiss:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+/* 警告通知样式 */
+.step-completion-notification.warning .notification-icon {
+  color: #ff6b6b;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .step-completion-notification {
+    max-width: 340px;
+    padding: 20px;
+  }
+
+  .notification-icon {
+    font-size: 40px;
+  }
+
+  .notification-message {
+    font-size: 0.95rem;
+  }
+
+  .notification-actions {
+    flex-direction: column;
+  }
+
+  .notification-actions .btn-continue,
+  .notification-actions .btn-primary,
+  .notification-actions .btn-dismiss {
+    width: 100%;
   }
 }

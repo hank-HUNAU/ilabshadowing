@@ -1,6 +1,6 @@
 /**
  * 篇章预听模块 - 学习流程第二环节
- * 版本：20260605-3
+ * 版本：20260605-4
  */
 
 // 篇章预听管理器
@@ -20,6 +20,7 @@ class PrelisteningManager {
     this.testMode = false;
     this.currentTest = null;
     this.testResults = [];
+    this.showedCompletionPrompt = false; // 是否已显示完成提示
   }
   
   // 初始化
@@ -195,7 +196,7 @@ class PrelisteningManager {
   updateLearningFlowProgress() {
     const progressKey = `learning_progress_${this.currentCourse}_${this.currentLesson}`;
     const existingProgress = JSON.parse(localStorage.getItem(progressKey) || '{}');
-    
+
     existingProgress.prelisteningCompleted = this.todayCount >= this.dailyGoal;
     existingProgress.prelisteningStats = {
       dailyGoal: this.dailyGoal,
@@ -203,8 +204,40 @@ class PrelisteningManager {
       progress: Math.round((this.todayCount / this.dailyGoal) * 100)
     };
     existingProgress.updatedAt = Date.now();
-    
+
     localStorage.setItem(progressKey, JSON.stringify(existingProgress));
+  }
+
+  // 更新指定步骤的进度
+  updateStepProgress(step, completed = true, stats = {}) {
+    const progressKey = `learning_progress_${this.currentCourse}_${this.currentLesson}`;
+    const existingProgress = JSON.parse(localStorage.getItem(progressKey) || '{}');
+
+    // 更新指定步骤的完成状态
+    switch(step) {
+      case 'vocabulary':
+        existingProgress.vocabularyCompleted = completed;
+        existingProgress.vocabularyStats = stats;
+        break;
+      case 'prelistening':
+        existingProgress.prelisteningCompleted = completed;
+        existingProgress.prelisteningStats = stats;
+        break;
+      case 'shadowing':
+        existingProgress.shadowingCompleted = completed;
+        existingProgress.shadowingStats = stats;
+        break;
+      case 'practice':
+        existingProgress.practiceCompleted = completed;
+        existingProgress.practiceStats = stats;
+        break;
+    }
+
+    existingProgress.updatedAt = Date.now();
+    localStorage.setItem(progressKey, JSON.stringify(existingProgress));
+
+    // 刷新学习流程导航UI
+    this.updateLearningFlowNav();
   }
   
   // 初始化音频播放器
@@ -294,15 +327,17 @@ class PrelisteningManager {
   onAudioEnded() {
     this.isPlaying = false;
     this.updatePlayButton();
-    
+
     // 增加今日听读次数
     this.todayCount++;
     this.saveProgress();
     this.updateProgressDisplay();
-    
+
     // 检查是否达到每日目标
     if (this.todayCount >= this.dailyGoal) {
       this.showCompletionMessage();
+      // 检查步骤完成提示
+      this.checkStepCompletionPrompt();
     }
   }
   
@@ -726,36 +761,128 @@ class PrelisteningManager {
   // 更新学习流程导航
   updateLearningFlowNav() {
     const flowSteps = document.querySelectorAll('.flow-step');
-    
+
     if (flowSteps.length === 0) return;
-    
+
     // 词汇预习
     const vocabStep = flowSteps[0];
     if (vocabStep) {
       const isVocabCompleted = this.isStepCompleted('vocabulary');
       vocabStep.querySelector('.step-icon').classList.toggle('completed', isVocabCompleted);
     }
-    
+
     // 篇章预听（当前步骤）
     const prelisteningStep = flowSteps[1];
     if (prelisteningStep) {
       const isCurrent = true; // 当前在预听环节
       prelisteningStep.querySelector('.step-icon').classList.toggle('current', isCurrent);
     }
-    
+
     // 影子跟读
     const shadowingStep = flowSteps[2];
     if (shadowingStep) {
       const canProceed = this.canProceedToStep('shadowing');
       shadowingStep.querySelector('.step-icon').classList.toggle('locked', !canProceed);
     }
-    
+
     // 篇章测试
     const practiceStep = flowSteps[3];
     if (practiceStep) {
       const canProceed = this.canProceedToStep('practice');
       practiceStep.querySelector('.step-icon').classList.toggle('locked', !canProceed);
     }
+
+    // 检查是否需要显示步骤完成提示
+    this.checkStepCompletionPrompt();
+  }
+
+  // 检查步骤完成提示
+  checkStepCompletionPrompt() {
+    // 如果篇章预听已完成，提示可以进行下一步
+    if (this.todayCount >= this.dailyGoal && !this.showedCompletionPrompt) {
+      const canProceedToShadowing = this.canProceedToStep('shadowing');
+
+      if (canProceedToShadowing) {
+        // 显示完成提示
+        this.showCompletionNotification('篇章预听', 'shadowing');
+        this.showedCompletionPrompt = true;
+      } else {
+        // 提示需要先完成词汇预习
+        this.showMissingPrerequisiteNotification('vocabulary', 'prelistening');
+      }
+    }
+  }
+
+  // 显示步骤完成通知
+  showCompletionNotification(currentStep, nextStep) {
+    const stepNames = {
+      'vocabulary': '词汇预习',
+      'prelistening': '篇章预听',
+      'shadowing': '影子跟读',
+      'practice': '篇章测试'
+    };
+
+    const message = `✅ ${stepNames[currentStep]}已完成！\n\n现在可以进行${stepNames[nextStep]}了。`;
+
+    // 创建自定义通知元素
+    const notification = document.createElement('div');
+    notification.className = 'step-completion-notification';
+    notification.innerHTML = `
+      <div class="notification-content">
+        <div class="notification-icon">✅</div>
+        <div class="notification-message">${message.replace(/\n/g, '<br>')}</div>
+        <div class="notification-actions">
+          <button class="btn-continue" onclick="switchTab('${nextStep}')">继续${stepNames[nextStep]}</button>
+          <button class="btn-dismiss" onclick="this.closest('.step-completion-notification').remove()">稍后</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // 3秒后自动消失（如果用户没有操作）
+    setTimeout(() => {
+      if (notification.parentElement) {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+      }
+    }, 5000);
+  }
+
+  // 显示缺少前置条件通知
+  showMissingPrerequisiteNotification(missingStep, currentStep) {
+    const stepNames = {
+      'vocabulary': '词汇预习',
+      'prelistening': '篇章预听',
+      'shadowing': '影子跟读',
+      'practice': '篇章测试'
+    };
+
+    const message = `⚠️ 请先完成${stepNames[missingStep]}，才能继续${stepNames[currentStep]}。`;
+
+    // 创建警告通知元素
+    const notification = document.createElement('div');
+    notification.className = 'step-completion-notification warning';
+    notification.innerHTML = `
+      <div class="notification-content">
+        <div class="notification-icon">⚠️</div>
+        <div class="notification-message">${message.replace(/\n/g, '<br>')}</div>
+        <div class="notification-actions">
+          <button class="btn-primary" onclick="switchTab('${missingStep}'); this.closest('.step-completion-notification').remove();">去完成${stepNames[missingStep]}</button>
+          <button class="btn-dismiss" onclick="this.closest('.step-completion-notification').remove()">知道了</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // 5秒后自动消失
+    setTimeout(() => {
+      if (notification.parentElement) {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+      }
+    }, 5000);
   }
   
   // 检查步骤是否完成
