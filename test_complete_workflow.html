@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>完整学习流程测试</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      padding: 20px;
+      background: #f5f7fa;
+    }
+    .test-section {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .test-result {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    button {
+      padding: 8px 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .workflow-diagram {
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+    }
+    .workflow-step {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+      padding: 8px;
+      border-radius: 4px;
+    }
+    .workflow-step.completed {
+      background: #d4edda;
+      color: #155724;
+    }
+    .workflow-step.incomplete {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    .workflow-step .arrow {
+      margin: 0 12px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>完整学习流程测试</h1>
+  
+  <div class="test-section">
+    <h2>学习流程概览</h2>
+    <div class="workflow-diagram">
+      <div class="workflow-step" id="step-vocabulary">
+        <strong>1. 词汇预习</strong> - 学习新词汇，建立基础认知
+      </div>
+      <div class="arrow">↓</div>
+      <div class="workflow-step" id="step-prelistening">
+        <strong>2. 篇章预听</strong> - 听读原文，熟悉内容
+      </div>
+      <div class="arrow">↓</div>
+      <div class="workflow-step" id="step-shadowing">
+        <strong>3. 影子跟读</strong> - 录音跟读，模仿语音
+      </div>
+      <div class="arrow">↓</div>
+      <div class="workflow-step" id="step-practice">
+        <strong>4. 篇章测试</strong> - 综合测试，检验成果
+      </div>
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h2>测试1: 检查所有管理器类</h2>
+    <button onclick="testAllManagers()">测试</button>
+    <div id="test1-result"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>测试2: 模拟完整学习流程</h2>
+    <button onclick="simulateCompleteWorkflow()">测试</button>
+    <div id="test2-result"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>测试3: 检查学习流程导航</h2>
+    <button onclick="testWorkflowNavigation()">测试</button>
+    <div id="test3-result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>测试4: 检查数据持久化</h2>
+    <button onclick="testDataPersistence()">测试</button>
+    <div id="test4-result"></div>
+  </div>
+
+  <script>
+    // 动态加载必要的脚本
+    const scripts = [
+      'js/course-manager.js',
+      'js/vocabulary-learning.js',
+      'js/prelistening.js',
+      'js/shadowing.js',
+      'js/practice-test.js'
+    ];
+    
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+    
+    async function loadAllScripts() {
+      for (const src of scripts) {
+        try {
+          await loadScript(src);
+          console.log(`✅ ${src} 加载成功`);
+        } catch (error) {
+          console.error(`❌ ${src} 加载失败:`, error);
+        }
+      }
+      
+      // 设置测试课程信息
+      window.currentCourse = {
+        bookKey: 'think-0',
+        unitKey: 'Unit 04-4 Culture',
+        title: 'Think Level 0 · Unit 4-4 Culture'
+      };
+      console.log('✅ 设置测试课程信息:', window.currentCourse);
+    }
+    
+    function showResult(elementId, message, type = 'info') {
+      const element = document.getElementById(elementId);
+      element.innerHTML = `<div class="test-result ${type}">${message}</div>`;
+    }
+    
+    function testAllManagers() {
+      try {
+        const managers = [
+          { name: 'VocabularyLearningManager', exists: typeof VocabularyLearningManager !== 'undefined' },
+          { name: 'EbbinghausReviewManager', exists: typeof EbbinghausReviewManager !== 'undefined' },
+          { name: 'PrelisteningManager', exists: typeof PrelisteningManager !== 'undefined' },
+          { name: 'ShadowingManager', exists: typeof ShadowingManager !== 'undefined' },
+          { name: 'PracticeTestManager', exists: typeof PracticeTestManager !== 'undefined' }
+        ];
+        
+        let resultHTML = '<h3>管理器类检查结果：</h3>';
+        let allExists = true;
+        
+        managers.forEach(manager => {
+          const status = manager.exists ? '✅' : '❌';
+          resultHTML += `${status} ${manager.name}<br>`;
+          if (!manager.exists) allExists = false;
+        });
+        
+        if (allExists) {
+          showResult('test1-result', resultHTML + '<br><strong>所有管理器类都已正确定义！</strong>', 'success');
+        } else {
+          showResult('test1-result', resultHTML + '<br><strong>部分管理器类未定义！</strong>', 'error');
+        }
+        
+      } catch (error) {
+        showResult('test1-result', `❌ 测试失败: ${error.message}`, 'error');
+      }
+    }
+    
+    async function simulateCompleteWorkflow() {
+      try {
+        if (!window.currentCourse) {
+          showResult('test2-result', '❌ 测试课程信息未设置', 'error');
+          return;
+        }
+        
+        const progressKey = `learning_progress_think-0_Unit 04-4 Culture`;
+        let resultHTML = '<h3>学习流程模拟：</h3>';
+        
+        // 清除现有进度
+        localStorage.removeItem(progressKey);
+        resultHTML += '🔄 清除现有学习进度<br>';
+        
+        // 模拟词汇预习完成
+        const vocabManager = new VocabularyLearningManager();
+        vocabManager.currentCourse = 'think-0_Unit 04-4 Culture';
+        vocabManager.currentLesson = 'Unit 04-4 Culture';
+        vocabManager.updateLearningFlowProgress();
+        
+        const progress1 = JSON.parse(localStorage.getItem(progressKey) || '{}');
+        const vocabCompleted = progress1.vocabularyCompleted;
+        resultHTML += `${vocabCompleted ? '✅' : '❌'} 词汇预习完成<br>`;
+        
+        // 模拟篇章预听完成
+        const prelisteningManager = new PrelisteningManager();
+        prelisteningManager.currentCourse = 'think-0_Unit 04-4 Culture';
+        prelisteningManager.currentLesson = 'Unit 04-4 Culture';
+        prelisteningManager.updateLearningFlowProgress();
+        
+        const progress2 = JSON.parse(localStorage.getItem(progressKey) || '{}');
+        const prelisteningCompleted = progress2.prelisteningCompleted;
+        resultHTML += `${prelisteningCompleted ? '✅' : '❌'} 篇章预听完成<br>`;
+        
+        // 模拟影子跟读完成
+        const shadowingManager = new ShadowingManager();
+        shadowingManager.currentCourse = 'think-0_Unit 04-4 Culture';
+        shadowingManager.currentLesson = 'Unit 04-4 Culture';
+        shadowingManager.updateLearningFlowProgress();
+        
+        const progress3 = JSON.parse(localStorage.getItem(progressKey) || '{}');
+        const shadowingCompleted = progress3.shadowingCompleted;
+        resultHTML += `${shadowingCompleted ? '✅' : '❌'} 影子跟读完成<br>`;
+        
+        // 模拟篇章测试完成
+        const practiceManager = new PracticeTestManager();
+        practiceManager.currentCourse = 'think-0_Unit 04-4 Culture';
+        practiceManager.currentLesson = 'Unit 04-4 Culture';
+        practiceManager.updateLearningFlowProgress();
+        
+        const progress4 = JSON.parse(localStorage.getItem(progressKey) || '{}');
+        const practiceCompleted = progress4.practiceCompleted;
+        resultHTML += `${practiceCompleted ? '✅' : '❌'} 篇章测试完成<br>`;
+        
+        // 更新工作流图
+        document.getElementById('step-vocabulary').className = `workflow-step ${vocabCompleted ? 'completed' : 'incomplete'}`;
+        document.getElementById('step-prelistening').className = `workflow-step ${prelisteningCompleted ? 'completed' : 'incomplete'}`;
+        document.getElementById('step-shadowing').className = `workflow-step ${shadowingCompleted ? 'completed' : 'incomplete'}`;
+        document.getElementById('step-practice').className = `workflow-step ${practiceCompleted ? 'completed' : 'incomplete'}`;
+        
+        if (vocabCompleted && prelisteningCompleted && shadowingCompleted && practiceCompleted) {
+          showResult('test2-result', resultHTML + '<br><strong>🎉 学习流程模拟成功！所有步骤都已完成！</strong>', 'success');
+        } else {
+          showResult('test2-result', resultHTML + '<br><strong>⚠️ 部分步骤未完成</strong>', 'info');
+        }
+        
+      } catch (error) {
+        showResult('test2-result', `❌ 测试失败: ${error.message}`, 'error');
+      }
+    }
+    
+    function testWorkflowNavigation() {
+      try {
+        if (!window.currentCourse) {
+          showResult('test3-result', '❌ 测试课程信息未设置', 'error');
+          return;
+        }
+        
+        const progressKey = `learning_progress_think-0_Unit 04-4 Culture`;
+        const progress = JSON.parse(localStorage.getItem(progressKey) || '{}');
+        
+        let resultHTML = '<h3>学习流程导航检查：</h3>';
+        
+        // 检查每个步骤的前置条件
+        const checks = [
+          {
+            step: '词汇预习',
+            canAccess: true,
+            completed: progress.vocabularyCompleted || false
+          },
+          {
+            step: '篇章预听',
+            canAccess: progress.vocabularyCompleted || false,
+            completed: progress.prelisteningCompleted || false
+          },
+          {
+            step: '影子跟读',
+            canAccess: progress.vocabularyCompleted && progress.prelisteningCompleted,
+            completed: progress.shadowingCompleted || false
+          },
+          {
+            step: '篇章测试',
+            canAccess: progress.vocabularyCompleted && progress.prelisteningCompleted && progress.shadowingCompleted,
+            completed: progress.practiceCompleted || false
+          }
+        ];
+        
+        checks.forEach(check => {
+          const accessStatus = check.canAccess ? '✅ 可访问' : '🔒 锁定';
+          const completeStatus = check.completed ? '✅ 已完成' : '⏳ 未完成';
+          resultHTML += `<strong>${check.step}</strong>: ${accessStatus} | ${completeStatus}<br>`;
+        });
+        
+        showResult('test3-result', resultHTML, 'info');
+        
+      } catch (error) {
+        showResult('test3-result', `❌ 测试失败: ${error.message}`, 'error');
+      }
+    }
+    
+    function testDataPersistence() {
+      try {
+        const progressKey = `learning_progress_think-0_Unit 04-4 Culture`;
+        const progress = JSON.parse(localStorage.getItem(progressKey) || '{}');
+        
+        let resultHTML = '<h3>数据持久化检查：</h3>';
+        
+        if (Object.keys(progress).length === 0) {
+          resultHTML += '⚠️ 暂无学习进度数据<br>';
+          showResult('test4-result', resultHTML, 'info');
+          return;
+        }
+        
+        resultHTML += `<strong>学习进度数据：</strong><br>`;
+        resultHTML += `课程ID: ${progress.courseId || '未知'}<br>`;
+        resultHTML += `单元ID: ${progress.lessonId || '未知'}<br>`;
+        resultHTML += `词汇预习: ${progress.vocabularyCompleted ? '✅' : '❌'}<br>`;
+        resultHTML += `篇章预听: ${progress.prelisteningCompleted ? '✅' : '❌'}<br>`;
+        resultHTML += `影子跟读: ${progress.shadowingCompleted ? '✅' : '❌'}<br>`;
+        resultHTML += `篇章测试: ${progress.practiceCompleted ? '✅' : '❌'}<br>`;
+        resultHTML += `更新时间: ${progress.updatedAt ? new Date(progress.updatedAt).toLocaleString() : '未知'}<br>`;
+        
+        resultHTML += '<br><strong>详细统计：</strong><br>';
+        if (progress.vocabularyStats) {
+          resultHTML += `词汇统计: ${JSON.stringify(progress.vocabularyStats)}<br>`;
+        }
+        if (progress.prelisteningStats) {
+          resultHTML += `预听统计: ${JSON.stringify(progress.prelisteningStats)}<br>`;
+        }
+        if (progress.shadowingStats) {
+          resultHTML += `跟读统计: ${JSON.stringify(progress.shadowingStats)}<br>`;
+        }
+        if (progress.practiceStats) {
+          resultHTML += `测试统计: ${JSON.stringify(progress.practiceStats)}<br>`;
+        }
+        
+        showResult('test4-result', resultHTML, 'success');
+        
+      } catch (error) {
+        showResult('test4-result', `❌ 测试失败: ${error.message}`, 'error');
+      }
+    }
+    
+    // 页面加载完成后加载脚本
+    window.addEventListener('DOMContentLoaded', loadAllScripts);
+  </script>
+</body>
+</html>
