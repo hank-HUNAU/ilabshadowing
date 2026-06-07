@@ -49,6 +49,14 @@ window.switchTab = function(tabName) {
     });
   }
 
+  // 切换到影子跟读 Tab 时加载跟读数据
+  if (tabName === 'shadowing' && window.shadowingManager) {
+    // 确保ShadowingManager已初始化
+    window.shadowingManager.init().catch(error => {
+      console.error('[PracticePage] 初始化ShadowingManager失败:', error);
+    });
+  }
+
   // 保存到 localStorage
   localStorage.setItem('practice_active_tab', tabName);
 };
@@ -329,6 +337,11 @@ async function initPracticePage() {
   // 初始化篇章预听管理器
   if (window.PrelisteningManager) {
     window.prelisteningManager = new PrelisteningManager();
+  }
+
+  // 初始化影子跟读管理器
+  if (window.ShadowingManager) {
+    window.shadowingManager = new ShadowingManager();
   }
 
   // 加载当前课程

@@ -1,0 +1,552 @@
+/**
+ * 影子跟读模块样式
+ * 版本：20260605-1
+ */
+
+/* 影子跟读容器 */
+.shadowing-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 学习进度卡片 */
+.shadowing-progress-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.shadowing-progress-info h3 {
+  margin: 0 0 16px 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.shadowing-progress-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.shadowing-progress-stat {
+  text-align: center;
+}
+
+.shadowing-progress-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.shadowing-progress-stat-label {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+/* 音频播放器区域 */
+.shadowing-audio-player-section {
+  background: var(--card, #fff);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.shadowing-audio-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.shadowing-audio-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: var(--bg-secondary, #f8f9fa);
+  border-radius: 8px;
+}
+
+.shadowing-audio-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text-primary, #333);
+}
+
+.shadowing-audio-duration {
+  font-size: 0.9rem;
+  color: var(--text-secondary, #666);
+}
+
+.shadowing-audio-playback-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.shadowing-control-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--bg-secondary, #f8f9fa);
+  color: var(--text-primary, #333);
+}
+
+.shadowing-control-btn:hover {
+  background: var(--bg-hover, #e9ecef);
+  transform: translateY(-2px);
+}
+
+.shadowing-control-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.shadowing-play-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.shadowing-play-btn:hover {
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* 速度控制 */
+.shadowing-speed-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.shadowing-speed-control span {
+  font-size: 0.85rem;
+  color: var(--text-secondary, #666);
+}
+
+.shadowing-speed-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border, #e0e0e0);
+  border-radius: 6px;
+  background: var(--bg-primary, #fff);
+  color: var(--text-primary, #333);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shadowing-speed-btn:hover {
+  border-color: var(--primary, #667eea);
+  background: var(--bg-secondary, #f8f9fa);
+}
+
+.shadowing-speed-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+}
+
+/* 录音控制区域 */
+.shadowing-recording-section {
+  background: var(--card, #fff);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.shadowing-recording-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.shadowing-record-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--bg-secondary, #f8f9fa);
+  color: var(--text-primary, #333);
+}
+
+.shadowing-record-btn:hover {
+  background: var(--bg-hover, #e9ecef);
+  transform: translateY(-2px);
+}
+
+.shadowing-record-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.shadowing-record-btn.recording {
+  background: #dc3545;
+  color: white;
+  animation: recording-pulse 1.5s infinite;
+}
+
+@keyframes recording-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* 录音回放区域 */
+.shadowing-playback-container {
+  background: var(--bg-secondary, #f8f9fa);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.playback-controls h4 {
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+  color: var(--text-primary, #333);
+}
+
+.playback-controls audio {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.playback-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-compare,
+.btn-save {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-compare {
+  background: #17a2b8;
+  color: white;
+}
+
+.btn-compare:hover {
+  background: #138496;
+}
+
+.btn-save {
+  background: #28a745;
+  color: white;
+}
+
+.btn-save:hover {
+  background: #218838;
+}
+
+/* 字幕显示区域 */
+.shadowing-subtitle-section {
+  background: var(--card, #fff);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.shadowing-subtitle-container {
+  background: var(--bg-secondary, #f8f9fa);
+  border-radius: 8px;
+  padding: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.shadowing-subtitle-line {
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-primary, #333);
+}
+
+.shadowing-subtitle-line:hover {
+  background: var(--bg-hover, #e9ecef);
+  transform: translateX(4px);
+}
+
+.shadowing-subtitle-line.active {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-left: 3px solid #667eea;
+  padding-left: 12px;
+  font-weight: 500;
+}
+
+/* 每日目标设置 */
+.shadowing-daily-goal-section {
+  background: var(--card, #fff);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.shadowing-goal-input-container {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.shadowing-goal-input-container > div:first-child {
+  flex: 1;
+}
+
+.shadowing-goal-input-container label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: var(--text-secondary, #666);
+}
+
+.shadowing-goal-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border, #e0e0e0);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--bg-primary, #fff);
+  color: var(--text-primary, #333);
+}
+
+.shadowing-goal-input:focus {
+  outline: none;
+  border-color: var(--primary, #667eea);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.shadowing-goal-buttons {
+  display: flex;
+}
+
+.shadowing-goal-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.shadowing-goal-btn:hover {
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  transform: translateY(-2px);
+}
+
+/* 学习流程导航 */
+.shadowing-learning-flow-nav {
+  background: var(--card, #fff);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.shadowing-flow-steps {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 80px;
+}
+
+.step-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  transition: all 0.3s ease;
+  background: var(--bg-secondary, #f8f9fa);
+  color: var(--text-secondary, #666);
+}
+
+.step-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.step-icon.completed {
+  background: #28a745;
+  color: white;
+}
+
+.step-icon.current {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.step-icon.locked {
+  background: var(--bg-secondary, #f8f9fa);
+  color: var(--text-disabled, #ccc);
+}
+
+.step-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+  color: var(--text-secondary, #666);
+}
+
+.step-icon.completed + .step-label {
+  color: #28a745;
+}
+
+.step-icon.current + .step-label {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.step-icon.locked + .step-label {
+  color: var(--text-disabled, #ccc);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .shadowing-container {
+    padding: 16px;
+  }
+
+  .shadowing-progress-stats {
+    gap: 12px;
+  }
+
+  .shadowing-progress-stat-value {
+    font-size: 1.5rem;
+  }
+
+  .shadowing-audio-playback-controls {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .shadowing-control-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .shadowing-speed-control {
+    justify-content: center;
+  }
+
+  .shadowing-recording-controls {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .shadowing-record-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .shadowing-playback-actions {
+    flex-direction: column;
+  }
+
+  .shadowing-goal-input-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .shadowing-flow-steps {
+    flex-direction: row;
+    justify-content: space-around;
+  }
+
+  .step-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .step-label {
+    font-size: 0.75rem;
+  }
+}
+
+/* 暗黑模式 */
+@media (prefers-color-scheme: dark) {
+  .shadowing-container {
+    background: transparent;
+  }
+
+  .shadowing-audio-player-section,
+  .shadowing-recording-section,
+  .shadowing-subtitle-section,
+  .shadowing-daily-goal-section,
+  .shadowing-learning-flow-nav {
+    background: var(--card, #1e1e1e);
+    border: 1px solid var(--border, #333);
+  }
+
+  .shadowing-audio-info,
+  .shadowing-playback-container,
+  .shadowing-subtitle-container {
+    background: var(--bg-secondary, #2a2a2a);
+  }
+
+  .shadowing-subtitle-line:hover {
+    background: var(--bg-hover, #3a3a3a);
+  }
+
+  .shadowing-subtitle-line.active {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+  }
+
+  .step-icon {
+    background: var(--bg-secondary, #2a2a2a);
+    color: var(--text-secondary, #999);
+  }
+
+  .step-icon.locked {
+    background: var(--bg-secondary, #2a2a2a);
+    color: var(--text-disabled, #555);
+  }
+}
