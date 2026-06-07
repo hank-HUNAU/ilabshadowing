@@ -1,0 +1,675 @@
+/**
+ * 篇章测试模块样式
+ * 版本：20260605-1
+ */
+
+/* 篇章测试容器 */
+.practice-test-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 测试概览卡片 */
+.test-overview-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 32px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.test-overview-icon {
+  margin-bottom: 16px;
+}
+
+.test-overview-icon svg {
+  width: 64px;
+  height: 64px;
+  stroke-width: 1.5;
+}
+
+.test-overview-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+}
+
+.test-overview-description {
+  font-size: 1rem;
+  opacity: 0.95;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+/* 测试概览统计 */
+.test-overview-stats {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+/* 开始测试按钮 */
+.btn-start-test {
+  padding: 16px 40px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+  color: #667eea;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-start-test:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* 测试锁定消息 */
+.test-locked-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.test-locked-message svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* 测试类型选择 */
+#testTypeSelection {
+  margin-top: 24px;
+  background: var(--card, #fff);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.test-type-title {
+  margin: 0 0 16px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary, #333);
+}
+
+.test-type-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.test-type-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  border: 2px solid var(--border, #e0e0e0);
+  border-radius: 8px;
+  background: var(--bg-primary, #fff);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.test-type-btn:hover {
+  border-color: var(--primary, #667eea);
+  background: var(--bg-secondary, #f8f9fa);
+  transform: translateY(-2px);
+}
+
+.test-type-btn.active {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.type-icon {
+  font-size: 2rem;
+}
+
+.type-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary, #333);
+}
+
+.type-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary, #666);
+}
+
+/* 测试题目区域 */
+#practiceTestQuestions {
+  display: none;
+}
+
+/* 测试进度条 */
+.test-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-secondary, #f8f9fa);
+  border-radius: 3px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.3s ease;
+}
+
+/* 题目计数器 */
+.question-counter {
+  text-align: center;
+  font-size: 1rem;
+  color: var(--text-secondary, #666);
+  margin-bottom: 16px;
+}
+
+/* 题目类型徽章 */
+.question-type-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 24px;
+}
+
+/* 题目文本 */
+.question-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary, #333);
+  margin: 0 0 32px 0;
+  line-height: 1.6;
+}
+
+/* 选项容器 */
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.test-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border: 2px solid var(--border, #e0e0e0);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--bg-primary, #fff);
+}
+
+.test-option:hover {
+  border-color: #667eea;
+  background: var(--bg-secondary, #f8f9fa);
+}
+
+.test-option.selected {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.option-label {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--primary, #667eea);
+  min-width: 24px;
+}
+
+.option-text {
+  font-size: 1rem;
+  color: var(--text-primary, #333);
+  line-height: 1.5;
+}
+
+/* 题目操作 */
+.question-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-submit-question {
+  padding: 12px 32px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-submit-question:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-submit-question:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 测试结果区域 */
+#practiceTestResults {
+  display: none;
+}
+
+.test-results-card {
+  background: var(--card, #fff);
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 结果头部 */
+.results-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.results-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.results-icon.passed {
+  background: #28a745;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+.results-icon.failed {
+  background: #dc3545;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.results-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 24px;
+  color: var(--text-primary, #333);
+}
+
+/* 分数显示 */
+.score-display {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.score-number {
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--primary, #667eea);
+}
+
+.score-label {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-secondary, #666);
+}
+
+/* 分数详情 */
+.score-details {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  color: var(--text-secondary, #666);
+  font-size: 0.95rem;
+}
+
+.correct-count {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.total-count {
+  color: var(--text-secondary, #666);
+}
+
+/* 结果统计 */
+.results-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.result-stat {
+  padding: 16px;
+  background: var(--bg-secondary, #f8f9fa);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.result-stat .stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary, #666);
+  margin-bottom: 8px;
+}
+
+.result-stat .stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary, #333);
+}
+
+/* 结果操作 */
+.results-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.results-actions button {
+  flex: 1;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #545b62;
+}
+
+.btn-success {
+  background: #28a745;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #218838;
+  transform: translateY(-2px);
+}
+
+/* 学习流程导航 */
+.practice-test-learning-flow-nav {
+  background: var(--card, #fff);
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.practice-test-flow-steps {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 80px;
+}
+
+.step-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  transition: all 0.3s ease;
+  background: var(--bg-secondary, #f8f9fa);
+  color: var(--text-secondary, #666);
+}
+
+.step-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.step-icon.completed {
+  background: #28a745;
+  color: white;
+}
+
+.step-icon.current {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.step-icon.locked {
+  background: var(--bg-secondary, #f8f9fa);
+  color: var(--text-disabled, #ccc);
+}
+
+.step-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+  color: var(--text-secondary, #666);
+}
+
+.step-icon.completed + .step-label {
+  color: #28a745;
+}
+
+.step-icon.current + .step-label {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.step-icon.locked + .step-label {
+  color: var(--text-disabled, #ccc);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .practice-test-container {
+    padding: 16px;
+  }
+
+  .test-overview-card {
+    padding: 24px;
+  }
+
+  .test-overview-title {
+    font-size: 1.5rem;
+  }
+
+  .test-overview-stats {
+    gap: 16px;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+  }
+
+  .test-type-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .question-text {
+    font-size: 1.1rem;
+  }
+
+  .score-number {
+    font-size: 3rem;
+  }
+
+  .score-label {
+    font-size: 1.25rem;
+  }
+
+  .results-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .results-actions {
+    flex-direction: column;
+  }
+
+  .practice-test-flow-steps {
+    flex-direction: row;
+    justify-content: space-around;
+  }
+
+  .step-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .step-label {
+    font-size: 0.75rem;
+  }
+}
+
+/* 暗黑模式 */
+@media (prefers-color-scheme: dark) {
+  .practice-test-container {
+    background: transparent;
+  }
+
+  #testTypeSelection,
+  .test-results-card,
+  .practice-test-learning-flow-nav {
+    background: var(--card, #1e1e1e);
+    border: 1px solid var(--border, #333);
+  }
+
+  .test-type-btn {
+    background: var(--bg-primary, #2a2a2a);
+    border-color: var(--border, #444);
+    color: var(--text-primary, #fff);
+  }
+
+  .test-type-btn:hover {
+    background: var(--bg-secondary, #3a3a3a);
+    border-color: #667eea;
+  }
+
+  .test-type-btn.active {
+    background: rgba(102, 126, 234, 0.2);
+    border-color: #667eea;
+  }
+
+  .type-name {
+    color: var(--text-primary, #fff);
+  }
+
+  .type-desc {
+    color: var(--text-secondary, #999);
+  }
+
+  .test-option {
+    background: var(--bg-primary, #2a2a2a);
+    border-color: var(--border, #444);
+  }
+
+  .test-option:hover {
+    background: var(--bg-secondary, #3a3a3a);
+    border-color: #667eea;
+  }
+
+  .test-option.selected {
+    background: rgba(102, 126, 234, 0.2);
+    border-color: #667eea;
+  }
+
+  .option-text {
+    color: var(--text-primary, #fff);
+  }
+
+  .question-text {
+    color: var(--text-primary, #fff);
+  }
+
+  .results-title {
+    color: var(--text-primary, #fff);
+  }
+
+  .result-stat {
+    background: var(--bg-secondary, #2a2a2a);
+  }
+
+  .result-stat .stat-label {
+    color: var(--text-secondary, #999);
+  }
+
+  .result-stat .stat-value {
+    color: var(--text-primary, #fff);
+  }
+
+  .step-icon {
+    background: var(--bg-secondary, #2a2a2a);
+    color: var(--text-secondary, #999);
+  }
+
+  .step-icon.locked {
+    background: var(--bg-secondary, #2a2a2a);
+    color: var(--text-disabled, #555);
+  }
+}

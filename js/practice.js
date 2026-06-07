@@ -57,6 +57,14 @@ window.switchTab = function(tabName) {
     });
   }
 
+  // 切换到篇章测试 Tab 时加载测试数据
+  if (tabName === 'practice' && window.practiceTestManager) {
+    // 确保PracticeTestManager已初始化
+    window.practiceTestManager.init().catch(error => {
+      console.error('[PracticePage] 初始化PracticeTestManager失败:', error);
+    });
+  }
+
   // 保存到 localStorage
   localStorage.setItem('practice_active_tab', tabName);
 };
@@ -342,6 +350,11 @@ async function initPracticePage() {
   // 初始化影子跟读管理器
   if (window.ShadowingManager) {
     window.shadowingManager = new ShadowingManager();
+  }
+
+  // 初始化篇章测试管理器
+  if (window.PracticeTestManager) {
+    window.practiceTestManager = new PracticeTestManager();
   }
 
   // 加载当前课程

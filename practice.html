@@ -6,11 +6,12 @@
   <meta name="theme-color" content="#007aff">
   <title>学习中心 - Hankilab 学习中心</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="stylesheet" href="css/style.css?v=20260605-5">
-  <link rel="stylesheet" href="css/practice.css?v=20260605-5">
-  <link rel="stylesheet" href="css/vocabulary.css?v=20260605-5">
-  <link rel="stylesheet" href="css/prelistening.css?v=20260605-5">
-  <link rel="stylesheet" href="css/shadowing.css?v=20260605-5">
+  <link rel="stylesheet" href="css/style.css?v=20260606-1">
+  <link rel="stylesheet" href="css/practice.css?v=20260606-1">
+  <link rel="stylesheet" href="css/vocabulary.css?v=20260606-1">
+  <link rel="stylesheet" href="css/prelistening.css?v=20260606-1">
+  <link rel="stylesheet" href="css/shadowing.css?v=20260606-1">
+  <link rel="stylesheet" href="css/practice-test.css?v=20260606-1">
 </head>
 <body>
   <div id="app">
@@ -228,97 +229,175 @@
         </div>
       </section>
 
-      <!-- Tab 2: 专项练习 -->
+      <!-- Tab 6: 篇章测试 -->
       <section id="tab-practice" class="tab-panel">
-        <div class="practice-section">
-          <div class="section-header">
-            <h2>专项练习</h2>
-            <span class="section-hint" id="practiceHint">选择题型开始练习</span>
+        <div class="practice-test-container">
+          <!-- 学习流程导航 -->
+          <div class="practice-test-learning-flow-nav">
+            <h3 class="section-title" style="margin-bottom: 16px;">学习流程</h3>
+            <div class="practice-test-flow-steps">
+              <div class="flow-step">
+                <div class="step-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332-.477 4.5-1.747V6.253z"/>
+                  </svg>
+                </div>
+                <span class="step-label">词汇预习</span>
+              </div>
+              <div class="flow-step">
+                <div class="step-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a5 5 0 010-7.072m2.828 9.9L9 12l-2.828 2.828m5.656-8.485a5 5 0 010 7.072M9.172 15.656a5 5 0 010-7.072M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <span class="step-label">篇章预听</span>
+              </div>
+              <div class="flow-step">
+                <div class="step-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 10v2a7 7 0 01-14 0v-2"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19v4M8 23h8"/>
+                  </svg>
+                </div>
+                <span class="step-label">影子跟读</span>
+              </div>
+              <div class="flow-step">
+                <div class="step-icon current">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012 2h2a2 2 0 012-2m-6 5l2 2 4-4"/>
+                  </svg>
+                </div>
+                <span class="step-label">篇章测试</span>
+              </div>
+            </div>
           </div>
-          
-          <div class="practice-grid">
-            <!-- 听音辨意 -->
-            <div class="practice-card" data-type="listening" onclick="startPractice('listening')">
-              <div class="practice-card-content">
-                <div class="practice-icon">
-                  <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M7 4v16a5 5 0 005 5h1a5 5 0 005-5v-2a2 2 0 00-2-2 2 2 0 00-2 2v2a1 1 0 01-1 1h-1a1 1 0 01-1-1V4a1 1 0 011-1h1a1 1 0 011 1v2h2V4a3 3 0 00-3-3h-1a3 3 0 00-3 3z"/><circle cx="12" cy="13" r="2"/>
-                  </svg>
+
+          <!-- 测试概览 -->
+          <div id="practiceTestOverview">
+            <div class="test-overview-card">
+              <div class="test-overview-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012 2h2a2 2 0 012-2m-6 5l2 2 4-4"/>
+                </svg>
+              </div>
+              <h3 class="test-overview-title">篇章测试</h3>
+              <p class="test-overview-description">
+                完成词汇预习、篇章预听和影子跟读后，进行本章的综合测试，检验学习成果。
+              </p>
+              
+              <div class="test-overview-stats">
+                <div class="stat-item">
+                  <div class="stat-value">10</div>
+                  <div class="stat-label">题目数量</div>
                 </div>
-                <h3>听音辨意</h3>
-                <p class="practice-desc">听音频选择正确含义</p>
-                <div class="practice-stats">
-                  <span class="star-rating" id="listeningStars">★★★★★</span>
-                  <span class="remaining-count" id="listeningRemaining">待强化 0 句</span>
+                <div class="stat-item">
+                  <div class="stat-value">15</div>
+                  <div class="stat-label">建议时间(分钟)</div>
                 </div>
+                <div class="stat-item">
+                  <div class="stat-value">60%</div>
+                  <div class="stat-label">及格分数</div>
+                </div>
+              </div>
+              
+              <div class="test-locked-message">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+                <span>请先完成词汇预习、篇章预听和影子跟读</span>
               </div>
             </div>
 
-            <!-- 跟读模仿 -->
-            <div class="practice-card" data-type="speaking" onclick="startPractice('speaking')">
-              <div class="practice-card-content">
-                <div class="practice-icon">
-                  <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/>
-                  </svg>
-                </div>
-                <h3>跟读模仿</h3>
-                <p class="practice-desc">跟读句子并录音</p>
-                <div class="practice-stats">
-                  <span class="star-rating" id="speakingStars">★★★★★</span>
-                  <span class="remaining-count" id="speakingRemaining">待强化 0 句</span>
-                </div>
+            <div id="testTypeSelection">
+              <h4 class="test-type-title">选择测试类型</h4>
+              <div class="test-type-buttons">
+                <button class="test-type-btn active" data-type="mixed">
+                  <span class="type-icon">📋</span>
+                  <span class="type-name">综合测试</span>
+                  <span class="type-desc">词汇+理解+听力</span>
+                </button>
+                <button class="test-type-btn" data-type="vocabulary">
+                  <span class="type-icon">📚</span>
+                  <span class="type-name">词汇测试</span>
+                  <span class="type-desc">重点词汇考察</span>
+                </button>
+                <button class="test-type-btn" data-type="comprehension">
+                  <span class="type-icon">🧠</span>
+                  <span class="type-name">理解测试</span>
+                  <span class="type-desc">文章理解能力</span>
+                </button>
+                <button class="test-type-btn" data-type="listening">
+                  <span class="type-icon">🎧</span>
+                  <span class="type-name">听力测试</span>
+                  <span class="type-desc">听力理解能力</span>
+                </button>
               </div>
             </div>
+          </div>
 
-            <!-- 补全训练 -->
-            <div class="practice-card" data-type="fillBlank" onclick="startPractice('fillBlank')">
-              <div class="practice-card-content">
-                <div class="practice-icon">
-                  <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M4 6h16M4 12h16M4 18h16"/><path d="M9 18v3M15 18v3M12 18v3M5 6V3M19 6V3"/>
-                  </svg>
+          <!-- 测试题目 -->
+          <div id="practiceTestQuestions">
+            <div class="test-progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="question-counter">
+              题目 1 / 10
+            </div>
+            
+            <div class="question-type-badge">综合测试</div>
+            
+            <h3 class="question-text">加载测试题目中...</h3>
+            
+            <div class="options-container">
+              <!-- 选项将动态生成 -->
+            </div>
+            
+            <div class="question-actions">
+              <button class="btn-submit-question" disabled>
+                下一题
+              </button>
+            </div>
+          </div>
+
+          <!-- 测试结果 -->
+          <div id="practiceTestResults">
+            <div class="test-results-card">
+              <div class="results-header">
+                <div class="results-icon passed">✓</div>
+                <h3 class="results-title">🎉 恭喜你通过了测试！</h3>
+                <div class="score-display">
+                  <div class="score-number">85</div>
+                  <div class="score-label">分</div>
                 </div>
-                <h3>补全训练</h3>
-                <p class="practice-desc">补全句中缺失单词</p>
-                <div class="practice-stats">
-                  <span class="star-rating" id="fillBlankStars">★★★★★</span>
-                  <span class="remaining-count" id="fillBlankRemaining">待强化 0 句</span>
+                <div class="score-details">
+                  <span class="correct-count">正确 8 题</span>
+                  <span class="total-count">共 10 题</span>
                 </div>
               </div>
-            </div>
 
-            <!-- 句子重组 -->
-            <div class="practice-card" data-type="ordering" onclick="startPractice('ordering')">
-              <div class="practice-card-content">
-                <div class="practice-icon">
-                  <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M17 10H3"/><path d="M21 6l-4 4 4 4"/><path d="M7 14H21"/><path d="M3 18l4-4-4-4"/>
-                  </svg>
+              <div class="results-stats">
+                <div class="result-stat">
+                  <div class="stat-label">词汇测试</div>
+                  <div class="stat-value">80%</div>
                 </div>
-                <h3>句子重组</h3>
-                <p class="practice-desc">拖拽单词组成句子</p>
-                <div class="practice-stats">
-                  <span class="star-rating" id="orderingStars">★★★★★</span>
-                  <span class="remaining-count" id="orderingRemaining">待强化 0 句</span>
+                <div class="result-stat">
+                  <div class="stat-label">理解测试</div>
+                  <div class="stat-value">90%</div>
+                </div>
+                <div class="result-stat">
+                  <div class="stat-label">听力测试</div>
+                  <div class="stat-value">85%</div>
                 </div>
               </div>
-            </div>
 
-            <!-- 翻译练习 -->
-            <div class="practice-card full-width" data-type="translation" onclick="startPractice('translation')">
-              <div class="practice-card-content">
-                <div class="practice-icon">
-                  <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12M17 20l4-4M17 20l-4-4"/>
-                  </svg>
-                </div>
-                <h3>翻译练习</h3>
-                <p class="practice-desc">中译英 / 英译中</p>
-                <div class="practice-stats">
-                  <span class="star-rating" id="translationStars">★★★★★</span>
-                  <span class="remaining-count" id="translationRemaining">待强化 0 句</span>
-                </div>
+              <div class="results-actions">
+                <button class="btn-primary" id="retakePracticeTest">
+                  重新测试
+                </button>
+                <button class="btn-secondary" onclick="window.location.hash='index.html'">
+                  返回首页
+                </button>
               </div>
             </div>
           </div>
@@ -814,10 +893,11 @@
   <script src="js/data-store.js?v=20260528"></script>
   <script src="js/user-progress.js?v=20260528"></script>
   <script src="js/course-manager.js?v=20260602-2"></script>
-  <script src="js/practice-engine.js?v=20260605-5"></script>
-  <script src="js/practice.js?v=20260605-5"></script>
-  <script src="js/vocabulary-learning.js?v=20260605-5"></script>
-  <script src="js/prelistening.js?v=20260605-5"></script>
-  <script src="js/shadowing.js?v=20260605-5"></script>
+  <script src="js/practice-engine.js?v=20260606-1"></script>
+  <script src="js/practice.js?v=20260606-1"></script>
+  <script src="js/vocabulary-learning.js?v=20260606-1"></script>
+  <script src="js/prelistening.js?v=20260606-1"></script>
+  <script src="js/shadowing.js?v=20260606-1"></script>
+  <script src="js/practice-test.js?v=20260606-1"></script>
 </body>
 </html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>影子跟读功能测试</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      padding: 20px;
+      background: #f5f7fa;
+    }
+    .test-section {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .test-result {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    button {
+      padding: 8px 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>影子跟读功能测试</h1>
+  
+  <div class="test-section">
+    <h2>测试1: 检查ShadowingManager类</h2>
+    <button onclick="testShadowingManager()">测试</button>
+    <div id="test1-result"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>测试2: 检查录音功能</h2>
+    <button onclick="testRecording()">测试</button>
+    <div id="test2-result"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>测试3: 检查学习流程进度</h2>
+    <button onclick="testLearningFlow()">测试</button>
+    <div id="test3-result"></div>
+  </div>
+
+  <script>
+    // 动态加载必要的脚本
+    const scripts = [
+      'js/course-manager.js',
+      'js/shadowing.js'
+    ];
+    
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+    
+    async function loadAllScripts() {
+      for (const src of scripts) {
+        try {
+          await loadScript(src);
+          console.log(`✅ ${src} 加载成功`);
+        } catch (error) {
+          console.error(`❌ ${src} 加载失败:`, error);
+        }
+      }
+      
+      // 加载完成后设置测试课程信息
+      if (window.CourseManager) {
+        try {
+          await CourseManager.ensureInit();
+          console.log('✅ CourseManager 初始化成功');
+        } catch (error) {
+          console.error('❌ CourseManager 初始化失败:', error);
+        }
+      }
+      
+      // 设置测试课程信息
+      window.currentCourse = {
+        bookKey: 'think-0',
+        unitKey: 'Unit 04-4 Culture',
+        title: 'Think Level 0 · Unit 4-4 Culture'
+      };
+      console.log('✅ 设置测试课程信息:', window.currentCourse);
+    }
+    
+    function showResult(elementId, message, type = 'info') {
+      const element = document.getElementById(elementId);
+      element.innerHTML = `<div class="test-result ${type}">${message}</div>`;
+    }
+    
+    function testShadowingManager() {
+      try {
+        if (typeof ShadowingManager === 'undefined') {
+          showResult('test1-result', '❌ ShadowingManager 类未定义', 'error');
+          return;
+        }
+        
+        showResult('test1-result', '✅ ShadowingManager 类已定义', 'success');
+        
+        // 测试实例化
+        const manager = new ShadowingManager();
+        showResult('test1-result', '✅ ShadowingManager 实例化成功', 'success');
+        
+        // 检查方法
+        const methods = ['init', 'loadLessonData', 'initAudioPlayer', 'initRecording', 'bindEvents', 'renderUI', 'togglePlay', 'toggleRecording'];
+        const missingMethods = methods.filter(method => typeof manager[method] !== 'function');
+        
+        if (missingMethods.length > 0) {
+          showResult('test1-result', `❌ 缺少方法: ${missingMethods.join(', ')}`, 'error');
+        } else {
+          showResult('test1-result', '✅ 所有必需方法都存在', 'success');
+        }
+        
+      } catch (error) {
+        showResult('test1-result', `❌ 测试失败: ${error.message}`, 'error');
+      }
+    }
+    
+    async function testRecording() {
+      try {
+        // 检查浏览器是否支持录音功能
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          showResult('test2-result', '❌ 浏览器不支持录音功能', 'error');
+          return;
+        }
+        
+        showResult('test2-result', '✅ 浏览器支持录音功能', 'success');
+        
+        // 测试获取麦克风权限
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          showResult('test2-result', '✅ 麦克风权限获取成功', 'success');
+          
+          // 停止所有轨道
+          stream.getTracks().forEach(track => track.stop());
+          
+        } catch (error) {
+          if (error.name === 'NotAllowedError') {
+            showResult('test2-result', '❌ 用户拒绝了麦克风权限', 'error');
+          } else if (error.name === 'NotFoundError') {
+            showResult('test2-result', '❌ 未找到麦克风设备', 'error');
+          } else {
+            showResult('test2-result', `❌ 获取麦克风权限失败: ${error.message}`, 'error');
+          }
+        }
+        
+      } catch (error) {
+        showResult('test2-result', `❌ 测试失败: ${error.message}`, 'error');
+      }
+    }
+    
+    async function testLearningFlow() {
+      try {
+        if (typeof ShadowingManager === 'undefined') {
+          showResult('test3-result', '❌ ShadowingManager 未定义', 'error');
+          return;
+        }
+        
+        // 实例化管理器
+        const manager = new ShadowingManager();
+        
+        // 测试步骤完成检查
+        const steps = ['vocabulary', 'prelistening', 'shadowing', 'practice'];
+        let canProceedResults = [];
+        
+        steps.forEach(step => {
+          const canProceed = manager.canProceedToStep(step);
+          canProceedResults.push(`${step}: ${canProceed ? '✅' : '❌'}`);
+        });
+        
+        showResult('test3-result', `
+          ✅ 学习流程前置条件检查：<br>
+          ${canProceedResults.join('<br>')}
+        `, 'success');
+        
+        // 测试更新步骤进度
+        manager.updateStepProgress('vocabulary', true, { total: 10, known: 7, unknown: 3 });
+        manager.updateStepProgress('prelistening', true, { dailyGoal: 3, todayCount: 3 });
+        
+        const canProceedToShadowing = manager.canProceedToStep('shadowing');
+        const canProceedToPractice = manager.canProceedToStep('practice');
+        
+        showResult('test3-result', `
+          ✅ 更新进度后：<br>
+          影子跟读可进行: ${canProceedToShadowing ? '✅' : '❌'}<br>
+          篇章测试可进行: ${canProceedToPractice ? '✅' : '❌'}
+        `, 'success');
+        
+        // 清理测试数据
+        const progressKey = `learning_progress_think-0_Unit 04-4 Culture`;
+        localStorage.removeItem(progressKey);
+        
+      } catch (error) {
+        showResult('test3-result', `❌ 测试失败: ${error.message}`, 'error');
+      }
+    }
+    
+    // 页面加载完成后加载脚本
+    window.addEventListener('DOMContentLoaded', loadAllScripts);
+  </script>
+</body>
+</html>
