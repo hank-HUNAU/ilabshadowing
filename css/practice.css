@@ -192,7 +192,7 @@ html, body {
 }
 
 /* 关键指标区 */
-.metrics-section, .stats-section, .course-section {
+.stats-section, .course-section {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
@@ -202,96 +202,11 @@ html, body {
   min-height: 0; /* 防止溢出 */
 }
 
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  flex: 1;
-}
-
-.metric-card {
+.progress-section {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  background: var(--bg-color);
-  border-radius: var(--radius-md);
-  text-align: center;
+  gap: 16px;
 }
-
-.metric-icon {
-  width: 40px;
-  height: 40px;
-  margin-bottom: 8px;
-  color: var(--primary-color);
-}
-
-.metric-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-}
-
-.metric-label {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-/* 题型统计网格 */
-.type-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  gap: 12px;
-  flex: 1;
-}
-
-.type-stat-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 12px;
-  background: var(--bg-color);
-  border-radius: var(--radius-md);
-  text-align: center;
-}
-
-.type-stat-icon {
-  width: 32px;
-  height: 32px;
-  margin-bottom: 6px;
-  color: var(--primary-color);
-}
-
-.type-stat-value {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 2px;
-}
-
-.type-stat-label {
-  font-size: 11px;
-  color: var(--text-secondary);
-  margin-bottom: 2px;
-}
-
-.type-stat-count {
-  font-size: 10px;
-  color: var(--text-tertiary);
-}
-
-.type-stat-card.placeholder {
-  justify-content: center;
-  align-items: center;
-  background: transparent;
-  border: 2px dashed var(--border-color);
-}
-
-.placeholder-icon {
   width: 24px;
   height: 24px;
   margin-bottom: 4px;
@@ -1433,5 +1348,441 @@ html, body {
   
   .session-content {
     padding: 24px 16px;
+  }
+}
+
+/* ====================================
+   优化组件样式
+   ==================================== */
+
+/* 学习流程进度指示器 */
+.learning-flow-progress {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.flow-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  color: var(--text-primary);
+}
+
+.flow-steps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.flow-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.flow-step:hover {
+  background: rgba(0, 122, 255, 0.05);
+  transform: translateX(4px);
+}
+
+.step-indicator {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card-bg);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.step-icon {
+  font-size: 24px;
+  z-index: 1;
+}
+
+.step-status {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--border-color);
+  border: 2px solid var(--card-bg);
+  z-index: 2;
+}
+
+.step-status.completed {
+  background: var(--success-color);
+}
+
+.step-status.in-progress {
+  background: var(--warning-color);
+}
+
+.step-status.pending {
+  background: var(--border-color);
+}
+
+.step-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.step-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.step-progress {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* 每日学习目标 */
+.daily-goals {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.goals-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  color: var(--text-primary);
+}
+
+.goals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.goal-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-color);
+  border-radius: var(--radius-md);
+}
+
+.goal-icon {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card-bg);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.goal-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.goal-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.goal-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(0, 122, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--primary-color);
+  border-radius: 3px;
+  transition: width var(--transition-normal);
+}
+
+.goal-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  min-width: 60px;
+  text-align: right;
+}
+
+/* 环形进度图 */
+.circular-progress-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.circular-progress {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.progress-ring {
+  transform: rotate(-90deg);
+}
+
+.progress-ring-circle-bg {
+  fill: transparent;
+  stroke: rgba(0, 122, 255, 0.1);
+  stroke-width: 8;
+}
+
+.progress-ring-circle {
+  fill: transparent;
+  stroke: var(--primary-color);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 314.159;
+  stroke-dashoffset: 314.159;
+  transition: stroke-dashoffset var(--transition-normal);
+}
+
+.progress-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.progress-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary-color);
+  line-height: 1;
+}
+
+.progress-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* 统计卡片网格 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all var(--transition-fast);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.stat-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* 快捷操作 */
+.quick-actions {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-top: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.actions-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  color: var(--text-primary);
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+  background: var(--bg-color);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.action-btn:hover {
+  background: rgba(0, 122, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+.action-icon {
+  font-size: 28px;
+}
+
+.action-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .flow-step {
+    padding: 10px;
+  }
+  
+  .step-indicator {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .step-icon {
+    font-size: 20px;
+  }
+  
+  .step-status {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .step-name {
+    font-size: 13px;
+  }
+  
+  .step-progress {
+    font-size: 11px;
+  }
+  
+  .goal-item {
+    padding: 10px;
+  }
+  
+  .goal-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+  
+  .circular-progress {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .progress-value {
+    font-size: 20px;
+  }
+  
+  .progress-label {
+    font-size: 11px;
+  }
+  
+  .stat-card {
+    padding: 12px;
+  }
+  
+  .stat-icon {
+    font-size: 20px;
+  }
+  
+  .stat-value {
+    font-size: 18px;
+  }
+  
+  .action-btn {
+    padding: 12px 8px;
+  }
+  
+  .action-icon {
+    font-size: 24px;
+  }
+  
+  .action-text {
+    font-size: 12px;
+  }
+}
+
+/* 小屏幕进一步优化 */
+@media (max-width: 480px) {
+  .flow-steps-container {
+    gap: 8px;
+  }
+  
+  .flow-step {
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .goal-item {
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .stats-grid {
+    gap: 8px;
+  }
+  
+  .actions-grid {
+    gap: 8px;
+  }
+  
+  .action-btn {
+    padding: 10px 6px;
   }
 }

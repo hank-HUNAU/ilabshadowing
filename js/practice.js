@@ -391,6 +391,9 @@ async function initPracticePage() {
 
   // 加载统计数据
   loadStatistics();
+
+  // 初始化进度显示
+  initProgressDisplay();
 }
 
 /**
@@ -500,3 +503,200 @@ if (document.readyState === 'loading') {
 } else {
   initPracticePage();
 }
+
+/**
+ * 更新学习流程进度
+ */
+window.updateLearningFlowProgress = function() {
+  if (!window.currentCourse) return;
+
+  const courseId = window.currentCourse.id;
+  const progressKey = `learning_progress_${courseId}`;
+  const progressData = JSON.parse(localStorage.getItem(progressKey) || '{}');
+
+  const steps = [
+    { id: 'vocabulary', label: '词汇预习' },
+    { id: 'prelistening', label: '篇章预听' },
+    { id: 'shadowing', label: '影子跟读' },
+    { id: 'practice', label: '篇章测试' }
+  ];
+
+  steps.forEach(step => {
+    const stepStatusEl = document.getElementById(`${step.id}StepStatus`);
+    const stepProgressEl = document.getElementById(`${step.id}StepProgress`);
+    
+    if (stepStatusEl && stepProgressEl) {
+      const stepData = progressData[step.id] || {};
+      const completed = stepData.completed || false;
+      const progress = stepData.progress || 0;
+
+      // 更新状态指示器
+      stepStatusEl.className = 'step-status';
+      if (completed) {
+        stepStatusEl.classList.add('completed');
+      } else if (progress > 0) {
+        stepStatusEl.classList.add('in-progress');
+      } else {
+        stepStatusEl.classList.add('pending');
+      }
+
+      // 更新进度文字
+      stepProgressEl.textContent = `${Math.round(progress)}%`;
+    }
+  });
+};
+
+/**
+ * 更新环形进度图
+ */
+window.updateCircularProgress = function(percentage) {
+  const progressRing = document.getElementById('overallProgressRing');
+  const progressValue = document.getElementById('overallProgressValue');
+  
+  if (progressRing && progressValue) {
+    const radius = 50;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (percentage / 100) * circumference;
+    
+    progressRing.style.strokeDasharray = circumference;
+    progressRing.style.strokeDashoffset = offset;
+    progressValue.textContent = `${Math.round(percentage)}%`;
+  }
+};
+
+/**
+ * 更新每日学习目标
+ */
+window.updateDailyGoals = function() {
+  const today = new Date().toISOString().split('T')[0];
+  const goalsKey = `daily_goals_${today}`;
+  const goalsData = JSON.parse(localStorage.getItem(goalsKey) || '{}');
+
+  // 词汇学习目标
+  const vocabularyGoal = 20;
+  const vocabularyLearned = goalsData.vocabularyLearned || 0;
+  const vocabularyProgress = Math.min((vocabularyLearned / vocabularyGoal) * 100, 100);
+  
+  const vocabularyProgressFill = document.getElementById('vocabularyGoalProgress');
+  const vocabularyGoalText = document.getElementById('vocabularyGoalText');
+  
+  if (vocabularyProgressFill && vocabularyGoalText) {
+    vocabularyProgressFill.style.width = `${vocabularyProgress}%`;
+    vocabularyGoalText.textContent = `${vocabularyLearned}/${vocabularyGoal} 词`;
+  }
+
+  // 学习时长目标
+  const timeGoal = 30; // 分钟
+  const timeSpent = goalsData.timeSpent || 0;
+  const timeProgress = Math.min((timeSpent / timeGoal) * 100, 100);
+  
+  const timeProgressFill = document.getElementById('timeGoalProgress');
+  const timeGoalText = document.getElementById('timeGoalText');
+  
+  if (timeProgressFill && timeGoalText) {
+    timeProgressFill.style.width = `${timeProgress}%`;
+    timeGoalText.textContent = `${timeSpent}/${timeGoal} 分钟`;
+  }
+
+  // 测试完成目标
+  const testGoal = 1;
+  const testsCompleted = goalsData.testsCompleted || 0;
+  const testProgress = Math.min((testsCompleted / testGoal) * 100, 100);
+  
+  const testProgressFill = document.getElementById('testGoalProgress');
+  const testGoalText = document.getElementById('testGoalText');
+  
+  if (testProgressFill && testGoalText) {
+    testProgressFill.style.width = `${testProgress}%`;
+    testGoalText.textContent = `${testsCompleted}/${testGoal} 测试`;
+  }
+};
+
+/**
+ * 更新学习统计
+ */
+window.updateLearningStats = function() {
+  const statsKey = 'learning_stats';
+  const statsData = JSON.parse(localStorage.getItem(statsKey) || '{}');
+
+  // 累计学习时间
+  const totalTime = statsData.totalTime || 0;
+  const totalHours = Math.floor(totalTime / 60);
+  const totalMinutes = totalTime % 60;
+  const timeText = totalHours > 0 ? `${totalHours}h ${totalMinutes}m` : `${totalMinutes}m`;
+  
+  const totalTimeEl = document.getElementById('totalLearningTime');
+  if (totalTimeEl) {
+    totalTimeEl.textContent = timeText;
+  }
+
+  // 连续学习天数
+  const streakDays = statsData.streakDays || 0;
+  const streakDaysEl = document.getElementById('streakDays');
+  if (streakDaysEl) {
+    streakDaysEl.textContent = `${streakDays} 天`;
+  }
+
+  // 已掌握课程
+  const masteredCourses = statsData.masteredCourses || 0;
+  const masteredCoursesEl = document.getElementById('masteredCourses');
+  if (masteredCoursesEl) {
+    masteredCoursesEl.textContent = `${masteredCourses} 课`;
+  }
+
+  // 词汇量
+  const totalWords = statsData.totalWords || 0;
+  const totalWordsEl = document.getElementById('totalWords');
+  if (totalWordsEl) {
+    totalWordsEl.textContent = `${totalWords} 词`;
+  }
+
+  // 计算总体进度
+  const totalProgress = statsData.totalProgress || 0;
+  updateCircularProgress(totalProgress);
+};
+
+/**
+ * 初始化所有进度显示
+ */
+window.initProgressDisplay = function() {
+  updateLearningFlowProgress();
+  updateDailyGoals();
+  updateLearningStats();
+};
+
+/**
+ * 记录学习活动
+ */
+window.recordLearningActivity = function(type, amount = 1) {
+  const today = new Date().toISOString().split('T')[0];
+  const goalsKey = `daily_goals_${today}`;
+  const goalsData = JSON.parse(localStorage.getItem(goalsKey) || '{}');
+
+  switch (type) {
+    case 'vocabulary':
+      goalsData.vocabularyLearned = (goalsData.vocabularyLearned || 0) + amount;
+      break;
+    case 'time':
+      goalsData.timeSpent = (goalsData.timeSpent || 0) + amount;
+      break;
+    case 'test':
+      goalsData.testsCompleted = (goalsData.testsCompleted || 0) + amount;
+      break;
+  }
+
+  localStorage.setItem(goalsKey, JSON.stringify(goalsData));
+  updateDailyGoals();
+};
+
+/**
+ * 记录总体统计
+ */
+window.recordOverallStats = function(stats) {
+  const statsKey = 'learning_stats';
+  const statsData = JSON.parse(localStorage.getItem(statsKey) || {});
+
+  Object.assign(statsData, stats);
+  localStorage.setItem(statsKey, JSON.stringify(statsData));
+  updateLearningStats();
+};

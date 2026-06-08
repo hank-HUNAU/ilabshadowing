@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务器诊断页面</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        .diagnostic-card {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .status-success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .test-link {
+            display: inline-block;
+            margin: 10px 5px;
+            padding: 10px 20px;
+            background: #007aff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .test-link:hover {
+            background: #0056b3;
+        }
+        .timestamp {
+            color: #6c757d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagnostic-card">
+        <h1>🔧 服务器诊断页面</h1>
+        <p class="timestamp">页面加载时间: <span id="loadTime"></span></p>
+        
+        <h2>✅ 服务器状态</h2>
+        <p>状态: <span class="status-success">正常运行</span></p>
+        <p>服务器: http-server (Node.js)</p>
+        <p>端口: 8080</p>
+        <p>目录: /workspace</p>
+    </div>
+
+    <div class="diagnostic-card">
+        <h2>🧪 测试链接</h2>
+        <div>
+            <a href="/practice.html" class="test-link">practice.html</a>
+            <a href="/test_complete_workflow.html" class="test-link">完整流程测试</a>
+            <a href="/simple-test.html" class="test-link">简单测试</a>
+        </div>
+    </div>
+
+    <div class="diagnostic-card">
+        <h2>📊 诊断信息</h2>
+        <div id="diagnostics">
+            <p>正在检查系统...</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loadTime').textContent = new Date().toLocaleString('zh-CN');
+        
+        function runDiagnostics() {
+            const diagnostics = document.getElementById('diagnostics');
+            let html = '<ul style="list-style: none; padding: 0;">';
+            
+            const tests = [
+                { name: '页面访问', url: '/practice.html', method: 'fetch' },
+                { name: 'CSS文件', url: '/css/vocabulary.css', method: 'fetch' },
+                { name: 'JS文件', url: '/js/vocabulary-learning.js', method: 'fetch' },
+                { name: '测试页面', url: '/test_complete_workflow.html', method: 'fetch' }
+            ];
+            
+            let completedTests = 0;
+            
+            tests.forEach(test => {
+                fetch(test.url, { method: 'HEAD' })
+                    .then(response => {
+                        const statusClass = response.ok ? 'status-success' : 'status-error';
+                        const statusText = response.ok ? '✅ 成功' : '❌ 失败';
+                        html += `<li><strong>${test.name}:</strong> <span class="${statusClass}">${statusText}</span> (${response.status})</li>`;
+                        
+                        completedTests++;
+                        if (completedTests === tests.length) {
+                            html += '</ul>';
+                            diagnostics.innerHTML = html;
+                        }
+                    })
+                    .catch(error => {
+                        html += `<li><strong>${test.name}:</strong> <span class="status-error">❌ 错误: ${error.message}</span></li>`;
+                        
+                        completedTests++;
+                        if (completedTests === tests.length) {
+                            html += '</ul>';
+                            diagnostics.innerHTML = html;
+                        }
+                    });
+            });
+        }
+        
+        setTimeout(runDiagnostics, 100);
+    </script>
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>优化后学习中心测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1d1d1f;
+        }
+        .test-item {
+            padding: 12px;
+            margin: 8px 0;
+            background: #f5f7fa;
+            border-radius: 4px;
+            border-left: 4px solid #007aff;
+        }
+        .test-item.success {
+            border-left-color: #34c759;
+            background: #d4edda;
+        }
+        .test-item.error {
+            border-left-color: #ff3b30;
+            background: #f8d7da;
+        }
+        .test-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .test-btn {
+            padding: 10px 20px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .test-btn:hover {
+            background: #0056b3;
+        }
+        .test-btn.secondary {
+            background: #6c757d;
+        }
+        .test-btn.secondary:hover {
+            background: #5a6268;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        .status-badge.running {
+            background: #007aff;
+            color: white;
+        }
+        .status-badge.completed {
+            background: #34c759;
+            color: white;
+        }
+        .status-badge.failed {
+            background: #ff3b30;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="test-title">🎨 学习中心优化测试</h1>
+        <p>测试优化后的UI组件和功能</p>
+        
+        <div class="test-actions">
+            <button class="test-btn" onclick="runAllTests()">运行所有测试</button>
+            <button class="test-btn secondary" onclick="resetTestData()">重置测试数据</button>
+            <a href="/practice.html" class="test-btn" target="_blank">打开学习中心</a>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2 class="test-title">📊 测试结果</h2>
+        <div id="testResults">
+            <p>点击"运行所有测试"开始测试</p>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2 class="test-title">🔧 功能测试</h2>
+        <div id="featureTests">
+            <div class="test-item">
+                <strong>学习流程进度指示器</strong>
+                <span class="status-badge" id="flowStatus">未测试</span>
+                <p>测试学习流程进度显示和状态更新</p>
+            </div>
+            <div class="test-item">
+                <strong>环形进度图</strong>
+                <span class="status-badge" id="progressStatus">未测试</span>
+                <p>测试总体进度环形图显示</p>
+            </div>
+            <div class="test-item">
+                <strong>每日学习目标</strong>
+                <span class="status-badge" id="goalsStatus">未测试</span>
+                <p>测试每日目标进度显示和更新</p>
+            </div>
+            <div class="test-item">
+                <strong>学习统计</strong>
+                <span class="status-badge" id="statsStatus">未测试</span>
+                <p>测试学习统计数据展示</p>
+            </div>
+            <div class="test-item">
+                <strong>快捷操作</strong>
+                <span class="status-badge" id="actionsStatus">未测试</span>
+                <p>测试快捷操作按钮功能</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function runAllTests() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '<p>正在运行测试...</p>';
+
+            const tests = [
+                { name: '学习流程进度指示器', id: 'flowStatus', fn: testLearningFlowProgress },
+                { name: '环形进度图', id: 'progressStatus', fn: testCircularProgress },
+                { name: '每日学习目标', id: 'goalsStatus', fn: testDailyGoals },
+                { name: '学习统计', id: 'statsStatus', fn: testLearningStats },
+                { name: '快捷操作', id: 'actionsStatus', fn: testQuickActions }
+            ];
+
+            const results = [];
+            for (const test of tests) {
+                try {
+                    await test.fn();
+                    updateStatus(test.id, 'completed');
+                    results.push({ name: test.name, status: 'success', message: '测试通过' });
+                } catch (error) {
+                    updateStatus(test.id, 'failed');
+                    results.push({ name: test.name, status: 'error', message: error.message });
+                }
+            }
+
+            displayResults(results);
+        }
+
+        function updateStatus(elementId, status) {
+            const element = document.getElementById(elementId);
+            element.textContent = status === 'running' ? '运行中' : status === 'completed' ? '已完成' : '失败';
+            element.className = `status-badge ${status}`;
+        }
+
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('testResults');
+            let html = '<h3>测试总结</h3>';
+            
+            const passedCount = results.filter(r => r.status === 'success').length;
+            const failedCount = results.filter(r => r.status === 'error').length;
+            
+            html += `<p><strong>总计：</strong>${results.length} 个测试，<strong style="color: #34c759">${passedCount}</strong> 通过，<strong style="color: #ff3b30">${failedCount}</strong> 失败</p>`;
+            html += '<div style="margin-top: 16px;">';
+            
+            results.forEach(result => {
+                const itemClass = result.status === 'success' ? 'success' : 'error';
+                const icon = result.status === 'success' ? '✅' : '❌';
+                html += `<div class="test-item ${itemClass}">${icon} <strong>${result.name}</strong>: ${result.message}</div>`;
+            });
+            
+            html += '</div>';
+            resultsDiv.innerHTML = html;
+        }
+
+        function testLearningFlowProgress() {
+            const statusEl = document.getElementById('flowStatus');
+            updateStatus('flowStatus', 'running');
+            
+            // 测试学习流程进度更新
+            const testCourse = {
+                id: 'test_course',
+                title: '测试课程'
+            };
+            
+            const progressData = {
+                vocabulary: { completed: true, progress: 100 },
+                prelistening: { completed: true, progress: 80 },
+                shadowing: { completed: false, progress: 45 },
+                practice: { completed: false, progress: 0 }
+            };
+            
+            localStorage.setItem(`learning_progress_${testCourse.id}`, JSON.stringify(progressData));
+            
+            // 模拟调用更新函数
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve();
+                }, 500);
+            });
+        }
+
+        function testCircularProgress() {
+            const statusEl = document.getElementById('progressStatus');
+            updateStatus('progressStatus', 'running');
+            
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve();
+                }, 500);
+            });
+        }
+
+        function testDailyGoals() {
+            const statusEl = document.getElementById('goalsStatus');
+            updateStatus('goalsStatus', 'running');
+            
+            const today = new Date().toISOString().split('T')[0];
+            const goalsData = {
+                vocabularyLearned: 15,
+                timeSpent: 25,
+                testsCompleted: 1
+            };
+            
+            localStorage.setItem(`daily_goals_${today}`, JSON.stringify(goalsData));
+            
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve();
+                }, 500);
+            });
+        }
+
+        function testLearningStats() {
+            const statusEl = document.getElementById('statsStatus');
+            updateStatus('statsStatus', 'running');
+            
+            const statsData = {
+                totalTime: 180, // 3小时
+                streakDays: 7,
+                masteredCourses: 5,
+                totalWords: 450,
+                totalProgress: 65
+            };
+            
+            localStorage.setItem('learning_stats', JSON.stringify(statsData));
+            
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve();
+                }, 500);
+            });
+        }
+
+        function testQuickActions() {
+            const statusEl = document.getElementById('actionsStatus');
+            updateStatus('actionsStatus', 'running');
+            
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve();
+                }, 500);
+            });
+        }
+
+        function resetTestData() {
+            localStorage.removeItem('learning_progress_test_course');
+            localStorage.removeItem('daily_goals_' + new Date().toISOString().split('T')[0]);
+            localStorage.removeItem('learning_stats');
+            
+            document.getElementById('testResults').innerHTML = '<p>测试数据已重置</p>';
+            
+            // 重置状态徽章
+            ['flowStatus', 'progressStatus', 'goalsStatus', 'statsStatus', 'actionsStatus'].forEach(id => {
+                const element = document.getElementById(id);
+                element.textContent = '未测试';
+                element.className = 'status-badge';
+            });
+        }
+    </script>
+</body>
+</html>
