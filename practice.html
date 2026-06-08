@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#007aff">
   <title>学习中心 - Hankilab 学习中心</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="stylesheet" href="css/style.css?v=20260608-1">
-  <link rel="stylesheet" href="css/practice.css?v=20260608-1">
+  <link rel="stylesheet" href="css/style.css?v=20260608-2">
+  <link rel="stylesheet" href="css/practice.css?v=20260608-2">
   <link rel="stylesheet" href="css/vocabulary.css?v=20260606-1">
   <link rel="stylesheet" href="css/prelistening.css?v=20260606-1">
   <link rel="stylesheet" href="css/shadowing.css?v=20260606-1">
@@ -36,49 +36,36 @@
     <!-- Tab 切换栏（固定 50px） -->
     <div class="tab-bar">
       <button class="tab-item active" data-tab="overview" onclick="switchTab('overview')">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 3v18M6 14v4M12 10v8M24 6v12"/><path d="M8 13l3 3 5-6"/>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 3v18h18"/><path d="M3 9h18"/><path d="M9 21V9"/>
         </svg>
         学习概览
       </button>
       <button class="tab-item" data-tab="vocabulary" onclick="switchTab('vocabulary')">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+          <path d="M12 6v2"/><path d="M12 10v2"/><path d="M12 14v2"/>
         </svg>
-        词汇预习
+        词汇学习
       </button>
-      <button class="tab-item" data-tab="prelistening" onclick="switchTab('prelistening')">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+      <button class="tab-item" data-tab="listening" onclick="switchTab('listening')">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M9 18V5l12-2v13"/>
           <circle cx="6" cy="18" r="3"/>
           <circle cx="18" cy="16" r="3"/>
-        </svg>
-        篇章预听
-      </button>
-      <button class="tab-item" data-tab="shadowing" onclick="switchTab('shadowing')">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/>
-          <path d="M19 10v2a7 7 0 01-14 0v-2"/>
-          <path d="M12 19v4M8 23h8"/>
         </svg>
-        影子跟读
-      </button>
-      <button class="tab-item" data-tab="review" onclick="switchTab('review')">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M1 4v6h6"/>
-          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
-        </svg>
-        词汇复习
+        篇章学习
       </button>
       <button class="tab-item" data-tab="practice" onclick="switchTab('practice')">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
         </svg>
-        篇章测试
+        测试评估
       </button>
       <button class="tab-item" data-tab="course" onclick="switchTab('course')">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h11z"/>
         </svg>
         课程详情
@@ -96,16 +83,25 @@
             
             <!-- 学习流程进度指示器 -->
             <div class="learning-flow-progress">
-              <h3 class="flow-title">今日学习流程</h3>
+              <div class="flow-header">
+                <h3 class="flow-title">📚 今日学习流程</h3>
+                <div class="learning-timer" id="learningTimer">
+                  <span class="timer-icon">⏱️</span>
+                  <span class="timer-value" id="timerValue">00:00</span>
+                </div>
+              </div>
+              
               <div class="flow-steps-container">
-                <div class="flow-step" data-step="vocabulary" onclick="switchTab('vocabulary')">
+                <div class="flow-step recommended" data-step="vocabulary" onclick="switchTab('vocabulary')">
+                  <div class="step-recommendation">推荐</div>
                   <div class="step-indicator">
                     <div class="step-icon">📝</div>
                     <div class="step-status" id="vocabularyStepStatus">pending</div>
                   </div>
                   <div class="step-content">
-                    <div class="step-name">词汇预习</div>
+                    <div class="step-name">词汇学习</div>
                     <div class="step-progress" id="vocabularyStepProgress">0%</div>
+                    <div class="step-arrow">→</div>
                   </div>
                 </div>
                 <div class="flow-step" data-step="prelistening" onclick="switchTab('prelistening')">
@@ -116,6 +112,7 @@
                   <div class="step-content">
                     <div class="step-name">篇章预听</div>
                     <div class="step-progress" id="prelisteningStepProgress">0%</div>
+                    <div class="step-arrow">→</div>
                   </div>
                 </div>
                 <div class="flow-step" data-step="shadowing" onclick="switchTab('shadowing')">
@@ -126,6 +123,7 @@
                   <div class="step-content">
                     <div class="step-name">影子跟读</div>
                     <div class="step-progress" id="shadowingStepProgress">0%</div>
+                    <div class="step-arrow">→</div>
                   </div>
                 </div>
                 <div class="flow-step" data-step="practice" onclick="switchTab('practice')">
@@ -139,16 +137,50 @@
                   </div>
                 </div>
               </div>
+              
+              <div class="flow-footer">
+                <div class="flow-summary">
+                  <span class="summary-icon">🎯</span>
+                  <span class="summary-text">完成所有步骤可获得额外奖励</span>
+                </div>
+              </div>
             </div>
 
             <!-- 今日学习目标 -->
             <div class="daily-goals">
-              <h3 class="goals-title">🎯 今日学习目标</h3>
+              <div class="goals-header">
+                <h3 class="goals-title">🎯 今日学习目标</h3>
+                <div class="goals-reward">
+                  <span class="reward-icon">🏆</span>
+                  <span class="reward-text">+50积分</span>
+                </div>
+              </div>
+              
+              <div class="goals-progress-overview">
+                <div class="overview-circular">
+                  <div class="overview-progress" id="goalsOverviewProgress">0%</div>
+                  <div class="overview-label">目标完成</div>
+                </div>
+                <div class="overview-stats">
+                  <div class="stat-item">
+                    <span class="stat-label">已完成</span>
+                    <span class="stat-value" id="goalsCompleted">0/3</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">连续天数</span>
+                    <span class="stat-value" id="streakCount">0天</span>
+                  </div>
+                </div>
+              </div>
+              
               <div class="goals-list">
                 <div class="goal-item">
                   <div class="goal-icon">📚</div>
                   <div class="goal-content">
-                    <div class="goal-name">词汇学习</div>
+                    <div class="goal-header">
+                      <div class="goal-name">词汇学习</div>
+                      <div class="goal-badge" id="vocabularyGoalBadge">待完成</div>
+                    </div>
                     <div class="goal-progress">
                       <div class="progress-bar">
                         <div class="progress-fill" id="vocabularyGoalProgress" style="width: 0%"></div>
@@ -160,7 +192,10 @@
                 <div class="goal-item">
                   <div class="goal-icon">⏱️</div>
                   <div class="goal-content">
-                    <div class="goal-name">学习时长</div>
+                    <div class="goal-header">
+                      <div class="goal-name">学习时长</div>
+                      <div class="goal-badge" id="timeGoalBadge">待完成</div>
+                    </div>
                     <div class="goal-progress">
                       <div class="progress-bar">
                         <div class="progress-fill" id="timeGoalProgress" style="width: 0%"></div>
@@ -172,7 +207,10 @@
                 <div class="goal-item">
                   <div class="goal-icon">✅</div>
                   <div class="goal-content">
-                    <div class="goal-name">完成测试</div>
+                    <div class="goal-header">
+                      <div class="goal-name">完成测试</div>
+                      <div class="goal-badge" id="testGoalBadge">待完成</div>
+                    </div>
                     <div class="goal-progress">
                       <div class="progress-bar">
                         <div class="progress-fill" id="testGoalProgress" style="width: 0%"></div>
@@ -261,24 +299,31 @@
 
             <!-- 快捷操作 -->
             <div class="quick-actions">
-              <h3 class="actions-title">⚡ 快捷操作</h3>
+              <h3 class="actions-title">⚡ 推荐学习</h3>
               <div class="actions-grid">
-                <button class="action-btn" onclick="switchTab('vocabulary')">
+                <button class="action-btn primary" onclick="continueLearning('vocabulary')">
                   <span class="action-icon">📝</span>
                   <span class="action-text">继续词汇</span>
+                  <span class="action-badge" id="vocabularyActionBadge">NEW</span>
                 </button>
-                <button class="action-btn" onclick="switchTab('prelistening')">
+                <button class="action-btn" onclick="continueLearning('prelistening')">
                   <span class="action-icon">🎧</span>
-                  <span class="action-text">开始预听</span>
+                  <span class="action-text">篇章预听</span>
                 </button>
-                <button class="action-btn" onclick="switchTab('shadowing')">
+                <button class="action-btn" onclick="continueLearning('shadowing')">
                   <span class="action-icon">🎙️</span>
                   <span class="action-text">影子跟读</span>
                 </button>
-                <button class="action-btn" onclick="switchTab('practice')">
+                <button class="action-btn" onclick="continueLearning('practice')">
                   <span class="action-icon">📊</span>
                   <span class="action-text">进行测试</span>
+                  <span class="action-badge" id="testActionBadge" style="display: none;">READY</span>
                 </button>
+              </div>
+              
+              <div class="learning-tip">
+                <span class="tip-icon">💡</span>
+                <span class="tip-text" id="learningTip">完成今日学习目标可获得双倍积分奖励</span>
               </div>
             </div>
           </div>

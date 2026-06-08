@@ -9,6 +9,17 @@ window.currentCourse = null;
 window.allCourses = [];
 window.currentPage = 1;
 window.totalPages = 1;
+window.learningStartTime = null;
+window.timerInterval = null;
+window.learningTips = [
+  "完成今日学习目标可获得双倍积分奖励",
+  "建议每天学习30分钟，效果最佳",
+  "连续学习7天可获得特殊徽章",
+  "词汇学习建议使用间隔重复法",
+  "影子跟读能有效提升发音和听力",
+  "定期测试可以检验学习效果"
+];
+window.currentTipIndex = 0;
 
 /**
  * Tab 切换
@@ -23,6 +34,11 @@ window.switchTab = function(tabName) {
   document.querySelectorAll('.tab-panel').forEach(panel => {
     panel.classList.toggle('active', panel.id === `tab-${tabName}`);
   });
+
+  // 处理篇章学习Tab的特殊逻辑
+  if (tabName === 'listening') {
+    handleListeningTab();
+  }
 
   // 控制底部翻页器显示
   const pager = document.getElementById('bottomPager');
@@ -43,11 +59,69 @@ window.switchTab = function(tabName) {
 
   // 切换到篇章预听 Tab 时加载预听数据
   if (tabName === 'prelistening' && window.prelisteningManager) {
-    // 确保PrelisteningManager已初始化
     window.prelisteningManager.init().catch(error => {
       console.error('[PracticePage] 初始化PrelisteningManager失败:', error);
     });
   }
+
+  // 切换到影子跟读 Tab 时加载跟读数据
+  if (tabName === 'shadowing' && window.shadowingManager) {
+    window.shadowingManager.init().catch(error => {
+      console.error('[PracticePage] 初始化ShadowingManager失败:', error);
+    });
+  }
+
+  // 切换到篇章测试 Tab 时加载测试数据
+  if (tabName === 'practice' && window.practiceTestManager) {
+    window.practiceTestManager.init().catch(error => {
+      console.error('[PracticePage] 初始化PracticeTestManager失败:', error);
+    });
+  }
+
+  // 保存当前 Tab 状态
+  localStorage.setItem('practice_active_tab', tabName);
+};
+
+/**
+ * 处理篇章学习Tab切换
+ */
+function handleListeningTab() {
+  if (!window.currentCourse) return;
+  
+  const courseId = window.currentCourse.id;
+  const progressKey = `learning_progress_${courseId}`;
+  const progressData = JSON.parse(localStorage.getItem(progressKey) || '{}');
+  
+  const prelisteningData = progressData.prelistening || {};
+  const shadowingData = progressData.shadowing || {};
+  
+  // 根据进度决定显示预听还是跟读
+  let targetTab = 'prelistening';
+  
+  if (prelisteningData.completed || prelisteningData.progress >= 80) {
+    // 预听已完成，显示跟读
+    targetTab = 'shadowing';
+  }
+  
+  // 更新实际的Tab面板显示
+  document.querySelectorAll('.tab-panel').forEach(panel => {
+    panel.classList.remove('active');
+    if (panel.id === `tab-${targetTab}`) {
+      panel.classList.add('active');
+    }
+  });
+  
+  // 初始化对应的管理器
+  if (targetTab === 'prelistening' && window.prelisteningManager) {
+    window.prelisteningManager.init().catch(error => {
+      console.error('[PracticePage] 初始化PrelisteningManager失败:', error);
+    });
+  } else if (targetTab === 'shadowing' && window.shadowingManager) {
+    window.shadowingManager.init().catch(error => {
+      console.error('[PracticePage] 初始化ShadowingManager失败:', error);
+    });
+  }
+}
 
   // 切换到影子跟读 Tab 时加载跟读数据
   if (tabName === 'shadowing' && window.shadowingManager) {
@@ -505,6 +579,233 @@ if (document.readyState === 'loading') {
 }
 
 /**
+ * 初始化学习计时器
+ */
+window.startLearningTimer = function() {
+  if (window.timerInterval) {
+    clearInterval(window.timerInterval);
+  }
+  
+  window.learningStartTime = Date.now();
+  
+  window.timerInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - window.learningStartTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    
+    const timerValue = document.getElementById('timerValue');
+    if (timerValue) {
+      timerValue.textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    // 每分钟记录一次学习时间
+    if (elapsed % 60 === 0 && elapsed > 0) {
+      recordLearningActivity('time', 1);
+    }
+  }, 1000);
+};
+
+/**
+ * 停止学习计时器
+ */
+window.stopLearningTimer = function() {
+  if (window.timerInterval) {
+    clearInterval(window.timerInterval);
+    window.timerInterval = null;
+  }
+};
+
+/**
+ * 更新推荐步骤
+ */
+window.updateRecommendedStep = function() {
+  if (!window.currentCourse) return;
+
+  const courseId = window.currentCourse.id;
+  const progressKey = `learning_progress_${courseId}`;
+  const progressData = JSON.parse(localStorage.getItem(progressKey) || '{}');
+
+  const steps = [
+    { id: 'vocabulary', elementId: 'vocabularyStepStatus' },
+    { id: 'prelistening', elementId: 'prelisteningStepStatus' },
+    { id: 'shadowing', elementId: 'shadowingStepStatus' },
+    { id: 'practice', elementId: 'practiceStepStatus' }
+  ];
+
+  let recommendedStep = null;
+  
+  // 找到第一个未完成的步骤作为推荐步骤
+  for (const step of steps) {
+    const stepData = progressData[step.id] || {};
+    if (!stepData.completed) {
+      recommendedStep = step.id;
+      break;
+    }
+  }
+
+  // 更新UI显示推荐步骤
+  document.querySelectorAll('.flow-step').forEach(step => {
+    step.classList.remove('recommended');
+    if (step.dataset.step === recommendedStep) {
+      step.classList.add('recommended');
+    }
+  });
+};
+
+/**
+ * 更新每日目标徽章
+ */
+window.updateGoalBadges = function() {
+  const today = new Date().toISOString().split('T')[0];
+  const goalsKey = `daily_goals_${today}`;
+  const goalsData = JSON.parse(localStorage.getItem(goalsKey) || '{}');
+
+  // 词汇学习目标
+  const vocabularyGoal = 20;
+  const vocabularyLearned = goalsData.vocabularyLearned || 0;
+  const vocabularyBadge = document.getElementById('vocabularyGoalBadge');
+  if (vocabularyBadge) {
+    if (vocabularyLearned >= vocabularyGoal) {
+      vocabularyBadge.textContent = '已完成';
+      vocabularyBadge.className = 'goal-badge completed';
+    } else if (vocabularyLearned > 0) {
+      vocabularyBadge.textContent = '进行中';
+      vocabularyBadge.className = 'goal-badge in-progress';
+    } else {
+      vocabularyBadge.textContent = '待完成';
+      vocabularyBadge.className = 'goal-badge';
+    }
+  }
+
+  // 学习时长目标
+  const timeGoal = 30;
+  const timeSpent = goalsData.timeSpent || 0;
+  const timeBadge = document.getElementById('timeGoalBadge');
+  if (timeBadge) {
+    if (timeSpent >= timeGoal) {
+      timeBadge.textContent = '已完成';
+      timeBadge.className = 'goal-badge completed';
+    } else if (timeSpent > 0) {
+      timeBadge.textContent = '进行中';
+      timeBadge.className = 'goal-badge in-progress';
+    } else {
+      timeBadge.textContent = '待完成';
+      timeBadge.className = 'goal-badge';
+    }
+  }
+
+  // 测试完成目标
+  const testGoal = 1;
+  const testsCompleted = goalsData.testsCompleted || 0;
+  const testBadge = document.getElementById('testGoalBadge');
+  if (testBadge) {
+    if (testsCompleted >= testGoal) {
+      testBadge.textContent = '已完成';
+      testBadge.className = 'goal-badge completed';
+    } else if (testsCompleted > 0) {
+      testBadge.textContent = '进行中';
+      testBadge.className = 'goal-badge in-progress';
+    } else {
+      testBadge.textContent = '待完成';
+      testBadge.className = 'goal-badge';
+    }
+  }
+
+  // 更新目标完成概览
+  const completedGoals = [
+    vocabularyLearned >= vocabularyGoal,
+    timeSpent >= timeGoal,
+    testsCompleted >= testGoal
+  ].filter(Boolean).length;
+
+  const goalsCompleted = document.getElementById('goalsCompleted');
+  if (goalsCompleted) {
+    goalsCompleted.textContent = `${completedGoals}/3`;
+  }
+
+  const goalsOverviewProgress = document.getElementById('goalsOverviewProgress');
+  if (goalsOverviewProgress) {
+    const percentage = Math.round((completedGoals / 3) * 100);
+    goalsOverviewProgress.textContent = `${percentage}%`;
+  }
+
+  // 更新快捷操作徽章
+  const vocabularyActionBadge = document.getElementById('vocabularyActionBadge');
+  if (vocabularyActionBadge) {
+    if (vocabularyLearned === 0) {
+      vocabularyActionBadge.style.display = 'block';
+      vocabularyActionBadge.textContent = 'NEW';
+    } else if (vocabularyLearned < vocabularyGoal) {
+      vocabularyActionBadge.style.display = 'block';
+      vocabularyActionBadge.textContent = 'CONTINUE';
+    } else {
+      vocabularyActionBadge.style.display = 'none';
+    }
+  }
+
+  const testActionBadge = document.getElementById('testActionBadge');
+  if (testActionBadge) {
+    const allStepsCompleted = steps.every(step => {
+      const stepData = progressData[step.id] || {};
+      return stepData.completed;
+    });
+    
+    if (allStepsCompleted && testsCompleted === 0) {
+      testActionBadge.style.display = 'block';
+      testActionBadge.textContent = 'READY';
+      testActionBadge.className = 'action-badge ready';
+    } else {
+      testActionBadge.style.display = 'none';
+    }
+  }
+};
+
+/**
+ * 更新学习提示
+ */
+window.updateLearningTip = function() {
+  const learningTip = document.getElementById('learningTip');
+  if (learningTip) {
+    learningTip.textContent = window.learningTips[window.currentTipIndex];
+  }
+};
+
+/**
+ * 轮播学习提示
+ */
+window.rotateLearningTips = function() {
+  window.currentTipIndex = (window.currentTipIndex + 1) % window.learningTips.length;
+  updateLearningTip();
+};
+
+/**
+ * 继续学习（快捷操作）
+ */
+window.continueLearning = function(type) {
+  // 根据类型切换到对应的Tab
+  let tabName = type;
+  
+  // 对于篇章学习，根据进度选择预听或跟读
+  if (type === 'prelistening' || type === 'shadowing') {
+    const courseId = window.currentCourse ? window.currentCourse.id : 'default';
+    const progressKey = `learning_progress_${courseId}`;
+    const progressData = JSON.parse(localStorage.getItem(progressKey) || '{}');
+    
+    const prelisteningData = progressData.prelistening || {};
+    const shadowingData = progressData.shadowing || {};
+    
+    // 如果预听未完成或进度较低，先去预听
+    if (!prelisteningData.completed || prelisteningData.progress < 50) {
+      tabName = 'prelistening';
+    } else {
+      tabName = 'shadowing';
+    }
+  }
+  
+  switchTab(tabName);
+};
+/**
  * 更新学习流程进度
  */
 window.updateLearningFlowProgress = function() {
@@ -515,7 +816,7 @@ window.updateLearningFlowProgress = function() {
   const progressData = JSON.parse(localStorage.getItem(progressKey) || '{}');
 
   const steps = [
-    { id: 'vocabulary', label: '词汇预习' },
+    { id: 'vocabulary', label: '词汇学习' },
     { id: 'prelistening', label: '篇章预听' },
     { id: 'shadowing', label: '影子跟读' },
     { id: 'practice', label: '篇章测试' }
@@ -544,6 +845,9 @@ window.updateLearningFlowProgress = function() {
       stepProgressEl.textContent = `${Math.round(progress)}%`;
     }
   });
+
+  // 更新推荐步骤
+  updateRecommendedStep();
 };
 
 /**
@@ -567,6 +871,9 @@ window.updateCircularProgress = function(percentage) {
 /**
  * 更新每日学习目标
  */
+/**
+ * 更新每日学习目标
+ */
 window.updateDailyGoals = function() {
   const today = new Date().toISOString().split('T')[0];
   const goalsKey = `daily_goals_${today}`;
@@ -583,6 +890,11 @@ window.updateDailyGoals = function() {
   if (vocabularyProgressFill && vocabularyGoalText) {
     vocabularyProgressFill.style.width = `${vocabularyProgress}%`;
     vocabularyGoalText.textContent = `${vocabularyLearned}/${vocabularyGoal} 词`;
+    
+    // 添加完成样式
+    if (vocabularyLearned >= vocabularyGoal) {
+      vocabularyProgressFill.classList.add('completed');
+    }
   }
 
   // 学习时长目标
@@ -596,6 +908,10 @@ window.updateDailyGoals = function() {
   if (timeProgressFill && timeGoalText) {
     timeProgressFill.style.width = `${timeProgress}%`;
     timeGoalText.textContent = `${timeSpent}/${timeGoal} 分钟`;
+    
+    if (timeSpent >= timeGoal) {
+      timeProgressFill.classList.add('completed');
+    }
   }
 
   // 测试完成目标
@@ -609,7 +925,14 @@ window.updateDailyGoals = function() {
   if (testProgressFill && testGoalText) {
     testProgressFill.style.width = `${testProgress}%`;
     testGoalText.textContent = `${testsCompleted}/${testGoal} 测试`;
+    
+    if (testsCompleted >= testGoal) {
+      testProgressFill.classList.add('completed');
+    }
   }
+
+  // 更新目标徽章
+  updateGoalBadges();
 };
 
 /**
@@ -663,6 +986,30 @@ window.initProgressDisplay = function() {
   updateLearningFlowProgress();
   updateDailyGoals();
   updateLearningStats();
+  updateLearningTip();
+  
+  // 启动学习计时器
+  startLearningTimer();
+  
+  // 启动学习提示轮播（每30秒）
+  setInterval(rotateLearningTips, 30000);
+  
+  // 更新连续学习天数显示
+  updateStreakCount();
+};
+
+/**
+ * 更新连续学习天数
+ */
+window.updateStreakCount = function() {
+  const statsKey = 'learning_stats';
+  const statsData = JSON.parse(localStorage.getItem(statsKey) || '{}');
+  
+  const streakCount = document.getElementById('streakCount');
+  if (streakCount) {
+    const streakDays = statsData.streakDays || 0;
+    streakCount.textContent = `${streakDays}天`;
+  }
 };
 
 /**
