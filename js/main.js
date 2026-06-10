@@ -549,9 +549,21 @@ class App {
   }
   
   updateBottomNavState(page) {
+    // 更新底部导航（手机端）
     const bottomNav = document.getElementById('bottomNav');
     if (bottomNav) {
       bottomNav.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.page === page) {
+          item.classList.add('active');
+        }
+      });
+    }
+    
+    // 更新侧边导航（电脑端）
+    const sideNav = document.getElementById('sideNav');
+    if (sideNav) {
+      sideNav.querySelectorAll('.side-nav-item').forEach(item => {
         item.classList.remove('active');
         if (item.dataset.page === page) {
           item.classList.add('active');
@@ -1527,6 +1539,25 @@ class App {
           }
           
           triggerHapticFeedback('light');
+        });
+      });
+    }
+
+    // 电脑端侧边导航栏
+    const sideNav = document.getElementById('sideNav');
+    if (sideNav) {
+      const sideNavItems = sideNav.querySelectorAll('.side-nav-item');
+      sideNavItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          const page = item.dataset.page;
+          
+          // 使用SPA路由器进行页面切换
+          if (this.spaRouter) {
+            this.spaRouter.navigateTo(page);
+          } else {
+            this.navigateBottomNavWithHistory(page);
+          }
         });
       });
     }

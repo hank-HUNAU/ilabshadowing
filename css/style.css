@@ -6181,3 +6181,125 @@ html {
     background: rgba(255, 255, 255, 0.05);
   }
 }
+
+/* ========== 电脑端侧边导航 ========== */
+
+/* 电脑端（≥768px）：显示侧边导航，隐藏底部导航 */
+@media (min-width: 768px) {
+  /* 侧边导航容器 */
+  .side-nav {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 240px;
+    height: 100vh;
+    background: var(--bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  
+  /* 侧边导航头部 */
+  .side-nav-header {
+    padding: 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .brand h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin: 0;
+    line-height: 1.2;
+  }
+  
+  /* 侧边导航菜单 */
+  .side-nav-menu {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  /* 侧边导航项 */
+  .side-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .side-nav-item:hover {
+    background: var(--bg-secondary);
+    color: var(--text);
+  }
+  
+  .side-nav-item.active {
+    background: rgba(0, 122, 255, 0.1);
+    color: var(--primary);
+    font-weight: 500;
+  }
+  
+  .side-nav-item svg {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+  }
+  
+  .side-nav-item span {
+    font-size: 0.95rem;
+    font-weight: 400;
+  }
+  
+  .side-nav-item.active span {
+    font-weight: 500;
+  }
+  
+  /* 隐藏底部导航栏 */
+  .bottom-nav {
+    display: none !important;
+  }
+  
+  /* 调整主内容区域 */
+  #app {
+    margin-left: 240px;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  
+  /* 调整课本页面 */
+  .book-page {
+    max-width: none;
+    padding: 20px;
+  }
+  
+  /* 调整课程页面 */
+  .unit-page {
+    max-width: none;
+    padding: 20px;
+  }
+  
+  /* 调整播放页面 */
+  #playerPage {
+    padding: 20px;
+  }
+}
+
+/* 手机端（<768px）：隐藏侧边导航 */
+@media (max-width: 767px) {
+  .side-nav {
+    display: none !important;
+  }
+}
