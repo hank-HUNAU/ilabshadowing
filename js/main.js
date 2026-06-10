@@ -293,6 +293,74 @@ class App {
     if (window.innerWidth <= 767) {
       this.initEdgeBackGesture();
     }
+    
+    // 初始化SPA路由器（在App完全初始化后）
+    this.initSPARouter();
+  }
+  
+  /**
+   * 初始化SPA路由器
+   */
+  initSPARouter() {
+    if (typeof SPARouter === 'undefined') {
+      console.warn('[App] SPA Router not available, falling back to traditional navigation');
+      return;
+    }
+    
+    console.log('[App] Initializing SPA Router...');
+    
+    // 创建SPA路由器实例
+    this.spaRouter = new SPARouter();
+    
+    // 设置App实例引用
+    this.spaRouter.setApp(this);
+    
+    // 初始化路由器
+    this.spaRouter.init();
+    
+    // 全局暴露SPA路由器
+    window.spaRouter = this.spaRouter;
+    
+    console.log('[App] SPA Router initialized successfully');
+  }
+  
+  /**
+   * 显示book页面（课本选择）
+   */
+  showBookPage() {
+    console.log('[App] Showing book page');
+    
+    // 隐藏其他页面
+    this.hideOtherPages();
+    
+    // 显示课本选择页面
+    if (this.els.bookPage) {
+      this.els.bookPage.style.display = 'block';
+    }
+    
+    // 隐藏课程列表页面
+    if (this.els.unitPage) {
+      this.els.unitPage.style.display = 'none';
+    }
+    
+    // 隐藏播放页面
+    if (this.els.playerPage) {
+      this.els.playerPage.style.display = 'none';
+    }
+  }
+  
+  /**
+   * 隐藏其他页面
+   */
+  hideOtherPages() {
+    const pages = ['favoritePage', 'statsPage', 'settingsPage'];
+    pages.forEach(pageId => {
+      const element = document.getElementById(pageId);
+      if (element) {
+        element.style.display = 'none';
+        element.classList.remove('active');
+      }
+    });
   }
   
   updateFavBadge() {
@@ -634,6 +702,16 @@ class App {
 
   // 手机端底部导航栏导航
   navigateBottomNav(page, direction = 'forward') {
+    // 如果SPA路由器可用，使用SPA路由器进行页面切换
+    if (this.spaRouter) {
+      console.log(`[App] Navigating to ${page} via SPA Router`);
+      this.spaRouter.navigateTo(page);
+      return;
+    }
+    
+    // 否则使用传统的页面切换方式
+    console.log(`[App] Navigating to ${page} via traditional navigation`);
+    
     // 更新导航栏状态
     const bottomNav = document.getElementById('bottomNav');
     if (bottomNav) {
@@ -1440,20 +1518,31 @@ class App {
         item.addEventListener('click', (e) => {
           e.preventDefault();
           const page = item.dataset.page;
-          this.navigateBottomNavWithHistory(page);
+          
+          // 使用SPA路由器进行页面切换
+          if (this.spaRouter) {
+            this.spaRouter.navigateTo(page);
+          } else {
+            this.navigateBottomNavWithHistory(page);
+          }
+          
           triggerHapticFeedback('light');
         });
       });
     }
 
-    // 收藏工具栏事件（已删除，改用行内收藏按钮）
     // 收藏页面入口
     if (this.els.showFavorites) {
       this.els.showFavorites.addEventListener('click', () => {
-        this.renderFavorites();
-        this.els.bookPage.style.display = 'none';
-        this.els.unitPage.style.display = 'none';
-        this.els.favoritePage.style.display = 'flex';
+        // 使用SPA路由器进行页面切换
+        if (this.spaRouter) {
+          this.spaRouter.navigateTo('favorite');
+        } else {
+          this.renderFavorites();
+          this.els.bookPage.style.display = 'none';
+          this.els.unitPage.style.display = 'none';
+          this.els.favoritePage.style.display = 'flex';
+        }
       });
     }
     
