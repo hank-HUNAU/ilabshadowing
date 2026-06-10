@@ -619,18 +619,18 @@ small,
 
 /* 课程卡片完成动画 */
 .unit-card.complete-animate {
-  animation: complete-glow 0.6s ease-out;
+  animation: complete-pulse 0.4s ease-out;
 }
 
-@keyframes complete-glow {
+@keyframes complete-pulse {
   0% {
-    box-shadow: 0 0 0 rgba(52, 199, 89, 0);
+    transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 20px rgba(52, 199, 89, 0.6);
+    transform: scale(1.02);
   }
   100% {
-    box-shadow: var(--shadow-md);
+    transform: scale(1);
   }
 }
 
@@ -722,56 +722,32 @@ body {
 }
 
 .book-card {
-  background: var(--card);
-  backdrop-filter: blur(var(--blur));
+  background: var(--card-solid);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   padding: 24px;
   display: flex;
   align-items: center;
   gap: 20px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  position: relative;
 }
 
 .book-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  background: var(--bg-secondary);
+  color: var(--text);
   border-color: var(--primary);
 }
 
 .book-card:active {
-  transform: translateY(-2px) scale(0.98);
-}
-
-.book-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--accent-gradient);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.book-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: var(--shadow-xl);
-  border-color: var(--primary);
-}
-
-.book-card:hover::before {
-  opacity: 0.05;
+  transform: scale(0.98);
 }
 
 .book-icon {
   width: 80px;
   height: 80px;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: var(--accent-gradient);
   display: flex;
   align-items: center;
@@ -779,7 +755,6 @@ body {
   font-size: 2.5rem;
   font-weight: 700;
   color: white;
-  box-shadow: 0 8px 24px rgba(0, 122, 255, 0.3);
   z-index: 1;
 }
 
@@ -1028,8 +1003,7 @@ body {
 }
 
 .unit-card {
-  background: var(--card);
-  backdrop-filter: blur(var(--blur));
+  background: var(--card-solid);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 16px;
@@ -1039,135 +1013,21 @@ body {
   justify-content: center;
   gap: 8px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s ease;
   min-height: 80px;
   position: relative;
-  overflow: hidden;
-}
-
-.unit-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--accent-gradient);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-}
-
-.unit-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--accent-gradient);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
 }
 
 /* 悬停效果 */
 .unit-card:hover {
-  background: var(--card-solid);
+  background: var(--bg-secondary);
+  color: var(--text);
   border-color: var(--primary);
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-}
-
-.unit-card:hover::before {
-  opacity: 1;
-}
-
-.unit-card:hover::after {
-  opacity: 0.03;
 }
 
 /* 点击效果 */
 .unit-card:active {
-  transform: translateY(-4px) scale(0.98);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-/* 完成状态动画 */
-.unit-card.complete-animate {
-  animation: completePulse 0.6s ease;
-}
-
-@keyframes completePulse {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.4);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 10px rgba(0, 122, 255, 0.1);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(0, 122, 255, 0);
-  }
-}
-
-.unit-card:hover {
-  background: var(--card-solid);
-  border-color: var(--primary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.unit-card:active {
-  transform: translateY(0) scale(0.96);
-}
-
-.unit-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--accent-gradient);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.unit-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--accent-gradient);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.unit-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: var(--shadow-xl);
-  border-color: var(--primary);
-}
-
-.unit-card:hover::after {
-  opacity: 0.03;
-}
-
-.unit-card:hover::before {
-  opacity: 1;
-}
-
-.unit-card:active {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: var(--shadow-lg);
+  transform: scale(0.98);
 }
 
 .unit-num {
