@@ -737,7 +737,6 @@ body {
 .book-card:hover {
   background: var(--bg-secondary);
   color: var(--text);
-  border-color: var(--primary);
 }
 
 .book-card:active {
@@ -1022,7 +1021,6 @@ body {
 .unit-card:hover {
   background: var(--bg-secondary);
   color: var(--text);
-  border-color: var(--primary);
 }
 
 /* 点击效果 */
