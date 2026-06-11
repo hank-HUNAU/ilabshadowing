@@ -187,8 +187,10 @@ class App {
       long: { gap: Infinity, lead: 0.40 } // 间隔>1s：提前 400ms
     };
     this.minPlayTime = 0.5;  // 最少播放时长
-    this.cache = new Map();
-    this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
+this.cache = new Map();
+// 性能优化：DOM渲染缓存，避免重复渲染
+this.domCache = new Map();
+this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     
     // 定时器
     this.timerMinutes = 0;  // 定时分钟数，0=关闭
@@ -1318,24 +1320,41 @@ class App {
 
   renderLines() {
     if (!this.lines.length) { this.els.area.innerHTML = '<p class="line">无歌词数据</p>'; return; }
-    this.els.area.innerHTML = this.lines.map((l, i) => {
-      const favId = `${this.key}_${this.idx}_${i}`;
-      const isFavorited = this.favorites.some(f => f.id === favId);
-      return `
-      <div class="line" data-i="${i}" data-t="${l.time}">
-        <div class="line-content">
-          <div class="line-en">${l.en}</div>
-          ${l.cn ? `<div class="line-cn">${l.cn}</div>` : ''}
-        </div>
-        <div class="line-actions">
-          <button class="line-favorite ${isFavorited ? 'favorited' : ''}" data-line-i="${i}" title="${isFavorited ? '取消收藏' : '收藏本句'}">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="${isFavorited ? '#fbbf24' : 'none'}" stroke="${isFavorited ? '#fbbf24' : 'currentColor'}" stroke-width="2">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-            </svg>
-          </button>
-        </div>
-      </div>`;
-    }).join('');
+    
+    // 性能优化：检查DOM渲染缓存
+    const cacheKey = `${this.key}_${this.idx}`;
+    let cachedHTML = this.domCache.get(cacheKey);
+    
+    // 如果缓存不存在，生成并缓存HTML
+    if (!cachedHTML) {
+      cachedHTML = this.lines.map((l, i) => {
+        const favId = `${this.key}_${this.idx}_${i}`;
+        const isFavorited = this.favorites.some(f => f.id === favId);
+        return `
+        <div class="line" data-i="${i}" data-t="${l.time}">
+          <div class="line-content">
+            <div class="line-en">${l.en}</div>
+            ${l.cn ? `<div class="line-cn">${l.cn}</div>` : ''}
+          </div>
+          <div class="line-actions">
+            <button class="line-favorite ${isFavorited ? 'favorited' : ''}" data-line-i="${i}" title="${isFavorited ? '取消收藏' : '收藏本句'}">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="${isFavorited ? '#fbbf24' : 'none'}" stroke="${isFavorited ? '#fbbf24' : 'currentColor'}" stroke-width="2">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+            </button>
+          </div>
+        </div>`;
+      }).join('');
+      
+      // 缓存HTML（限制缓存大小，避免内存泄漏）
+      if (this.domCache.size > 50) {
+        const firstKey = this.domCache.keys().next().value;
+        this.domCache.delete(firstKey);
+      }
+      this.domCache.set(cacheKey, cachedHTML);
+    }
+    
+    this.els.area.innerHTML = cachedHTML;
     this.els.area.scrollTop = 0;
   }
 
@@ -1460,11 +1479,33 @@ class App {
     let ni = -1;
     for (let i = this.lines.length - 1; i >= 0; i--) { if (now >= this.lines[i].time) { ni = i; break; } }
     if (ni === this.cur) return;
+    
+    const prevCur = this.cur;
     this.cur = ni;
-    this.els.area.querySelectorAll('.line').forEach((el, x) => el.classList.toggle('active', x === ni));
-    if (ni >= 0) {
-      const el = this.els.area.querySelectorAll('.line')[ni];
-      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // 性能优化：只切换前后两行的class，而不是所有行
+    const lines = this.els.area.querySelectorAll('.line');
+    
+    // 移除前一行的active class
+    if (prevCur >= 0 && lines[prevCur]) {
+      lines[prevCur].classList.remove('active');
+    }
+    
+    // 添加当前行的active class
+    if (ni >= 0 && lines[ni]) {
+      lines[ni].classList.add('active');
+      
+      // 性能优化：只在需要时滚动
+      // 检查当前行是否在可视区域内
+      const container = this.els.area;
+      const element = lines[ni];
+      const containerRect = container.getBoundingClientRect();
+      const elementRect = element.getBoundingClientRect();
+      
+      // 如果元素不在可视区域内，则滚动
+      if (elementRect.top < containerRect.top || elementRect.bottom > containerRect.bottom) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
   }
 
