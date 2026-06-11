@@ -763,7 +763,7 @@ body {
 }
 
 .book-title {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--text);
   margin-bottom: 8px;
@@ -771,8 +771,10 @@ body {
 }
 
 .book-desc {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
+  line-height: 1.4;
+  font-weight: 400;
 }
 
 /* 课程列表页 */
@@ -1032,17 +1034,20 @@ body {
   font-size: 2rem;
   font-weight: 800;
   background: var(--accent-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: white;
   line-height: 1;
   letter-spacing: -0.02em;
   z-index: 1;
   margin-bottom: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .unit-title {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--text-secondary);
   text-align: center;
@@ -1051,6 +1056,7 @@ body {
   text-overflow: ellipsis;
   width: 100%;
   z-index: 1;
+  line-height: 1.4;
 }
 
 /* NCE1增强卡片样式 */
@@ -1175,12 +1181,13 @@ body {
 }
 
 .unit-grid.think-layout .unit-title {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   z-index: 1;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  line-height: 1.4;
 }
 
 /* 播放弹窗 - 默认全屏 */
@@ -6102,9 +6109,10 @@ html {
   }
   
   .side-nav-item.active {
-    background: rgba(0, 122, 255, 0.1);
+    background: rgba(0, 122, 255, 0.05);
     color: var(--primary);
     font-weight: 500;
+    border: 2px solid var(--primary);
   }
   
   .side-nav-item svg {
