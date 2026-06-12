@@ -18,6 +18,168 @@
   <link rel="stylesheet" href="css/style.css?v=20260604-5">
 </head>
 <body>
+  <!-- SVG 图标定义（复用优化） -->
+  <svg style="display: none;">
+    <defs>
+      <!-- 课本图标 -->
+      <symbol id="icon-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </symbol>
+
+      <!-- 收藏图标 -->
+      <symbol id="icon-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </symbol>
+
+      <!-- 统计图标 -->
+      <symbol id="icon-stats" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 20V10"/>
+        <path d="M18 20V4"/>
+        <path d="M6 20v-4"/>
+      </symbol>
+
+      <!-- 设置图标 -->
+      <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </symbol>
+
+      <!-- 用户图标 -->
+      <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M12 14c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z"/>
+      </symbol>
+
+      <!-- 返回箭头 -->
+      <symbol id="icon-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 19l-7-7 7-7"/>
+      </symbol>
+
+      <!-- 播放图标 -->
+      <symbol id="icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="5 3 19 12 5 21 5 3"/>
+      </symbol>
+
+      <!-- 暂停图标 -->
+      <symbol id="icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="6" y="4" width="4" height="16"/>
+        <rect x="14" y="4" width="4" height="16"/>
+      </symbol>
+
+      <!-- 上一曲图标 -->
+      <symbol id="icon-prev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="19 20 9 12 19 4 19 20"/>
+        <line x1="5" y1="19" x2="5" y2="5"/>
+      </symbol>
+
+      <!-- 下一曲图标 -->
+      <symbol id="icon-next" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="5 4 15 12 5 20 5 4"/>
+        <line x1="19" y1="5" x2="19" y2="19"/>
+      </symbol>
+
+      <!-- 停止图标 -->
+      <symbol id="icon-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+      </symbol>
+
+      <!-- 重复图标 -->
+      <symbol id="icon-repeat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 1l4 4-4 4"/>
+        <path d="M3 11V9a4 4 0 014-4h14"/>
+        <path d="M7 23l-4-4 4-4"/>
+        <path d="M21 13v2a4 4 0 01-4 4H3"/>
+      </symbol>
+
+      <!-- 时钟图标 -->
+      <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </symbol>
+
+      <!-- 速度图标 -->
+      <symbol id="icon-speed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 6v6l4 2"/>
+      </symbol>
+
+      <!-- 翻译图标 -->
+      <symbol id="icon-translate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M5 8l6 6"/>
+        <path d="M4 14l6-6 2-3"/>
+        <path d="M2 5h12"/>
+        <path d="M7 2h1"/>
+        <path d="M22 22l-5-10-5 10"/>
+        <path d="M14 18h6"/>
+      </symbol>
+
+      <!-- 全屏图标 -->
+      <symbol id="icon-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 3h6v6"/>
+        <path d="M9 21H3v-6"/>
+        <path d="M21 3l-7 7"/>
+        <path d="M3 21l7-7"/>
+      </symbol>
+
+      <!-- 收起图标 -->
+      <symbol id="icon-shrink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 14h6v-6"/>
+        <path d="M20 10h-6v6"/>
+        <path d="M14 4l7 7"/>
+        <path d="M10 20l-7-7"/>
+      </symbol>
+
+      <!-- 更多选项图标 -->
+      <symbol id="icon-more" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="1"/>
+        <circle cx="19" cy="12" r="1"/>
+        <circle cx="5" cy="12" r="1"/>
+      </symbol>
+
+      <!-- 关闭图标 -->
+      <symbol id="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </symbol>
+
+      <!-- 刷新图标 -->
+      <symbol id="icon-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M23 4v6h-6"/>
+        <path d="M1 20v-6h6"/>
+        <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+      </symbol>
+
+      <!-- 离线图标 -->
+      <symbol id="icon-offline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M1 1l22 22"/>
+        <path d="M16.72 11.06A10.94 10.94 0 0119 12.55"/>
+        <path d="M5 12.55a10.94 10.94 0 015.17-2.39"/>
+        <path d="M10.71 5.05A16 16 0 0122.58 9"/>
+        <path d="M1.42 9a15.91 15.91 0 014.7-2.88"/>
+        <path d="M8.53 16.11a6 6 0 016.95 0"/>
+        <line x1="12" y1="20" x2="12" y2="20"/>
+      </symbol>
+
+      <!-- 快速启动图标 -->
+      <symbol id="icon-fast" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+      </symbol>
+
+      <!-- 节省流量图标 -->
+      <symbol id="icon-data" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="12" y1="20" x2="12" y2="10"/>
+        <line x1="18" y1="20" x2="18" y2="4"/>
+        <line x1="6" y1="20" x2="6" y2="16"/>
+      </symbol>
+
+      <!-- 完整功能图标 -->
+      <symbol id="icon-complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      </symbol>
+    </defs>
+  </svg>
+
   <!-- 电脑端侧边导航 -->
   <aside id="sideNav" class="side-nav">
     <div class="side-nav-header">
@@ -185,8 +347,11 @@
         <footer class="player-footer">
           <div class="progress-row">
             <span id="curTime" class="time-text">0:00</span>
-            <div id="progressTrack" class="track-bar">
-              <div id="progressFill" class="fill-bar"></div>
+            <div id="progressTrack" class="track-bar" aria-label="进度条">
+              <div class="track-bar-visual">
+                <div id="progressFill" class="fill-bar"></div>
+              </div>
+              <div id="progressHandle" class="track-handle"></div>
             </div>
             <span id="durTime" class="time-text">0:00</span>
           </div>
@@ -288,25 +453,18 @@
     <dialog id="pwaInstallDialog" class="pwa-dialog">
       <div class="pwa-dialog-content">
         <div class="pwa-icon">
-          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M12 18v-6M8 14l4-4 4 4M4 20h16a2 2 0 002-2V6a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-          </svg>
+          <img src="/icons/icon-192.png" alt="HANKILAB" class="app-install-icon">
         </div>
-        <h3>📱 安装应用，体验更佳</h3>
-        <p class="pwa-desc">一键安装到主屏幕，享受原生体验</p>
-        <ul class="install-benefits">
-          <li><span class="benefit-icon">✦</span> 离线学习</li>
-          <li><span class="benefit-icon">✦</span> 快速启动</li>
-          <li><span class="benefit-icon">✦</span> 节省流量</li>
-          <li><span class="benefit-icon">✦</span> 功能完整</li>
-        </ul>
+        <h3 class="install-title">安装桌面应用</h3>
+        <p class="pwa-desc">将应用安装到电脑，快速启动</p>
+        <ul class="install-benefits"></ul>
         <div class="install-guide">
           <p class="guide-title">安装步骤：</p>
           <ol></ol>
         </div>
-        <div class="pwa-buttons">
-          <button id="pwaInstallCancel" class="pwa-btn-secondary">稍后再说</button>
-          <button id="pwaInstallConfirm" class="pwa-btn-primary">立即安装</button>
+        <div class="install-actions">
+          <button id="pwaInstallCancel" class="btn-secondary">稍后提醒</button>
+          <button id="pwaInstallConfirm" class="btn-primary">立即安装</button>
         </div>
       </div>
     </dialog>

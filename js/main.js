@@ -233,6 +233,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       timerDisplay: document.getElementById('timerDisplay'),
       track: document.getElementById('progressTrack'),
       fill: document.getElementById('progressFill'),
+      handle: document.getElementById('progressHandle'),
       cur: document.getElementById('curTime'),
       dur: document.getElementById('durTime'),
       mode: document.getElementById('modeBtn'),
@@ -1513,6 +1514,12 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     if (!this.els.audio.duration) return;
     const p = (this.els.audio.currentTime / this.els.audio.duration) * 100;
     this.els.fill.style.width = `${p}%`;
+    
+    // 更新拖动手柄位置
+    if (this.els.handle) {
+      this.els.handle.style.left = `${p}%`;
+    }
+    
     this.els.cur.textContent = this.fmt(this.els.audio.currentTime);
   }
 
@@ -2210,7 +2217,49 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     this.els.audio.addEventListener('ended', () => { if (this.mode === 'loop') this.playNext(); });
     
     // Progress
+    // 进度条拖拽交互
+    let isDragging = false;
+    
+    const seekTo = (clientX) => {
+      if (!this.els.audio.duration) return;
+      const r = this.els.track.getBoundingClientRect();
+      const pos = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
+      this.els.audio.currentTime = pos * this.els.audio.duration;
+      this.els.fill.style.width = `${pos * 100}%`;
+      if (this.els.handle) {
+        this.els.handle.style.left = `${pos * 100}%`;
+      }
+    };
+    
+    const handleStart = (e) => {
+      isDragging = true;
+      this.els.track.style.cursor = 'grabbing';
+      seekTo(e.type.includes('touch') ? e.touches[0].clientX : e.clientX);
+    };
+    
+    const handleMove = (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      seekTo(e.type.includes('touch') ? e.touches[0].clientX : e.clientX);
+    };
+    
+    const handleEnd = () => {
+      isDragging = false;
+      this.els.track.style.cursor = '';
+    };
+    
+    this.els.track.addEventListener('mousedown', handleStart);
+    this.els.track.addEventListener('touchstart', handleStart, { passive: false });
+    
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('touchmove', handleMove, { passive: false });
+    
+    document.addEventListener('mouseup', handleEnd);
+    document.addEventListener('touchend', handleEnd);
+    
+    // 点击事件（非拖拽时）
     this.els.track.addEventListener('click', e => {
+      if (isDragging) return;
       if (!this.els.audio.duration) return;
       const r = this.els.track.getBoundingClientRect();
       this.els.audio.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * this.els.audio.duration;

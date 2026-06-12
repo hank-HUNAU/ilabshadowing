@@ -295,20 +295,37 @@ const PWA_INSTALL = {
     const content = this.getPlatformContent(isIOS, isAndroid, isDesktop);
     
     // 更新弹窗内容
-    const title = dialog.querySelector('h3');
+    const title = dialog.querySelector('.install-title');
     const desc = dialog.querySelector('.pwa-desc');
     const benefits = dialog.querySelector('.install-benefits');
     const guide = dialog.querySelector('.install-guide');
-    const btn = dialog.querySelector('.pwa-btn-primary');
+    const btn = dialog.querySelector('.btn-primary');
     
-    if (title) title.textContent = content.title;
+    if (title) title.textContent = content.title.replace(/[📱💻]/g, '');
     if (desc) desc.textContent = content.desc;
     
-    // 更新 benefits
+    // SVG 图标路径映射
+    const iconPaths = {
+      '离线使用': 'M1 1l22 22M16.72 11.06A10.94 10.94 0 0 1 19 12.55M5 12.55a10.94 10.94 0 0 1 5.17-2.39M10.71 5.05A16 16 0 0 1 22.58 9M1.42 9a15.91 15.91 0 0 1 4.7-2.88M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01',
+      '快速启动': 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
+      '节省流量': 'M12 20V10M18 20V4M6 20v-4',
+      '完整功能': 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'
+    };
+    
+    // 更新 benefits，添加 SVG 图标
     if (benefits) {
-      benefits.innerHTML = content.benefits.map(b => 
-        `<li><span class="benefit-icon">✦</span> ${b}</li>`
-      ).join('');
+      benefits.innerHTML = content.benefits.map(b => {
+        const iconKey = Object.keys(iconPaths).find(key => b.includes(key));
+        const path = iconKey ? iconPaths[iconKey] : iconPaths['完整功能'];
+        return `
+          <li>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="${path}"/>
+            </svg>
+            <span>${b}</span>
+          </li>
+        `;
+      }).join('');
     }
     
     // 更新安装指南
@@ -335,7 +352,7 @@ const PWA_INSTALL = {
   getPlatformContent(isIOS, isAndroid, isDesktop) {
     if (isIOS) {
       return {
-        title: '📱 在 Safari 中添加应用',
+        title: '在 Safari 中添加应用',
         desc: 'iOS 设备需要手动安装到主屏幕',
         benefits: [
           '离线使用（无网络也能学习）',
@@ -351,7 +368,7 @@ const PWA_INSTALL = {
       };
     } else if (isAndroid) {
       return {
-        title: '📱 安装应用，体验更佳',
+        title: '安装应用，体验更佳',
         desc: '一键安装到主屏幕，享受原生体验',
         benefits: [
           '离线使用（无网络也能学习）',
@@ -367,7 +384,7 @@ const PWA_INSTALL = {
     } else {
       // 桌面端
       return {
-        title: '💻 安装桌面应用',
+        title: '安装桌面应用',
         desc: '将应用安装到电脑，快速启动',
         benefits: [
           '离线使用（无网络也能学习）',
@@ -495,3 +512,45 @@ window.UPDATE_NOTIFY = UPDATE_NOTIFY;
 window.NETWORK_STATUS = NETWORK_STATUS;
 window.PWA_INSTALL = PWA_INSTALL;
 window.CACHE_MANAGER = CACHE_MANAGER;
+
+// PWA安装弹窗Ripple效果
+(function() {
+  const btns = document.querySelectorAll('#pwaInstallDialog .btn-primary, #pwaInstallDialog .btn-secondary');
+  
+  btns.forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      const rect = btn.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const ripple = document.createElement('span');
+      ripple.style.cssText = `
+        position: absolute;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        pointer-events: none;
+        width: 100px;
+        height: 100px;
+        left: ${x - 50}px;
+        top: ${y - 50}px;
+        transform: scale(0);
+        animation: ripple 0.6s linear;
+      `;
+
+      btn.appendChild(ripple);
+
+      setTimeout(() => ripple.remove(), 600);
+    });
+  });
+
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+})();
