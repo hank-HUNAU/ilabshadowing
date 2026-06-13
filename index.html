@@ -907,7 +907,7 @@
             const progress = totalSentences > 0 ? Math.round((learnedCount / totalSentences) * 100) : 0;
             
             container.innerHTML = `
-              <div class="recent-course-item" onclick="window.location.href='practice.html?book=${bookKey}&unit=${unitKey}'">
+              <div class="recent-course-item" onclick="app.openBook('${bookKey}', ${unitKey})">
                 <div class="recent-course-header">
                   <h4>${title}</h4>
                   <span class="progress-percent">${progress}%</span>

@@ -58,7 +58,6 @@ function getAudioUrl(filename, bookPath, key) {
     // 对文件名进行 URL 编码，处理空格等特殊字符
     const encodedFilename = encodeURIComponent(filename);
     const url = `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${encodedFilename}.mp3`;
-    console.log('[Audio URL]', { filename, key, bucket, url });
     return url;
   }
   // 从课程目录加载（支持多本书）
@@ -114,7 +113,6 @@ function getLrcUrl(filename, bookPath, key) {
     // 对文件名进行 URL 编码，处理空格等特殊字符
     const encodedFilename = encodeURIComponent(filename);
     const url = `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${encodedFilename}.lrc`;
-    console.log('[LRC URL]', { filename, key, bucket, url });
     return url;
   }
   // 从课程目录加载（支持多本书）
@@ -310,7 +308,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       return;
     }
     
-    console.log('[App] Initializing SPA Router...');
     
     // 创建SPA路由器实例
     this.spaRouter = new SPARouter();
@@ -324,14 +321,12 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     // 全局暴露SPA路由器
     window.spaRouter = this.spaRouter;
     
-    console.log('[App] SPA Router initialized successfully');
   }
   
   /**
    * 显示book页面（课本选择）
    */
   showBookPage() {
-    console.log('[App] Showing book page');
     
     // 隐藏其他页面
     this.hideOtherPages();
@@ -1157,15 +1152,12 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
         // 缓存句子数量（使用课程索引作为key）
         this.cache.set(`lineCount_${i}`, lineCount);
         
-        console.log('[Preload] Unit', i, 'filename:', u.filename, 'lineCount:', lineCount);
       }).catch(() => {
         // 如果LRC文件加载失败，缓存默认值
         this.cache.set(`lineCount_${i}`, 5); // 默认5句
-        console.log('[Preload] Unit', i, 'filename:', u.filename, 'failed to load, using default 5');
       });
     });
     await Promise.all(promises);
-    console.log('[Preload] LRC files cached:', this.units.length);
   }
 
   async updateTitlesFromLrc() {
@@ -1216,7 +1208,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     localStorage.setItem(LS.UNIT(this.key), i);
     
     const u = this.units[i];
-    console.log('[DEBUG open()]', { i, key: this.path, unit: u });
     
     // 先显示弹窗（标题先显示数字）
     this.els.title.textContent = `Lesson ${parseInt(u.filename)}`;
@@ -1277,25 +1268,22 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     // 异步加载音频
     const audio = this.els.audio;
     const audioSrc = getAudioUrl(u.filename, this.path, this.key);
-    console.log('Loading audio:', audioSrc);
     audio.src = audioSrc;
     audio.load();
     
     audio.addEventListener('loadeddata', () => {
-      console.log('Audio loaded, duration:', audio.duration);
       // 恢复上次播放进度
       this.restoreTime();
     }, { once: true });
     
     audio.addEventListener('error', (e) => {
       console.error('Audio load error:', e);
-      console.error('Audio src:', audio.src);
-      console.error('Audio error code:', audio.error?.code);
-      console.error('Audio error message:', audio.error?.message);
+      if (window.toast && window.toast.error) {
+        window.toast.error('音频加载失败，请检查网络连接');
+      }
       
       // 测试直接访问 URL
       fetch(audio.src, { method: 'HEAD' })
-        .then(r => console.log('Direct fetch status:', r.status))
         .catch(err => console.error('Direct fetch error:', err));
     });
   }
@@ -1376,15 +1364,12 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     
     // 等待音频加载完成
     if (!this.els.audio.src || this.els.audio.readyState < 2) {
-      console.log('Audio not ready, waiting...');
       this.els.audio.addEventListener('canplay', () => {
-        console.log('Audio ready, playing line', i);
         this._doPlayLine(line, i);
       }, { once: true });
       return;
     }
     
-    console.log('Audio ready, playing line', i);
     this._doPlayLine(line, i);
   }
 
@@ -1637,7 +1622,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
           const lineIdx = +favoriteBtn.dataset.lineI;
           this.toggleLineFavorite(lineIdx);
           triggerHapticFeedback('light');
-          console.log('[Favorite Click] Toggled line', lineIdx, '- no audio play');
           return;
         }
         
@@ -2138,7 +2122,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
             // 持续静音达到阈值，判定为句子结束
             if (!this.silenceDetected) {
               this.silenceDetected = true;
-              console.log('[Silence] Detected at', currentTime.toFixed(3), 's, volume:', volume.toFixed(3));
               
               // 暂停播放
               this.els.audio.pause();
@@ -2485,7 +2468,6 @@ function handleSwipe() {
   // 如果是屏幕边缘滑动，优先让系统处理（侧滑返回）
   if (isEdgeSwipe && Math.abs(diffX) > 30 && Math.abs(diffY) < 30) {
     // 不阻止默认行为，让系统处理侧滑返回
-    console.log('[Gesture] Edge swipe detected, ignoring in-app gesture');
     return;
   }
   
@@ -2641,7 +2623,6 @@ function detectLowEndDevice() {
   
   if (isLowEnd || isOldIOS) {
     document.documentElement.classList.add('low-end-device');
-    console.log('[Performance] Low-end device detected, reducing animations');
   }
 }
 
@@ -2669,7 +2650,6 @@ function autoDarkMode() {
   
   if (isNight) {
     document.documentElement.classList.add('dark-mode');
-    console.log('[DarkMode] Auto-enabled for night time');
   } else {
     document.documentElement.classList.remove('dark-mode');
   }
