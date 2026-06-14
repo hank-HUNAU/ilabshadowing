@@ -30,6 +30,16 @@
   --safe-area-right: env(safe-area-inset-right, 0px);
 }
 
+/* 图像资源优化 */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+.app-install-icon {
+  will-change: transform;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #000000;

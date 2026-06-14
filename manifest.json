@@ -12,27 +12,27 @@
   "categories": ["education", "productivity"],
   "icons": [
     {
-      "src": "/ilabshadowing/icons/icon-192.png",
+      "src": "/ilabshadowing/icons/icon-192.webp",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/webp",
       "purpose": "any"
     },
     {
-      "src": "/ilabshadowing/icons/icon-512.png",
+      "src": "/ilabshadowing/icons/icon-512.webp",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/webp",
       "purpose": "any maskable"
     },
     {
-      "src": "/ilabshadowing/icons/icon-144.png",
+      "src": "/ilabshadowing/icons/icon-144.webp",
       "sizes": "144x144",
-      "type": "image/png",
+      "type": "image/webp",
       "purpose": "any"
     },
     {
-      "src": "/ilabshadowing/icons/icon-96.png",
+      "src": "/ilabshadowing/icons/icon-96.webp",
       "sizes": "96x96",
-      "type": "image/png",
+      "type": "image/webp",
       "purpose": "any"
     }
   ],
@@ -44,7 +44,7 @@
       "url": "/ilabshadowing/",
       "icons": [
         {
-          "src": "/ilabshadowing/icons/icon-192.png",
+          "src": "/ilabshadowing/icons/icon-192.webp",
           "sizes": "192x192",
           "type": "image/png"
         }
