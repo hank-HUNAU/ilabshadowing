@@ -6718,3 +6718,51 @@ html {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* 骨架屏 */
+.skeleton-loader {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 9999;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: opacity 0.3s ease;
+}
+
+.skeleton-loader.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.skeleton-block {
+  background: linear-gradient(90deg, var(--bg-secondary) 25%, rgba(255,255,255,0.5) 50%, var(--bg-secondary) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-header {
+  height: 40px;
+  width: 40%;
+  max-width: 300px;
+}
+
+.skeleton-card {
+  height: 120px;
+  width: 100%;
+}
+
+.skeleton-icon {
+  height: 48px;
+  width: 48px;
+  border-radius: 50%;
+  margin-bottom: 12px;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

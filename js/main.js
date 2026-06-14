@@ -753,6 +753,11 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
 
     if (currentPage === targetPage) return;
 
+    // 保存当前页面滚动位置
+    if (currentPage && window.scrollY > 0) {
+      sessionStorage.setItem(`scroll_${currentPage}`, window.scrollY);
+    }
+
     const enterClass = direction === 'forward' ? 'page-enter' : 'page-exit-reverse';
     const exitClass = direction === 'forward' ? 'page-exit' : 'page-enter-reverse';
 
@@ -774,6 +779,11 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       }, 50);
       setTimeout(() => {
         pages[targetPage].classList.remove(enterClass, 'page-active');
+        // 恢复滚动位置
+        const savedScroll = sessionStorage.getItem(`scroll_${targetPage}`);
+        if (savedScroll) {
+          window.scrollTo(0, parseInt(savedScroll));
+        }
       }, 350);
     }
   }
@@ -1260,6 +1270,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     // 异步加载音频
     const audio = this.els.audio;
     const audioSrc = getAudioUrl(u.filename, this.path, this.key);
+    audio.preload = 'metadata';
     audio.src = audioSrc;
     audio.load();
     
@@ -2345,6 +2356,13 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // 隐藏骨架屏
+  const skeleton = document.getElementById('skeletonLoader');
+  if (skeleton) {
+    skeleton.classList.add('is-hidden');
+    setTimeout(() => skeleton.remove(), 300);
+  }
+  
   // 初始化版本管理
   if (window.NETWORK_STATUS) {
     window.NETWORK_STATUS.init();

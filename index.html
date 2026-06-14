@@ -10,12 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   
   <!-- 尽早捕获 PWA 安装事件，确保不会漏掉 -->
-  <script>
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      window.__pwaDeferredPrompt = e;
-    });
-  </script>
+  <script src="js/pwa-setup.js?v=20260614-1"></script>
   
   <meta name="apple-mobile-web-app-title" content="Hankilab 学习中心">
   <link rel="apple-touch-icon" href="/ilabshadowing/icons/icon-192.webp">
@@ -232,6 +227,14 @@
   </aside>
 
   <div id="app">
+    <!-- 骨架屏加载占位 -->
+    <div id="skeletonLoader" class="skeleton-loader">
+      <div class="skeleton-block skeleton-header"></div>
+      <div class="skeleton-block skeleton-card"></div>
+      <div class="skeleton-block skeleton-card"></div>
+      <div class="skeleton-block skeleton-card"></div>
+    </div>
+    
     <!-- 首页：课本选择 -->
     <main id="bookSelectPage" class="book-page">
       <header class="top-bar">
@@ -1075,90 +1078,9 @@
       </div>
     </div>
   </dialog>
-  <!-- PWA Service Worker 注册 -->
-  <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js")
-          .then(reg => console.log("[PWA] Service Worker 注册成功:", reg.scope))
-          .catch(err => console.error("[PWA] Service Worker 注册失败:", err));
-      });
-    }
-  </script>
-  
-  <!-- PWA 安装提示逻辑 -->
-  <script>
-    (function() {
-      const installDialog = document.getElementById('pwaInstallDialog');
-      const installBtn = document.getElementById('pwaInstallConfirm');
-      const cancelBtn = document.getElementById('pwaInstallCancel');
-
-      // 1. 安装按钮逻辑
-      if (installBtn) {
-        installBtn.addEventListener('click', async () => {
-          const evt = window.__pwaDeferredPrompt;
-          if (evt) {
-            // 触发原生安装指令
-            evt.prompt();
-            try {
-              const { outcome } = await evt.userChoice;
-              console.log('[PWA] 安装结果:', outcome);
-            } catch(e) {}
-            window.__pwaDeferredPrompt = null;
-          } else {
-            // 降级方案
-            if (window.toast) {
-              window.toast.info("请点击浏览器菜单中的'添加到主屏幕'");
-            } else {
-              alert("请使用浏览器菜单中的'添加到主屏幕'功能");
-            }
-          }
-          if (installDialog) installDialog.close();
-        });
-      }
-
-      // 2. 取消按钮逻辑
-      if (cancelBtn) {
-        cancelBtn.addEventListener('click', () => {
-          localStorage.setItem('pwa_install_dismissed', Date.now());
-          if (installDialog) installDialog.close();
-        });
-      }
-
-      // 3. 背景遮罩点击关闭
-      if (installDialog) {
-        installDialog.addEventListener('click', (event) => {
-          // 当点击的是 backdrop 区域时关闭
-          if (event.target === installDialog) {
-            installDialog.close();
-          }
-        });
-      }
-
-      // 4. 自动显示逻辑
-      const showPrompt = () => {
-        // 检测已安装
-        if (window.matchMedia('(display-mode: standalone)').matches || 
-            window.navigator.standalone === true) return;
-        
-        // 检测已拒绝 (7天内)
-        const dismissed = localStorage.getItem('pwa_install_dismissed');
-        if (dismissed) {
-          const days = (Date.now() - parseInt(dismissed)) / (1000 * 60 * 60 * 24);
-          if (days < 7) return;
-        }
-
-        setTimeout(() => {
-          if (installDialog) installDialog.showModal();
-        }, 3000);
-      };
-
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', showPrompt);
-      } else {
-        showPrompt();
-      }
-    })();
-  </script>
+  <!-- PWA 安装逻辑 -->
+  <script src="js/pwa-install.js?v=20260614-1"></script>
+  <!-- 性能监控 -->
+  <script src="js/performance-monitor.js?v=20260614-1"></script>
 </body>
 </html>
