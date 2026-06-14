@@ -15,7 +15,7 @@ const SFSymbols = {
   
   // 时间/速度
   timer: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
-  speedometer: '<path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8z"/><path d="M12 6v6l4 2"/>',
+  speedometer: '<path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8 -8 8 8 0 0 1-8 8z"/><path d="M12 6v6l4 2"/>',
   
   // 文本/显示
   textAlignCenter: '<path d="M4 6h16M4 12h16M4 18h16M7 21h10"/>',

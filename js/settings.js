@@ -753,8 +753,8 @@
   function showNotification(title, body) {
     const options = {
       body: body,
-      icon: '/icons/icon-192.png',
-      badge: '/icons/icon-96.png',
+      icon: '/icons/icon-192.webp',
+      badge: '/icons/icon-96.webp',
       tag: 'study-reminder',
       requireInteraction: false
     };

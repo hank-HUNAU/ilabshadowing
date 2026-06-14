@@ -215,6 +215,49 @@ class SPARouter {
       this.pageContents['favorite'] = true;
       console.log(`[SPA Router] Favorite page loaded`);
     } catch (error) {
+      // favorite.html 已移至 /tmp/html-backup/，使用内存标记
+      console.log(`[SPA Router] Favorite page using embedded content`);
+      this.pageContents['favorite'] = true;
+    }
+  }
+
+  async loadStatsContent() {
+    if (this.pageContents['stats']) {
+      return;
+    }
+
+    try {
+      const content = await this.fetchPageContent('stats.html');
+      this.pageContents['stats'] = true;
+      console.log(`[SPA Router] Stats page loaded`);
+    } catch (error) {
+      // stats.html 已移至 /tmp/html-backup/，使用内存标记
+      console.log(`[SPA Router] Stats page using embedded content`);
+      this.pageContents['stats'] = true;
+    }
+  }
+
+  async loadSettingsContent() {
+    if (this.pageContents['settings']) {
+      return;
+    }
+
+    try {
+      const content = await this.fetchPageContent('settings.html');
+      this.pageContents['settings'] = true;
+      console.log(`[SPA Router] Settings page loaded`);
+    } catch (error) {
+      // settings.html 已移至 /tmp/html-backup/，使用内存标记
+      console.log(`[SPA Router] Settings page using embedded content`);
+      this.pageContents['settings'] = true;
+    }
+  }
+
+    try {
+      const content = await this.fetchPageContent('favorite.html');
+      this.pageContents['favorite'] = true;
+      console.log(`[SPA Router] Favorite page loaded`);
+    } catch (error) {
       console.error(`[SPA Router] Failed to load favorite page:`, error);
       throw error;
     }
