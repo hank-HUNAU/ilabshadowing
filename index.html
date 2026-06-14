@@ -15,7 +15,8 @@
   <link rel="icon" type="image/png" href="/ilabshadowing/icons/icon-96.png" sizes="96x96">
   <link rel="icon" type="image/png" href="/ilabshadowing/icons/icon-144.png" sizes="144x144">
   <link rel="icon" type="image/png" href="/ilabshadowing/icons/icon-512.png" sizes="512x512">
-  <link rel="stylesheet" href="css/style.css?v=20260604-5">
+  <!-- 主样式表（原始版本保留，使用压缩版本） -->
+  <link rel="stylesheet" href="css/style.min.css?v=20260614-1">
 </head>
 <body>
   <!-- SVG 图标定义（复用优化） -->
@@ -1033,7 +1034,8 @@
   <script src="js/spa-router.js?v=20260610-1"></script>
   
   <!-- 主应用脚本 -->
-  <script src="js/main.js?v=20260610-1"></script>
+  <!-- 主应用脚本（原始版本保留，使用压缩版本） -->
+  <script src="js/main.min.js?v=20260614-1"></script>
   
   <!-- 长按菜单 -->
   <dialog id="longPressMenu" class="pwa-dialog">
@@ -1067,5 +1069,15 @@
       </div>
     </div>
   </dialog>
+  <!-- PWA Service Worker 注册 -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js")
+          .then(reg => console.log("[PWA] Service Worker 注册成功:", reg.scope))
+          .catch(err => console.error("[PWA] Service Worker 注册失败:", err));
+      });
+    }
+  </script>
 </body>
 </html>
