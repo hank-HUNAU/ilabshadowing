@@ -264,11 +264,12 @@ const PWA_INSTALL = {
    * 初始化 PWA 安装引导
    */
   init() {
-    // beforeinstallprompt 事件（Chrome/Edge/Android）
+     // beforeinstallprompt 事件（Chrome/Edge/Android）
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       this.deferredPrompt = e;
-      this.showInstallPrompt();
+      // 禁用自动弹窗，统一由 index.html 中的逻辑控制简洁版弹窗
+      // this.showInstallPrompt();
     });
     
     // 安装成功事件

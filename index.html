@@ -452,17 +452,12 @@
     
     <!-- PWA 安装提示弹窗（优化版） -->
     <dialog id="pwaInstallDialog" class="pwa-dialog">
-      <div class="pwa-dialog-content">
+      <div class="pwa-dialog-content" style="max-width: 480px;">
         <div class="pwa-icon">
           <img src="/icons/icon-192.png" alt="HANKILAB" class="app-install-icon">
         </div>
         <h3 class="install-title">安装桌面应用</h3>
         <p class="pwa-desc">将应用安装到电脑，快速启动</p>
-        <ul class="install-benefits"></ul>
-        <div class="install-guide">
-          <p class="guide-title">安装步骤：</p>
-          <ol></ol>
-        </div>
         <div class="install-actions">
           <button id="pwaInstallCancel" class="btn-secondary">稍后提醒</button>
           <button id="pwaInstallConfirm" class="btn-primary">立即安装</button>
@@ -1078,6 +1073,59 @@
           .catch(err => console.error("[PWA] Service Worker 注册失败:", err));
       });
     }
+  </script>
+  
+  <!-- PWA 安装提示逻辑 -->
+  <script>
+    (function() {
+      const installDialog = document.getElementById('pwaInstallDialog');
+      const installBtn = document.getElementById('pwaInstallConfirm');
+      const cancelBtn = document.getElementById('pwaInstallCancel');
+
+      // 1. 安装按钮逻辑
+      if (installBtn) {
+        installBtn.addEventListener('click', async () => {
+          // 触发安装 (调用 version-manager.js 中的逻辑)
+          if (window.PWA_INSTALL && window.PWA_INSTALL.triggerInstall) {
+            window.PWA_INSTALL.triggerInstall();
+          }
+          if (installDialog) installDialog.close();
+        });
+      }
+
+      // 2. 取消按钮逻辑
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+          localStorage.setItem('pwa_install_dismissed', Date.now());
+          if (installDialog) installDialog.close();
+        });
+      }
+
+      // 3. 自动显示逻辑
+      const showPrompt = () => {
+        // 检测已安装
+        if (window.matchMedia('(display-mode: standalone)').matches || 
+            window.navigator.standalone === true) return;
+        
+        // 检测已拒绝 (7天内)
+        const dismissed = localStorage.getItem('pwa_install_dismissed');
+        if (dismissed) {
+          const days = (Date.now() - parseInt(dismissed)) / (1000 * 60 * 60 * 24);
+          if (days < 7) return;
+        }
+
+        // 延迟 3 秒显示
+        setTimeout(() => {
+          if (installDialog) installDialog.showModal();
+        }, 3000);
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', showPrompt);
+      } else {
+        showPrompt();
+      }
+    })();
   </script>
 </body>
 </html>
