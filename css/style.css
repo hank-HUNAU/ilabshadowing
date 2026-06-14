@@ -5642,68 +5642,55 @@ body {
   touch-action: none;
 }
 
-/* ========== 底部导航美观度优化 ========== */
+/* 微信风格底部导航优化 (去装饰、纯变色) ========== */
 
-/* 桌面端底部导航优化 */
-.bottom-nav {
-  background: var(--card-solid);
-  border-top: 1px solid var(--border-light);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+/* 移除顶部蓝色指示条 (::before) */
+.bottom-nav .nav-item.active::before {
+  display: none;
 }
 
 .bottom-nav .nav-item {
   gap: 3px;
   padding: 8px 14px;
   position: relative;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s ease;
 }
 
+/* 移除点击缩放，仅保留轻微背景 */
 .bottom-nav .nav-item:active {
-  transform: scale(0.92);
-  background: rgba(0, 122, 255, 0.08);
-  border-radius: 12px;
+  transform: scale(1); /* 取消缩放 */
+  background: rgba(0, 122, 255, 0.05);
+  border-radius: 4px;
 }
 
+/* 图标保持静止，无位移动画 */
 .bottom-nav .nav-icon {
   width: 22px;
   height: 22px;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: stroke 0.2s ease, stroke-width 0.2s ease;
 }
 
+/* 激活状态：加粗 + 蓝变，无位移 */
 .bottom-nav .nav-item.active .nav-icon {
   stroke: var(--primary);
   stroke-width: 2.5px;
-  transform: translateY(-2px);
-  filter: drop-shadow(0 2px 4px rgba(0, 122, 255, 0.3));
-}
-
-.bottom-nav .nav-item.active::before {
-  content: '';
-  position: absolute;
-  top: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 3px;
-  background: var(--primary);
-  border-radius: 2px;
-  opacity: 1;
+  transform: none; /* 取消位移 */
+  filter: none;   /* 取消投影 */
 }
 
 .bottom-nav .nav-label {
   font-size: 0.65rem;
   font-weight: 500;
   transition: all 0.2s ease;
+  color: var(--text-secondary);
 }
 
 .bottom-nav .nav-item.active .nav-label {
   color: var(--primary);
   font-weight: 600;
-  font-size: 0.68rem;
 }
 
-/* 移动端底部导航优化 */
+/* 移动端微信风格底部优化 */
 @media (max-width: 767px) {
   .bottom-nav {
     padding: 0 4px;
@@ -5722,21 +5709,12 @@ body {
   .bottom-nav .nav-label {
     font-size: 0.6rem;
   }
-  
-  .bottom-nav .nav-item.active .nav-label {
-    font-size: 0.65rem;
-  }
-  
-  .bottom-nav .nav-item.active::before {
-    width: 16px;
-    height: 2px;
-  }
 }
 
 /* 平板端底部导航优化 */
 @media (min-width: 768px) and (max-width: 1023px) {
   .bottom-nav .nav-item {
-    padding: 8px 16px;
+    padding: 8px 6px;
   }
   
   .bottom-nav .nav-icon {
@@ -5749,7 +5727,7 @@ body {
   }
 }
 
-/* 桌面端底部导航增强 */
+/* 桌面端底部导航增强：居中显示 */
 @media (min-width: 1024px) {
   .bottom-nav {
     max-width: 600px;
@@ -5762,11 +5740,6 @@ body {
     padding: 10px 18px;
   }
   
-  .bottom-nav .nav-item:hover {
-    background: rgba(0, 122, 255, 0.05);
-    border-radius: 12px;
-  }
-  
   .bottom-nav .nav-icon {
     width: 22px;
     height: 22px;
@@ -5776,9 +5749,9 @@ body {
     font-size: 0.72rem;
   }
   
-  .bottom-nav .nav-item.active::before {
-    width: 24px;
-    height: 3px;
+  .bottom-nav .nav-item:hover {
+    background: rgba(0, 122, 255, 0.05);
+    border-radius: 4px;
   }
 }
 

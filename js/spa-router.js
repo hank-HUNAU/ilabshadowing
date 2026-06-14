@@ -32,8 +32,43 @@ class SPARouter {
   init() {
     this.setupRoutes();
     this.setupHistoryListener();
+    this.setupNavInterception(); // 新增：拦截导航栏点击
     this.handleInitialRoute();
     this.preloadPages();
+  }
+
+  setupNavInterception() {
+    // 拦截底部导航栏和侧边导航栏的点击事件，实现纯 SPA 跳转
+    const handleNav = (e) => {
+      const link = e.target.closest('.nav-item, .side-nav-item');
+      if (!link) return;
+
+      e.preventDefault();
+
+      // 优先使用 data-page 属性
+      if (link.dataset.page) {
+        this.navigateTo(link.dataset.page);
+        return;
+      }
+
+      // 降级处理：解析 href 或 aria-label
+      const href = link.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        this.navigateTo(href.slice(1));
+      }
+    };
+
+    // 绑定底部导航
+    const bottomNav = document.getElementById('bottomNav');
+    if (bottomNav) {
+      bottomNav.addEventListener('click', handleNav);
+    }
+
+    // 绑定侧边导航
+    const sideNav = document.getElementById('sideNav');
+    if (sideNav) {
+      sideNav.addEventListener('click', handleNav);
+    }
   }
 
   setupRoutes() {
@@ -98,7 +133,12 @@ class SPARouter {
 
     console.log(`[SPA Router] Navigating to: ${page}`);
 
-    // 执行页面处理
+    // 通知 App 实例页面即将切换 (用于更新导航状态等)
+    if (this.app && this.app.updateNavigation) {
+      this.app.updateNavigation(page);
+    }
+
+    // 执行页面处理 (数据加载等)
     if (route.handler) {
       try {
         await route.handler();
@@ -112,10 +152,23 @@ class SPARouter {
       console.log(`[SPA Router] Book page handled by App`);
       if (this.app && this.app.showBookPage) {
         this.app.showBookPage();
+        // Book 页面可能需要渲染数据
+        if (this.app && this.app.renderBook) {
+            this.app.renderBook();
+        }
       }
     }
 
     // 切换页面显示
+    // 安全检查：如果目标 DOM 不存在，阻止切换（如 Stats/Settings 已下线）
+    const targetDom = document.getElementById(route.elementId);
+    if (!targetDom) {
+      console.warn(`[SPA Router] DOM element not found for page: ${page}, aborting switch.`);
+      // 恢复导航状态到上一页
+      this.updateNavigationState(this.currentPage);
+      return;
+    }
+
     this.showPage(page);
 
     // 更新当前页面
@@ -148,6 +201,13 @@ class SPARouter {
       return;
     }
 
+    // 安全检查：如果目标页面元素不存在，取消切换（避免白屏）
+    const targetElement = document.getElementById(route.elementId);
+    if (!targetElement) {
+      console.warn(`[SPA Router] Page element not found: ${route.elementId}`);
+      return;
+    }
+
     // 隐藏所有页面
     Object.values(this.routes).forEach(r => {
       if (r.elementId) {
@@ -158,9 +218,6 @@ class SPARouter {
         }
       }
     });
-
-    // 显示目标页面
-    const targetElement = document.getElementById(route.elementId);
     if (targetElement) {
       targetElement.style.display = 'block';
       targetElement.classList.add('active');
@@ -218,6 +275,10 @@ class SPARouter {
       // favorite.html 已移至 /tmp/html-backup/，使用内存标记
       console.log(`[SPA Router] Favorite page using embedded content`);
       this.pageContents['favorite'] = true;
+      // 调用 App 的方法渲染收藏内容
+      if (this.app && this.app.renderFavorites) {
+        this.app.renderFavorites();
+      }
     }
   }
 
