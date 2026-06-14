@@ -1554,10 +1554,10 @@ body.hide-en .line-en { display: none; }
   outline: none;
 }
 
-.pwa-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+dialog.pwa-dialog[open]::backdrop {
+  background: rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
 }
 
 .pwa-dialog-content {

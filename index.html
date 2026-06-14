@@ -1085,10 +1085,19 @@
       // 1. 安装按钮逻辑
       if (installBtn) {
         installBtn.addEventListener('click', async () => {
-          // 触发安装 (调用 version-manager.js 中的逻辑)
-          if (window.PWA_INSTALL && window.PWA_INSTALL.triggerInstall) {
-            window.PWA_INSTALL.triggerInstall();
+          // 尝试触发浏览器安装指令
+          if (window.PWA_INSTALL && window.PWA_INSTALL.deferredPrompt) {
+             const evt = window.PWA_INSTALL.deferredPrompt;
+             try {
+               evt.prompt();
+               await evt.userChoice;
+             } catch(e) {}
+             window.PWA_INSTALL.deferredPrompt = null;
+          } else {
+             // 如果未捕获到安装事件，提示用户手动安装
+             if (window.toast) window.toast.info("请点击浏览器菜单中的'添加到主屏幕'");
           }
+          // 关闭弹窗
           if (installDialog) installDialog.close();
         });
       }
@@ -1101,7 +1110,23 @@
         });
       }
 
-      // 3. 自动显示逻辑
+      // 3. 背景遮罩点击关闭
+      if (installDialog) {
+        installDialog.addEventListener('click', (event) => {
+          // 当点击目标是对话框背景（backdrop）时关闭
+          const rect = installDialog.getBoundingClientRect();
+          if (
+            event.clientX < rect.left || 
+            event.clientX > rect.right || 
+            event.clientY < rect.top || 
+            event.clientY > rect.bottom
+          ) {
+            installDialog.close();
+          }
+        });
+      }
+
+      // 4. 自动显示逻辑
       const showPrompt = () => {
         // 检测已安装
         if (window.matchMedia('(display-mode: standalone)').matches || 
@@ -1114,7 +1139,6 @@
           if (days < 7) return;
         }
 
-        // 延迟 3 秒显示
         setTimeout(() => {
           if (installDialog) installDialog.showModal();
         }, 3000);
