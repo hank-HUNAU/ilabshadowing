@@ -266,11 +266,10 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
   
   async init() {
     await this.loadBooks();
-    this.renderBooks();
     this.bind();
     this.updateFavBadge();
     
-    // 检查是否应该直接进入课程页面
+    // 恢复上次页面
     this.restoreLastPage();
     
     // 初始化下拉刷新（仅手机端）
@@ -283,7 +282,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       this.initEdgeBackGesture();
     }
     
-    // 初始化SPA路由器（在App完全初始化后）
+    // 初始化SPA路由器
     this.initSPARouter();
   }
   
@@ -295,51 +294,56 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       console.warn('[App] SPA Router not available, falling back to traditional navigation');
       return;
     }
-    
-    
-    // 创建SPA路由器实例
+
     this.spaRouter = new SPARouter();
-    
-    // 设置App实例引用
     this.spaRouter.setApp(this);
-    
-    // 初始化路由器
     this.spaRouter.init();
-    
-    // 全局暴露SPA路由器
     window.spaRouter = this.spaRouter;
-    
   }
-  
-  /**
-   * 显示book页面（课本选择）
-   */
+
+  renderBooks() {
+    if (!this.els.bookGrid) return;
+    this.els.bookGrid.innerHTML = this.books.map(b => `
+      <div class="book-card" data-key="${b.key}">
+        <h3 class="book-title">${b.title}</h3>
+        <p class="book-desc">${this.getBookDesc(b)}</p>
+        <span class="unit-count">${b.units.length} 课</span>
+      </div>
+    `).join('');
+  }
+
+  getBookDesc(book) {
+    return book.desc || `共 ${book.units.length} 课`;
+  }
+
+  restoreLastPage() {
+    const lastBook = localStorage.getItem(LS.BOOK);
+    const lastPage = localStorage.getItem(LS.LAST_PAGE);
+    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+
+    // 桌面端：直接进入最近课本的课程列表
+    if (isDesktop && lastBook && lastPage === 'unit') {
+      this.openBook(lastBook);
+      return;
+    }
+    if (isDesktop && lastBook) {
+      this.openBook(lastBook);
+      return;
+    }
+
+    // 手机端：显示课本选择页
+    this.renderBooks();
+  }
+
   showBookPage() {
-    
-    // 隐藏其他页面
-    this.hideOtherPages();
-    
-    // 显示课本选择页面
-    if (this.els.bookPage) {
-      this.els.bookPage.style.display = 'block';
-    }
-    
-    // 隐藏课程列表页面
-    if (this.els.unitPage) {
-      this.els.unitPage.style.display = 'none';
-    }
-    
-    // 隐藏播放页面
-    if (this.els.playerPage) {
-      this.els.playerPage.style.display = 'none';
-    }
+    this.els.unitPage.style.display = 'none';
+    this.els.bookPage.style.display = 'flex';
+    this.els.bookPage.classList.add('page-transition');
+    localStorage.setItem(LS.LAST_PAGE, 'book');
+    this.updateSideNavActive(null);
   }
-  
-  /**
-   * 隐藏其他页面
-   */
-  hideOtherPages() {}
-  
+
+
   updateFavBadge() {}
 
   // 已移除"练习本句"按钮功能（2026-05-30）
@@ -686,7 +690,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       <div class="skeleton skeleton-card"></div>
       <div class="skeleton skeleton-card"></div>
     `;
-    
+
     try {
       const data = await fetch('data.json').then(r => r.json());
       const allBooks = data.books || [];
@@ -702,7 +706,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       this.renderSidebar();
       
       if (this.books.length === 0) {
-        this.els.bookGrid.innerHTML = `
+        this.els.unitGrid.innerHTML = `
           <div class="empty-state">
             <svg class="empty-state-icon" viewBox="0 0 24 24" width="80" height="80" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
@@ -717,7 +721,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     } catch (e) { 
       console.error('[App] Failed to load data.json:', e);
       this.books = []; 
-      this.els.bookGrid.innerHTML = `
+      this.els.unitGrid.innerHTML = `
         <div class="empty-state">
           <svg class="empty-state-icon" viewBox="0 0 24 24" width="80" height="80" fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="10"/>
@@ -763,57 +767,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     });
   }
   
-  renderBooks() {
-    this.els.bookGrid.innerHTML = this.books.map(b => {
-      const shortName = b.key === 'NCE1' ? 'N1' : b.key === 'THINK_0' ? 'T0' : b.key === 'THINK_F' ? 'TF' : b.key;
-      return `
-      <div class="book-card" data-key="${b.key}">
-        <div class="book-icon">${shortName}</div>
-        <div class="book-info">
-          <h2 class="book-title">${b.title}</h2>
-          <p class="book-desc">${this.getBookDesc(b.key)}</p>
-        </div>
-      </div>`;
-    }).join('');
-  }
-  
-  getBookDesc(key) {
-    const descs = {
-      'NCE1': '新概念英语第一册 · 基础入门',
-      'THINK_0': 'Think Level 0 · 入门级别',
-      'THINK_F': 'Think Level F · 基础级别'
-    };
-    return descs[key] || '英语跟读训练';
-  }
-
-  restoreLastPage() {
-    const lastBook = localStorage.getItem(LS.BOOK);
-    const lastPage = localStorage.getItem(LS.LAST_PAGE);
-    
-    // 如果用户之前已经进入过课程页面，直接恢复
-    if (lastBook && lastPage === 'unit') {
-      const book = this.books.find(b => b.key === lastBook);
-      if (book) {
-        this.openBook(book.key);
-      } else {
-        // book not found, reset
-        localStorage.removeItem(LS.LAST_PAGE);
-      }
-    }
-  }
-  
-  // 恢复课本选择页面（从空状态引导）
-  restoreBookPage() {
-    if (this.els.unitPage) {
-      this.els.unitPage.style.display = 'none';
-    }
-    if (this.els.bookPage) {
-      this.els.bookPage.style.display = 'flex';
-    }
-    localStorage.setItem(LS.LAST_PAGE, 'book');
-    this.updateSideNavActive(null);
-  }
-
   openBook(key, toUnitIdx = null, toLineIdx = null) {
     this.key = key;
     const book = this.books.find(b => b.key === key);
@@ -821,17 +774,21 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     
     this.path = book.bookPath || '';
     localStorage.setItem(LS.BOOK, key);
-    
-    // 更新页面显示
-    this.els.bookTitle.textContent = book.title;
-    this.els.bookPage.style.display = 'none';
-    this.els.unitPage.style.display = 'flex';
-    this.els.unitPage.classList.add('page-transition');
     localStorage.setItem(LS.LAST_PAGE, 'unit');
+    
+    // 更新页面标题
+    this.els.bookTitle.textContent = book.title;
     
     // 高亮侧边栏当前课本
     this.updateSideNavActive(key);
-    
+
+    // 切换到课程列表页
+    if (this.els.bookPage) this.els.bookPage.style.display = 'none';
+    if (this.els.unitPage) {
+      this.els.unitPage.style.display = 'block';
+      this.els.unitPage.classList.add('page-transition');
+    }
+
     // 加载课程列表
     this.loadUnits(() => {
       // 如果指定了课程索引，加载完成后打开
@@ -1457,7 +1414,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
         if (key) this.openBook(key);
       }
     });
-    
+
     // 返回课本选择
     this.els.backToBooks.addEventListener('click', () => {
       this.els.unitPage.style.display = 'none';
@@ -1467,7 +1424,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       localStorage.setItem(LS.LAST_PAGE, 'book');
       this.updateSideNavActive(null);
     });
-    
+
     // 课程网格点击 - 打开播放器
     this.els.unitGrid.addEventListener('click', e => {
       const card = e.target.closest('.unit-card');

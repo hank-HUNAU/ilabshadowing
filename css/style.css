@@ -48,7 +48,7 @@
   }
   
   /* 暗黑模式卡片增强 */
-  .book-card,
+   .book-card,
   .unit-card {
     background: rgba(30, 30, 30, 0.8);
     backdrop-filter: blur(20px);
@@ -226,7 +226,7 @@
   .book-card:active {
     transform: scale(0.96);
   }
-  
+
   .unit-card:active {
     transform: scale(0.97);
   }
