@@ -201,6 +201,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     this.allRepeatCount = 0;     // 当前全文已重复次数
     
     this.els = {
+      sideNavMenu: document.getElementById('sideNavMenu'),
       bookPage: document.getElementById('bookSelectPage'),
       unitPage: document.getElementById('unitListPage'),
       bookGrid: document.getElementById('bookGrid'),
@@ -679,7 +680,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
   }
 
   async loadBooks() {
-    // 显示骨架屏
     this.els.bookGrid.innerHTML = `
       <div class="skeleton skeleton-card"></div>
       <div class="skeleton skeleton-card"></div>
@@ -698,6 +698,8 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       } else {
         this.books = allBooks.filter(b => selected.includes(b.key));
       }
+      
+      this.renderSidebar();
       
       if (this.books.length === 0) {
         this.els.bookGrid.innerHTML = `
@@ -729,7 +731,38 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       return;
     }
   }
-
+  
+  renderSidebar() {
+    if (!this.els.sideNavMenu) return;
+    
+    const nce1Book = this.books.find(b => b.key === 'NCE1');
+    const thinkBook = this.books.find(b => b.key === 'THINK_0');
+    
+    this.els.sideNavMenu.innerHTML = [
+      nce1Book ? `<a href="#" class="side-nav-item side-nav-book" data-book="NCE1">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        <span>NCE1</span>
+      </a>` : '',
+      thinkBook ? `<a href="#" class="side-nav-item side-nav-book" data-book="THINK_0">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        <span>THINK0</span>
+      </a>` : '',
+    ].join('');
+  }
+  
+  updateSideNavActive(bookKey) {
+    if (!this.els.sideNavMenu) return;
+    this.els.sideNavMenu.querySelectorAll('.side-nav-book').forEach(item => {
+      item.classList.toggle('active', item.dataset.book === bookKey);
+    });
+  }
+  
   renderBooks() {
     this.els.bookGrid.innerHTML = this.books.map(b => {
       const shortName = b.key === 'NCE1' ? 'N1' : b.key === 'THINK_0' ? 'T0' : b.key === 'THINK_F' ? 'TF' : b.key;
@@ -778,6 +811,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       this.els.bookPage.style.display = 'flex';
     }
     localStorage.setItem(LS.LAST_PAGE, 'book');
+    this.updateSideNavActive(null);
   }
 
   openBook(key, toUnitIdx = null, toLineIdx = null) {
@@ -794,6 +828,9 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     this.els.unitPage.style.display = 'flex';
     this.els.unitPage.classList.add('page-transition');
     localStorage.setItem(LS.LAST_PAGE, 'unit');
+    
+    // 高亮侧边栏当前课本
+    this.updateSideNavActive(key);
     
     // 加载课程列表
     this.loadUnits(() => {
@@ -1364,20 +1401,15 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
   fmt(s) { if (!isFinite(s)) return '0:00'; return `${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`; }
 
   bind() {
-    // 电脑端侧边导航栏
-    const sideNav = document.getElementById('sideNav');
+    // 电脑端侧边导航栏 - 课本链接
+    const sideNav = document.getElementById('sideNavMenu');
     if (sideNav) {
-      const sideNavItems = sideNav.querySelectorAll('.side-nav-item');
-      sideNavItems.forEach(item => {
+      sideNav.querySelectorAll('.side-nav-book').forEach(item => {
         item.addEventListener('click', (e) => {
           e.preventDefault();
-          const page = item.dataset.page;
-          
-          // 使用SPA路由器进行页面切换
-          if (this.spaRouter) {
-            this.spaRouter.navigateTo(page);
-          } else {
-            this.navigateBottomNavWithHistory(page);
+          const bookKey = item.dataset.book;
+          if (bookKey) {
+            this.openBook(bookKey);
           }
         });
       });
@@ -1433,6 +1465,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       this.els.bookPage.style.display = 'flex';
       this.els.bookPage.classList.add('page-transition');
       localStorage.setItem(LS.LAST_PAGE, 'book');
+      this.updateSideNavActive(null);
     });
     
     // 课程网格点击 - 打开播放器
