@@ -1444,7 +1444,15 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       }
     });
 
-    
+    // Close button
+    this.els.close.addEventListener('click', () => {
+      if (userManager) {
+        userManager.endStudySession();
+      }
+      this.els.dlg.close();
+      this.els.audio.pause();
+    });
+
     // Audio events
     this.els.audio.addEventListener('timeupdate', () => {
       this.highlight();
@@ -1628,16 +1636,14 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     // ESC
     document.addEventListener('keydown', e => { 
       if (e.key === 'Escape' && this.els.dlg.open) {
-        // 结束学习计时
         if (userManager) {
           userManager.endStudySession();
-          const targetRepeat = this.mode === 'single' 
-            ? REPEAT_COUNTS[this.singleRepeatIdx] 
-            : REPEAT_COUNTS[this.allRepeatIdx];
-          userManager.updateProgress(this.key, this.idx, targetRepeat);
-          // 同步到数据模块
-          if (window.dataSync && this.book?.key) {
-            window.updateCourseProgress(this.book.key, this.units[this.idx].key, targetRepeat);
+          userManager.updateProgress(this.key, this.idx, this.repeatCount);
+        }
+        if (window.dataSync) {
+          const book = this.books.find(b => b.key === this.key);
+          if (book && this.units[this.idx]) {
+            window.updateCourseProgress(book.key, this.units[this.idx].key, this.repeatCount);
           }
         }
         this.els.dlg.close(); 
