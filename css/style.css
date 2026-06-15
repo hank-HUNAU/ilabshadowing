@@ -6906,3 +6906,328 @@ html {
     padding: 24px;
   }
 }
+
+/* ========== 电脑端统计页 ========== */
+
+.stats-page {
+  display: flex;
+  flex-direction: column;
+  animation: fade-in 0.3s ease;
+}
+
+/* 学习总览 */
+.dashboard-panel {
+  max-width: 1000px;
+  margin: 0 auto 24px;
+  padding: 24px;
+  background: var(--card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+}
+
+.dashboard-panel h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.dash-card {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  text-align: center;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.dash-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.dash-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.dash-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.dash-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* 学习趋势 */
+.trend-section {
+  max-width: 1000px;
+  margin: 0 auto 24px;
+  padding: 24px;
+  background: var(--card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+}
+
+.trend-section h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.trend-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.trend-tab {
+  padding: 8px 16px;
+  border: none;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.trend-tab.active {
+  background: var(--primary);
+  color: white;
+}
+
+.trend-tab:hover:not(.active) {
+  background: var(--border);
+}
+
+.trend-chart {
+  height: 200px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.trend-bar {
+  flex: 1;
+  background: var(--primary);
+  border-radius: 4px 4px 0 0;
+  transition: height 0.3s ease;
+  position: relative;
+  min-height: 8px;
+}
+
+.trend-bar:hover {
+  opacity: 0.8;
+}
+
+.trend-bar::after {
+  content: attr(data-value);
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.trend-label {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+}
+
+/* 课程进度 */
+.progress-section {
+  max-width: 1000px;
+  margin: 0 auto 24px;
+  padding: 24px;
+  background: var(--card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+}
+
+.progress-section h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.progress-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+
+.progress-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.progress-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: white;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.progress-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.progress-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 6px;
+}
+
+.progress-meta {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+}
+
+.progress-bar-container {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-percent {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary);
+  min-width: 50px;
+  text-align: right;
+}
+
+/* 学习日历 */
+.calendar-section {
+  max-width: 1000px;
+  margin: 0 auto 24px;
+  padding: 24px;
+  background: var(--card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+}
+
+.calendar-section h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.calendar-heatmap {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  padding: 16px 0;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  transition: all 0.2s ease;
+}
+
+.calendar-day:hover {
+  transform: scale(1.2);
+  z-index: 1;
+}
+
+.calendar-day.level-1 { background: #c6e48b; }
+.calendar-day.level-2 { background: #7bc96f; }
+.calendar-day.level-3 { background: #239652; }
+.calendar-day.level-4 { background: #196332; }
+
+.calendar-legend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+@media (min-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .trend-chart {
+    height: 220px;
+  }
+}

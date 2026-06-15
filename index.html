@@ -301,6 +301,76 @@
       </div>
     </main>
 
+    <!-- 统计页 -->
+    <main id="statsPage" class="stats-page" style="display: none;">
+      <header class="top-bar">
+        <h1 class="site-title">学习统计</h1>
+        <div class="header-actions">
+          <button id="statsRefreshBtn" class="icon-btn" aria-label="刷新" title="刷新">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 4v6h-6M1 20v-6h6"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+      
+      <!-- 学习总览 -->
+      <section class="dashboard-panel">
+        <h4>学习总览</h4>
+        <div class="dashboard-grid">
+          <div class="dash-card">
+            <div class="dash-icon">⏱️</div>
+            <div class="dash-value" id="dashTotalTime">0h</div>
+            <div class="dash-label">累计学习</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-icon">🔥</div>
+            <div class="dash-value" id="dashStreak">0 天</div>
+            <div class="dash-label">连续学习</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-icon">⭐</div>
+            <div class="dash-value" id="dashFavorites">0 句</div>
+            <div class="dash-label">收藏句子</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-icon">📚</div>
+            <div class="dash-value" id="dashCourses">0 课</div>
+            <div class="dash-label">完成课程</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 学习趋势 -->
+      <section class="trend-section">
+        <h4>学习趋势</h4>
+        <div class="trend-tabs">
+          <button class="trend-tab active" data-range="week">周</button>
+          <button class="trend-tab" data-range="month">月</button>
+          <button class="trend-tab" data-range="year">年</button>
+        </div>
+        <div class="trend-chart" id="trendChart"></div>
+      </section>
+
+      <!-- 课程进度 -->
+      <section class="progress-section">
+        <h4>课程进度</h4>
+        <div class="progress-list" id="courseProgressList"></div>
+      </section>
+
+      <!-- 学习日历 -->
+      <section class="calendar-section">
+        <h4>学习日历</h4>
+        <div class="calendar-heatmap" id="calendarHeatmap"></div>
+        <div class="calendar-legend">
+          <div class="legend-item"><div class="legend-color" style="background: var(--bg-secondary);"></div><span>无</span></div>
+          <div class="legend-item"><div class="legend-color" style="background: #c6e48b;"></div><span>少</span></div>
+          <div class="legend-item"><div class="legend-color" style="background: #239652;"></div><span>多</span></div>
+        </div>
+      </section>
+    </main>
+
     <!-- 课文预习弹窗 -->
     <dialog id="playerDialog" class="player-dialog">
       <div class="dialog-inner">

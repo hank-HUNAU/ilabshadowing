@@ -204,6 +204,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       bookPage: document.getElementById('bookSelectPage'),
       unitPage: document.getElementById('unitListPage'),
       favoritePage: document.getElementById('favoritePage'),
+      statsPage: document.getElementById('statsPage'),
       unitPage: document.getElementById('unitListPage'),
       bookGrid: document.getElementById('bookGrid'),
       favoriteList: document.getElementById('favoriteList'),
@@ -850,6 +851,152 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     );
 
     this.renderFavorites(filtered);
+  }
+
+  // 渲染统计页
+  renderStats() {
+    const stats = JSON.parse(localStorage.getItem(LS.LEARNING_STATS) || '{}');
+    const progress = JSON.parse(localStorage.getItem(LS.PROGRESS) || '{}');
+
+    // 总览卡片
+    const totalTimeEl = document.getElementById('dashTotalTime');
+    const streakEl = document.getElementById('dashStreak');
+    const favsEl = document.getElementById('dashFavorites');
+    const coursesEl = document.getElementById('dashCourses');
+
+    if (totalTimeEl) {
+      const hours = Math.round((stats.totalTime || 0) / 3600 * 10) / 10;
+      totalTimeEl.textContent = `${hours}h`;
+    }
+    if (streakEl) streakEl.textContent = `${stats.streak || 0} 天`;
+    if (favsEl) favsEl.textContent = `${this.favorites.length} 句`;
+    
+    // 计算完成课程数
+    let completed = 0;
+    if (this.books) {
+      this.books.forEach(b => {
+        const units = this.data?.units?.[b.key] || [];
+        units.forEach((_, i) => {
+          if (progress[`${b.key}_${i}`]?.completed) completed++;
+        });
+      });
+    }
+    if (coursesEl) coursesEl.textContent = `${completed} 课`;
+
+    // 趋势图表（模拟数据）
+    this.renderTrendChart('week', stats.dailyRecords || []);
+
+    // 课程进度
+    this.renderCourseProgress(progress);
+
+    // 学习日历
+    this.renderCalendarHeatmap(stats.dailyRecords || []);
+  }
+
+  // 渲染趋势图表
+  renderTrendChart(range, dailyRecords) {
+    const container = document.getElementById('trendChart');
+    if (!container) return;
+
+    let days, labels, data;
+    const now = new Date();
+
+    if (range === 'week') {
+      days = 7;
+    } else if (range === 'month') {
+      days = 30;
+    } else {
+      days = 12;
+    }
+
+    // 构建数据
+    data = [];
+    labels = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i);
+      const key = date.toISOString().split('T')[0];
+      const record = dailyRecords.find(d => d.date === key);
+      const minutes = record ? record.minutes : 0;
+      data.push(minutes);
+
+      const label = range === 'year' 
+        ? `${date.getMonth() + 1}` 
+        : `${date.getDate()}`;
+      labels.push(label);
+    }
+
+    const maxVal = Math.max(...data, 1);
+
+    // 渲染柱状图
+    container.innerHTML = data.map((val, i) => {
+      const height = Math.max(8, (val / maxVal) * 160);
+      const label = labels[i];
+      return `
+        <div class="trend-bar" style="height: ${height}px" data-value="${val}min">
+          <span class="trend-label">${label}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // 渲染课程进度
+  renderCourseProgress(progress) {
+    const container = document.getElementById('courseProgressList');
+    if (!container || !this.books) return;
+
+    const items = this.books.flatMap(b => {
+      const units = this.data?.units?.[b.key] || [];
+      return units.map((u, i) => ({
+        bookKey: b.key,
+        unitIndex: i,
+        title: `${b.shortName} · 第${i + 1}课`,
+        progress: progress[`${b.key}_${i}`] || {}
+      }));
+    });
+
+    container.innerHTML = items.map(item => {
+      const percent = item.progress.completed ? 100 : Math.round((item.progress.learned || 0) / (item.progress.total || 1) * 100);
+      return `
+        <div class="progress-item">
+          <div class="progress-icon">${item.bookKey === 'NCE1' ? 'N1' : item.bookKey === 'THINK_0' ? 'T0' : 'TF'}</div>
+          <div class="progress-info">
+            <div class="progress-name">${item.title}</div>
+            <div class="progress-meta">${item.progress.completed ? '已完成' : `${item.progress.learned || 0}/${item.progress.total || '?'}`}</div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" style="width: ${percent}%"></div>
+            </div>
+          </div>
+          <div class="progress-percent">${percent}%</div>
+        </div>
+      `;
+    }).join('') || '<p class="empty-state-desc">暂无课程数据</p>';
+  }
+
+  // 渲染日历热力图
+  renderCalendarHeatmap(dailyRecords) {
+    const container = document.getElementById('calendarHeatmap');
+    if (!container) return;
+
+    const days = [];
+    const now = new Date();
+    for (let i = 27; i >= 0; i--) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i);
+      const key = date.toISOString().split('T')[0];
+      const record = dailyRecords.find(d => d.date === key);
+      const minutes = record ? record.minutes : 0;
+      days.push({ date: date.getDate(), minutes, key });
+    }
+
+    container.innerHTML = days.map(d => {
+      let level = 0;
+      if (d.minutes > 0) level = 1;
+      if (d.minutes >= 15) level = 2;
+      if (d.minutes >= 30) level = 3;
+      if (d.minutes >= 60) level = 4;
+      return `<div class="calendar-day level-${level}">${d.date}</div>`;
+    }).join('');
   }
 
   async loadBooks() {
