@@ -1,6 +1,6 @@
 // Service Worker for ilabshadowing
 // 缓存版本 - 由构建脚本自动更新
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const CACHE_NAME = `ilabshadowing-static-${CACHE_VERSION}`;
 const AUDIO_CACHE = `ilabshadowing-audio-${CACHE_VERSION}`;
 
@@ -12,8 +12,15 @@ const BASE_PATH = SCOPE.replace(/\/$/, '').split('/').slice(0, -1).join('/') || 
 const STATIC_ASSETS = [
   './',
   './index.html',
-  './js/main.js',
   './css/style.css',
+  './js/sf-icons.js',
+  './js/data-sync.js',
+  './js/version-manager.js',
+  './js/toast.js',
+  './js/user-manager.js',
+  './js/review-system.js',
+  './js/spa-router.js',
+  './js/main.js',
   './data.json',
   './manifest.json',
   './changelog.json'
