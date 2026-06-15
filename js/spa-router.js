@@ -37,27 +37,12 @@ class SPARouter {
   }
 
   setupRoutes() {
-    // 定义路由配置
+    // 定义路由配置（仅保留核心学习页）
     this.routes = {
       'book': {
         title: '学习',
         elementId: 'bookSelectPage',
-        handler: null // book页面由App直接处理，不需要特殊handler
-      },
-      'favorite': {
-        title: '收藏',
-        elementId: 'favoritePage',
-        handler: () => this.loadFavoriteContent()
-      },
-      'stats': {
-        title: '统计',
-        elementId: 'statsPage',
-        handler: () => this.loadStatsContent()
-      },
-      'settings': {
-        title: '设置',
-        elementId: 'settingsPage',
-        handler: () => this.loadSettingsContent()
+        handler: null // book页面由App直接处理
       }
     };
   }
@@ -179,17 +164,6 @@ class SPARouter {
    * 更新导航状态
    */
   updateNavigationState(page) {
-    // 更新底部导航（移动端）
-    const bottomNav = document.getElementById('bottomNav');
-    if (bottomNav) {
-      bottomNav.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-        if (item.dataset.page === page) {
-          item.classList.add('active');
-        }
-      });
-    }
-    
     // 更新侧边导航（电脑端）
     const sideNav = document.getElementById('sideNav');
     if (sideNav) {
@@ -199,60 +173,6 @@ class SPARouter {
           item.classList.add('active');
         }
       });
-    }
-  }
-
-  /**
-   * 加载收藏页面内容
-   */
-  async loadFavoriteContent() {
-    if (this.pageContents['favorite']) {
-      return;
-    }
-
-    try {
-      const content = await this.fetchPageContent('favorite.html');
-      this.pageContents['favorite'] = true;
-      console.log(`[SPA Router] Favorite page loaded`);
-    } catch (error) {
-      console.error(`[SPA Router] Failed to load favorite page:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * 加载统计页面内容
-   */
-  async loadStatsContent() {
-    if (this.pageContents['stats']) {
-      return;
-    }
-
-    try {
-      const content = await this.fetchPageContent('stats.html');
-      this.pageContents['stats'] = true;
-      console.log(`[SPA Router] Stats page loaded`);
-    } catch (error) {
-      console.error(`[SPA Router] Failed to load stats page:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * 加载设置页面内容
-   */
-  async loadSettingsContent() {
-    if (this.pageContents['settings']) {
-      return;
-    }
-
-    try {
-      const content = await this.fetchPageContent('settings.html');
-      this.pageContents['settings'] = true;
-      console.log(`[SPA Router] Settings page loaded`);
-    } catch (error) {
-      console.error(`[SPA Router] Failed to load settings page:`, error);
-      throw error;
     }
   }
 
@@ -311,20 +231,7 @@ class SPARouter {
    * 预加载页面内容
    */
   async preloadPages() {
-    // 预加载常用页面内容
-    const pagesToPreload = ['favorite', 'stats', 'settings'];
-    
-    console.log(`[SPA Router] Preloading pages: ${pagesToPreload.join(', ')}`);
-    
-    for (const page of pagesToPreload) {
-      if (this.routes[page] && !this.pageContents[page]) {
-        try {
-          await this.routes[page].handler();
-        } catch (error) {
-          console.error(`[SPA Router] Failed to preload ${page}:`, error);
-        }
-      }
-    }
+    // 核心应用仅保留学习页，无需预加载其他页面
   }
 
   /**

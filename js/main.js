@@ -203,21 +203,12 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     this.els = {
       bookPage: document.getElementById('bookSelectPage'),
       unitPage: document.getElementById('unitListPage'),
-      favoritePage: document.getElementById('favoritePage'),
       bookGrid: document.getElementById('bookGrid'),
       unitGrid: document.getElementById('unitGrid'),
-      favoriteGrid: document.getElementById('favoriteGrid'),
       bookTitle: document.getElementById('bookTitle'),
       unitCount: document.getElementById('unitCount'),
-      favoriteCount: document.getElementById('favoriteCount'),
       backToBooks: document.getElementById('backToBooks'),
-      backToBooksFromFav: document.getElementById('backToBooksFromFav'),
-      showFavorites: document.getElementById('showFavorites'),
-      favCountBadge: document.getElementById('favCountBadge'),
       pullToRefresh: document.getElementById('pullToRefresh'),
-      pullToRefreshFav: document.getElementById('pullToRefreshFav'),
-      longPressMenu: document.getElementById('longPressMenu'),
-      closeLongPressMenu: document.getElementById('closeLongPressMenu'),
       dlg: document.getElementById('playerDialog'),
       title: document.getElementById('unitTitle'),
       close: document.getElementById('closeBtn'),
@@ -242,10 +233,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       trL: document.getElementById('transLabel'),
       repeat: document.getElementById('repeatBtn'),
       repeatCount: document.getElementById('repeatCount'),
-      more: document.getElementById('moreBtn'),
-      mobileTimerLabel: document.getElementById('mobileTimerLabel'),
-      mobileSpeedLabel: document.getElementById('mobileSpeedLabel'),
-      mobileTransLabel: document.getElementById('mobileTransLabel'),
       audio: document.getElementById('audio')
     };
 
@@ -350,27 +337,9 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
   /**
    * 隐藏其他页面
    */
-  hideOtherPages() {
-    const pages = ['favoritePage', 'statsPage', 'settingsPage'];
-    pages.forEach(pageId => {
-      const element = document.getElementById(pageId);
-      if (element) {
-        element.style.display = 'none';
-        element.classList.remove('active');
-      }
-    });
-  }
+  hideOtherPages() {}
   
-  updateFavBadge() {
-    if (!this.els.favBadge) return;
-    
-    if (this.favorites.length > 0) {
-      this.els.favBadge.style.display = 'flex';
-      this.els.favBadge.textContent = this.favorites.length > 99 ? '99+' : this.favorites.length;
-    } else {
-      this.els.favBadge.style.display = 'none';
-    }
-  }
+  updateFavBadge() {}
 
   // 已移除"练习本句"按钮功能（2026-05-30）
   
@@ -547,17 +516,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
   }
   
   updateBottomNavState(page) {
-    // 更新底部导航（手机端）
-    const bottomNav = document.getElementById('bottomNav');
-    if (bottomNav) {
-      bottomNav.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-        if (item.dataset.page === page) {
-          item.classList.add('active');
-        }
-      });
-    }
-    
     // 更新侧边导航（电脑端）
     const sideNav = document.getElementById('sideNav');
     if (sideNav) {
@@ -641,10 +599,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     localStorage.setItem(LS.FAVORITES, JSON.stringify(this.favorites));
     this.updateFavBadge();
     
-    // 如果在收藏页，刷新收藏列表
-    if (this.els.favoritePage && this.els.favoritePage.style.display === 'flex') {
-      this.renderFavorites();
-    }
+
   }
   
   updateLineFavoriteIcon(lineIdx, isFavorited) {
@@ -687,9 +642,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       this.els.favoriteBtn?.classList.remove('favorited');
       this.els.favoriteBtn?.querySelector('svg').setAttribute('fill', 'none');
       // 如果在收藏页，刷新收藏列表
-      if (this.els.favoritePage.style.display === 'flex') {
-        this.renderFavorites();
-      }
+
     } else {
       // 添加收藏 - 收藏当前句子
       const unit = this.units[this.idx];
@@ -712,151 +665,17 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
 
   // 手机端底部导航栏导航
   navigateBottomNav(page, direction = 'forward') {
-    // 如果SPA路由器可用，使用SPA路由器进行页面切换
-    if (this.spaRouter) {
-      console.log(`[App] Navigating to ${page} via SPA Router`);
-      this.spaRouter.navigateTo(page);
-      return;
-    }
-    
-    // 否则使用传统的页面切换方式
-    console.log(`[App] Navigating to ${page} via traditional navigation`);
-    
-    // 更新导航栏状态
-    const bottomNav = document.getElementById('bottomNav');
-    if (bottomNav) {
-      bottomNav.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-        if (item.dataset.page === page) {
-          item.classList.add('active');
-        }
-      });
-    }
-
-    // 收藏页面需要渲染
-    if (page === 'favorite' && this.els.favoritePage.style.display === 'none') {
-      this.renderFavorites();
-    }
-
-    // 页面切换（带动画）
-    this.transitionPage(page, direction);
+    // 已使用SPA路由器
   }
 
-  // 页面转场动画
-  transitionPage(targetPage, direction = 'forward') {
-    const pages = {
-      book: this.els.bookPage,
-      unit: this.els.unitPage,
-      favorite: this.els.favoritePage
-    };
-
-    // 找到当前显示的页面
-    let currentPage = null;
-    for (const [key, page] of Object.entries(pages)) {
-      if (page && page.style.display !== 'none') {
-        currentPage = key;
-        break;
-      }
-    }
-
-    if (currentPage === targetPage) return;
-
-    const enterClass = direction === 'forward' ? 'page-enter' : 'page-exit-reverse';
-    const exitClass = direction === 'forward' ? 'page-exit' : 'page-enter-reverse';
-
-    // 当前页面退出动画
-    if (currentPage && pages[currentPage]) {
-      pages[currentPage].classList.add(exitClass);
-      setTimeout(() => {
-        pages[currentPage].style.display = 'none';
-        pages[currentPage].classList.remove(exitClass);
-      }, 300);
-    }
-
-    // 目标页面进入动画
-    if (pages[targetPage]) {
-      pages[targetPage].style.display = 'flex';
-      pages[targetPage].classList.add(enterClass);
-      setTimeout(() => {
-        pages[targetPage].classList.add('page-active');
-      }, 50);
-      setTimeout(() => {
-        pages[targetPage].classList.remove(enterClass, 'page-active');
-      }, 350);
-    }
-  }
+  transitionPage(page, direction = 'forward') {}
 
   renderFavorites() {
-    if (this.favorites.length === 0) {
-      this.els.favoriteGrid.innerHTML = `
-        <div class="empty-state">
-          <svg class="empty-state-icon" viewBox="0 0 24 24" width="80" height="80" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-          <h3 class="empty-state-title">暂无收藏</h3>
-          <p class="empty-state-desc">播放课文时点击句子右侧的星星图标，收藏喜欢的句子</p>
-          <button class="empty-state-action" onclick="app.restoreBookPage()">去浏览课程</button>
-        </div>
-      `;
-      this.els.favoriteCount.textContent = '0 句';
-      return;
-    }
-    
-    this.els.favoriteCount.textContent = `${this.favorites.length} 句`;
-    this.els.favoriteGrid.innerHTML = this.favorites.map((f, i) => {
-      const num = f.lessonTitle.match(/\d+/)?.[0] || i + 1;
-      return `
-      <div class="unit-card favorite-item" data-fav-idx="${i}" style="min-height:60px;align-items:flex-start;text-align:left;position:relative;">
-        <div class="unit-num" style="font-size:1rem;margin-bottom:4px;">${num}</div>
-        <div class="unit-title" style="font-size:0.75rem;white-space:normal;line-height:1.3;">${f.sentence.substring(0, 30)}${f.sentence.length > 30 ? '...' : ''}</div>
-        <button class="favorite-delete-btn" data-fav-idx="${i}" aria-label="删除收藏" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:var(--text-tertiary);cursor:pointer;padding:8px;border-radius:50%;transition:all 0.2s;">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 6L6 18M6 6l12 12"/>
-          </svg>
-        </button>
-      </div>`;
-    }).join('');
+    // 已移除收藏页面
   }
   
-  // 搜索过滤收藏
   filterFavorites(query) {
-    if (!query || query.trim() === '') {
-      // 清空搜索，显示全部
-      this.renderFavorites();
-      return;
-    }
-    
-    const lowerQuery = query.toLowerCase().trim();
-    const filtered = this.favorites.filter(f => 
-      f.sentence.toLowerCase().includes(lowerQuery) ||
-      f.translation.toLowerCase().includes(lowerQuery) ||
-      f.bookTitle.toLowerCase().includes(lowerQuery) ||
-      f.lessonTitle.toLowerCase().includes(lowerQuery)
-    );
-    
-    if (filtered.length === 0) {
-      this.els.favoriteGrid.innerHTML = `
-        <div class="empty-state">
-          <svg class="empty-state-icon" viewBox="0 0 24 24" width="80" height="80" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M21 21l-4.35-4.35M19 11a8 8 0 10-16 0 8 8 0 0016 0z"/>
-          </svg>
-          <h3 class="empty-state-title">未找到匹配的句子</h3>
-          <p class="empty-state-desc">试试其他关键词</p>
-        </div>
-      `;
-      this.els.favoriteCount.textContent = `${filtered.length} 句`;
-      return;
-    }
-    
-    this.els.favoriteCount.textContent = `${filtered.length} 句`;
-    this.els.favoriteGrid.innerHTML = filtered.map((f, i) => {
-      const num = f.lessonTitle.match(/\d+/)?.[0] || i + 1;
-      return `
-      <div class="unit-card" data-fav-idx="${this.favorites.indexOf(f)}" style="min-height:60px;align-items:flex-start;text-align:left;">
-        <div class="unit-num" style="font-size:1rem;margin-bottom:4px;">${num}</div>
-        <div class="unit-title" style="font-size:0.75rem;white-space:normal;line-height:1.3;">${f.sentence.substring(0, 30)}${f.sentence.length > 30 ? '...' : ''}</div>
-      </div>`;
-    }).join('');
+    // 已移除收藏页面
   }
 
   async loadBooks() {
@@ -953,9 +772,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
   
   // 恢复课本选择页面（从空状态引导）
   restoreBookPage() {
-    if (this.els.favoritePage) {
-      this.els.favoritePage.style.display = 'none';
-    }
     if (this.els.unitPage) {
       this.els.unitPage.style.display = 'none';
     }
@@ -1516,9 +1332,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
   syncUI() {
     const speedLabel = `${this.spd}x`;
     this.els.spdL.textContent = speedLabel;
-    if (this.els.mobileSpeedLabel) {
-      this.els.mobileSpeedLabel.textContent = speedLabel;
-    }
     this.modeLabel();
     this.updateRepeatCounts();
   }
@@ -1545,9 +1358,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     const labels = { bilingual: '双语', 'en-only': '英文', 'cn-only': '中文' };
     const label = labels[this.tr] || '双语';
     this.els.trL.textContent = label;
-    if (this.els.mobileTransLabel) {
-      this.els.mobileTransLabel.textContent = label;
-    }
   }
 
   saveTime(t) { localStorage.setItem(LS.TIME(this.key, this.idx), t); }
@@ -1555,27 +1365,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
   fmt(s) { if (!isFinite(s)) return '0:00'; return `${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`; }
 
   bind() {
-    // 手机端底部导航栏
-    const bottomNav = document.getElementById('bottomNav');
-    if (bottomNav) {
-      const navItems = bottomNav.querySelectorAll('.nav-item');
-      navItems.forEach(item => {
-        item.addEventListener('click', (e) => {
-          e.preventDefault();
-          const page = item.dataset.page;
-          
-          // 使用SPA路由器进行页面切换
-          if (this.spaRouter) {
-            this.spaRouter.navigateTo(page);
-          } else {
-            this.navigateBottomNavWithHistory(page);
-          }
-          
-          triggerHapticFeedback('light');
-        });
-      });
-    }
-
     // 电脑端侧边导航栏
     const sideNav = document.getElementById('sideNav');
     if (sideNav) {
@@ -1595,21 +1384,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       });
     }
 
-    // 收藏页面入口
-    if (this.els.showFavorites) {
-      this.els.showFavorites.addEventListener('click', () => {
-        // 使用SPA路由器进行页面切换
-        if (this.spaRouter) {
-          this.spaRouter.navigateTo('favorite');
-        } else {
-          this.renderFavorites();
-          this.els.bookPage.style.display = 'none';
-          this.els.unitPage.style.display = 'none';
-          this.els.favoritePage.style.display = 'flex';
-        }
-      });
-    }
-    
     // 歌词区域点击事件（收藏按钮）
     if (this.els.area) {
       this.els.area.addEventListener('click', e => {
@@ -1644,52 +1418,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       });
     }
     
-    // 手机端更多按钮
-    if (this.els.more) {
-      this.els.more.addEventListener('click', () => {
-        const menuDialog = document.getElementById('mobileMenuDialog');
-        if (menuDialog) {
-          menuDialog.showModal();
-        }
-        triggerHapticFeedback('light');
-      });
-    }
-    
-    // 手机端菜单项点击
-    const mobileMenuDialog = document.getElementById('mobileMenuDialog');
-    if (mobileMenuDialog) {
-      mobileMenuDialog.addEventListener('click', e => {
-        const menuItem = e.target.closest('.menu-item');
-        if (!menuItem) return;
-
-        triggerHapticFeedback('light');
-
-        const action = menuItem.dataset.action;
-
-        switch (action) {
-          case 'timer':
-            if (this.els.timer) this.els.timer.click();
-            break;
-          case 'speed':
-            if (this.els.spd) this.els.spd.click();
-            break;
-          case 'trans':
-            if (this.els.tr) this.els.tr.click();
-            break;
-        }
-        
-        mobileMenuDialog.close();
-      });
-    }
-    
-    // 从收藏页返回
-    if (this.els.backToBooksFromFav) {
-      this.els.backToBooksFromFav.addEventListener('click', () => {
-        this.els.bookPage.style.display = 'flex';
-        this.els.favoritePage.style.display = 'none';
-      });
-    }
-    
     // 课本选择 - 点击进入课程列表
     this.els.bookGrid.addEventListener('click', e => {
       const card = e.target.closest('.book-card');
@@ -1717,388 +1445,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       }
     });
 
-    // 手机端长按菜单
-    if (window.innerWidth <= 767 && this.els.longPressMenu) {
-      let longPressTimer = null;
-      let longPressedCard = null;
-
-      // 长按课程卡片
-      this.els.unitGrid.addEventListener('touchstart', e => {
-        const card = e.target.closest('.unit-card');
-        if (card) {
-          longPressedCard = card;
-          longPressTimer = setTimeout(() => {
-            this.showLongPressMenu(+card.dataset.i);
-            triggerHapticFeedback('medium');
-          }, 500);
-        }
-      }, { passive: true });
-
-      this.els.unitGrid.addEventListener('touchend', () => {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-      });
-
-      this.els.unitGrid.addEventListener('touchmove', () => {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-      });
-
-      // 长按菜单项点击
-      const menuItems = this.els.longPressMenu.querySelectorAll('.menu-item');
-      menuItems.forEach(item => {
-        item.addEventListener('click', () => {
-          const action = item.dataset.action;
-          const unitIdx = this.els.longPressMenu.dataset.unitIdx;
-          
-          if (unitIdx !== undefined) {
-            this.handleLongPressAction(action, +unitIdx);
-          }
-          
-          this.els.longPressMenu.close();
-          triggerHapticFeedback('light');
-        });
-      });
-
-      // 关闭长按菜单
-      this.els.closeLongPressMenu.addEventListener('click', () => {
-        this.els.longPressMenu.close();
-        triggerHapticFeedback('light');
-      });
-    }
-    
-    // 收藏网格点击 - 打开对应句子
-    this.els.favoriteGrid.addEventListener('click', e => {
-      // 检查是否点击了删除按钮
-      const deleteBtn = e.target.closest('.favorite-delete-btn');
-      if (deleteBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        const favIdx = +deleteBtn.dataset.favIdx;
-        if (favIdx >= 0 && favIdx < this.favorites.length) {
-          // 删除收藏
-          this.favorites.splice(favIdx, 1);
-          localStorage.setItem(LS.FAVORITES, JSON.stringify(this.favorites));
-          this.updateFavBadge();
-          this.renderFavorites();
-          
-          // 触觉反馈
-          if (navigator.vibrate) {
-            navigator.vibrate(50);
-          }
-          
-          toast.success('已删除收藏');
-        }
-        return;
-      }
-      
-      // 正常点击卡片
-      const card = e.target.closest('.unit-card');
-      if (card) {
-        const favIdx = +card.dataset.favIdx;
-        const fav = this.favorites[favIdx];
-        if (fav) {
-          // 切换到对应课本和课程
-          if (this.key !== fav.key) {
-            this.openBook(fav.key, fav.unitIdx, fav.lineIdx);
-          } else {
-            this.els.bookPage.style.display = 'none';
-            this.els.unitPage.style.display = 'flex';
-            // 打开课程并跳转到指定句子
-            setTimeout(() => {
-              this.open(fav.unitIdx);
-              // 播放指定句子
-              setTimeout(() => this.playLine(fav.lineIdx), 300);
-            }, 100);
-          }
-        }
-      }
-    });
-    
-    // Close
-    this.els.close.addEventListener('click', () => { 
-      // 结束学习计时
-      if (userManager) {
-        userManager.endStudySession();
-        // 更新课程进度
-        const targetRepeat = this.mode === 'single' 
-          ? REPEAT_COUNTS[this.singleRepeatIdx] 
-          : REPEAT_COUNTS[this.allRepeatIdx];
-        userManager.updateProgress(this.key, this.idx, targetRepeat);
-        // 同步到数据模块
-        if (window.dataSync && this.book?.key) {
-          window.updateCourseProgress(this.book.key, this.units[this.idx].key, targetRepeat);
-        }
-      }
-      this.els.dlg.close(); 
-      this.els.audio.pause(); 
-    });
-
-    // 手机端下拉关闭播放器手势
-    this.setupPullToClose = function() {
-      let startY = 0;
-      let currentY = 0;
-      let isDragging = false;
-      const dialogInner = this.els.dlg.querySelector('.dialog-inner');
-      const threshold = 150; // 拉动阈值
-
-      const handleTouchStart = (e) => {
-        // 只在顶部区域触发
-        const touch = e.touches[0];
-        if (touch.clientY < 100) {
-          startY = touch.clientY;
-          isDragging = true;
-          currentY = startY;
-        }
-      };
-
-      const handleTouchMove = (e) => {
-        if (!isDragging) return;
-        currentY = e.touches[0].clientY;
-        const diff = currentY - startY;
-
-        if (diff > 0) {
-          dialogInner.style.transform = `translateY(${diff}px)`;
-          dialogInner.style.opacity = 1 - diff / 400;
-        }
-      };
-
-      const handleTouchEnd = (e) => {
-        if (!isDragging) return;
-        isDragging = false;
-        const diff = currentY - startY;
-
-        if (diff > threshold) {
-          // 关闭播放器
-          dialogInner.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-          dialogInner.style.transform = 'translateY(100%)';
-          dialogInner.style.opacity = '0';
-          
-          setTimeout(() => {
-            if (this.els.close) this.els.close.click();
-            dialogInner.style.transition = '';
-            dialogInner.style.transform = '';
-            dialogInner.style.opacity = '';
-          }, 300);
-        } else {
-          // 回弹
-          dialogInner.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease';
-          dialogInner.style.transform = '';
-          dialogInner.style.opacity = '';
-          
-          setTimeout(() => {
-            dialogInner.style.transition = '';
-          }, 300);
-        }
-      };
-
-      this.els.dlg.addEventListener('touchstart', handleTouchStart, { passive: true });
-      this.els.dlg.addEventListener('touchmove', handleTouchMove, { passive: true });
-      this.els.dlg.addEventListener('touchend', handleTouchEnd);
-    };
-
-    // 下拉刷新功能
-    this.initPullToRefresh = function() {
-      const setupRefresh = (indicator, gridElement, refreshCallback) => {
-        if (!indicator || !gridElement) return;
-
-        let startY = 0;
-        let currentY = 0;
-        let startX = 0;
-        let isDragging = false;
-        let isRefreshing = false;
-        let preventScroll = false;
-        const threshold = 80;
-
-        const handleTouchStart = (e) => {
-          if (isRefreshing) return;
-          const touch = e.touches[0];
-          const scrollTop = gridElement.scrollTop;
-          
-          // 只在页面顶部且触摸位置在顶部100px内时启用
-          if (scrollTop <= 0 && touch.clientY < 100) {
-            startY = touch.clientY;
-            startX = touch.clientX;
-            isDragging = true;
-            preventScroll = false;
-          }
-        };
-
-        const handleTouchMove = (e) => {
-          if (!isDragging || isRefreshing) return;
-          const touch = e.touches[0];
-          currentY = touch.clientY;
-          const diffY = currentY - startY;
-          const diffX = touch.clientX - startX;
-
-          // 检测是否为垂直滑动（防止水平滑动触发）
-          if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 30) {
-            // 水平滑动，不触发下拉刷新
-            isDragging = false;
-            return;
-          }
-
-          if (diffY > 0) {
-            // 向下拉动，防止原生滚动
-            preventScroll = true;
-            e.preventDefault();
-            
-            indicator.classList.add('pulling');
-            indicator.style.height = Math.min(diffY, 80) + 'px';
-            indicator.style.marginBottom = Math.min(diffY / 2, 16) + 'px';
-            
-            const text = indicator.querySelector('.refresh-text');
-            if (text) {
-              text.textContent = diffY > threshold ? '释放立即刷新' : '下拉刷新';
-            }
-          } else {
-            // 向上滚动，允许原生滚动
-            isDragging = false;
-          }
-        };
-
-        const handleTouchEnd = (e) => {
-          if (!isDragging || isRefreshing) return;
-          isDragging = false;
-          const diff = currentY - startY;
-
-          if (diff > threshold) {
-            // 触发刷新
-            isRefreshing = true;
-            indicator.classList.remove('pulling');
-            indicator.classList.add('refreshing');
-            
-            const text = indicator.querySelector('.refresh-text');
-            if (text) text.textContent = '正在刷新...';
-            
-            triggerHapticFeedback('medium');
-
-            // 执行刷新回调
-            refreshCallback().then(() => {
-              setTimeout(() => {
-                indicator.classList.remove('refreshing');
-                indicator.style.height = '0';
-                indicator.style.marginBottom = '0';
-                isRefreshing = false;
-                triggerHapticFeedback('light');
-              }, 500);
-            });
-          } else {
-            // 回弹
-            indicator.classList.remove('pulling');
-            indicator.style.height = '0';
-            indicator.style.marginBottom = '0';
-          }
-          
-          preventScroll = false;
-        };
-
-        gridElement.addEventListener('touchstart', handleTouchStart, { passive: true });
-        gridElement.addEventListener('touchmove', handleTouchMove, { passive: false });
-        gridElement.addEventListener('touchend', handleTouchEnd);
-      };
-
-      // 课程列表下拉刷新
-      setupRefresh(
-        this.els.pullToRefresh,
-        this.els.unitGrid,
-        async () => {
-          // 重新加载当前书籍
-          if (this.book) {
-            await this.loadUnits(this.book.key);
-          }
-        }
-      );
-
-      // 收藏列表下拉刷新
-      setupRefresh(
-        this.els.pullToRefreshFav,
-        this.els.favoriteGrid,
-        async () => {
-          // 重新渲染收藏
-          this.renderFavorites();
-        }
-      );
-    };
-
-    // 显示长按菜单
-    this.showLongPressMenu = function(unitIdx) {
-      if (!this.els.longPressMenu) return;
-      
-      this.els.longPressMenu.dataset.unitIdx = unitIdx;
-      this.els.longPressMenu.showModal();
-    };
-
-    // 处理长按菜单操作
-    this.handleLongPressAction = function(action, unitIdx) {
-      if (!userManager) return;
-
-      const unitKey = this.units[unitIdx]?.key;
-      if (!unitKey) return;
-
-      switch (action) {
-        case 'mark-completed':
-          userManager.markCompleted(this.key, unitIdx);
-          this.renderUnitCards();
-          toast.info('已标记为完成');
-          break;
-        case 'mark-uncompleted':
-          userManager.unmarkCompleted(this.key, unitIdx);
-          this.renderUnitCards();
-          toast.info('已取消完成标记');
-          break;
-        case 'play':
-          this.open(unitIdx);
-          break;
-      }
-    };
-    
-    // Nav
-    this.els.prev.addEventListener('click', () => {
-      if (this.idx > 0) {
-        this.open(this.idx - 1);
-        // 切换课程后收藏按钮会自动更新
-      }
-    });
-    this.els.next.addEventListener('click', () => {
-      if (this.idx < this.units.length - 1) {
-        this.open(this.idx + 1);
-        // 切换课程后收藏按钮会自动更新
-      }
-    });
-    
-    // Expand/Fullscreeen Toggle
-    if (this.els.expand) {
-      this.els.expand.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const inner = this.els.dlg.querySelector('.dialog-inner');
-        if (inner) {
-          // 切换 windowed 类（窗口模式）
-          inner.classList.toggle('windowed');
-          
-          // Toggle icons
-          const isWindowed = inner.classList.contains('windowed');
-          const icoExp = this.els.expand.querySelector('.ico-expand');
-          const icoShr = this.els.expand.querySelector('.ico-shrink');
-          
-          if (icoExp) icoExp.style.display = isWindowed ? 'block' : 'none';
-          if (icoShr) icoShr.style.display = isWindowed ? 'none' : 'block';
-          this.els.expand.setAttribute('aria-label', isWindowed ? '全屏模式' : '退出全屏');
-        }
-      });
-    }
-    
-    // Play
-    this.els.play.addEventListener('click', () => this.els.audio.paused ? this.els.audio.play() : this.els.audio.pause());
-    
-    // 定时关闭
-    if (this.els.timer) {
-      this.els.timer.addEventListener('click', () => {
-        this.toggleTimer();
-        triggerHapticFeedback('light');
-      });
-    }
     
     // Audio events
     this.els.audio.addEventListener('timeupdate', () => {
@@ -2346,10 +1692,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
         this.els.timer.classList.add('active');
       }
       
-      // 同步更新手机菜单标签
-      if (this.els.mobileTimerLabel) {
-        this.els.mobileTimerLabel.textContent = label;
-      }
     };
   }
 }
@@ -2629,11 +1971,9 @@ function detectLowEndDevice() {
 // DOM 加载完成后检测设备
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', detectLowEndDevice);
-  document.addEventListener('DOMContentLoaded', initMobileBottomNav);
   document.addEventListener('DOMContentLoaded', autoDarkMode);
 } else {
   detectLowEndDevice();
-  initMobileBottomNav();
   autoDarkMode();
 }
 
@@ -2705,94 +2045,13 @@ function initDarkModeToggle() {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     detectLowEndDevice();
-    initMobileBottomNav();
-    autoDarkMode();
+      autoDarkMode();
     initDarkModeToggle();
   });
 } else {
   detectLowEndDevice();
-  initMobileBottomNav();
   autoDarkMode();
   initDarkModeToggle();
 }
 
 // ========== 移动端底部导航栏初始化 ==========
-function initMobileBottomNav() {
-  const bottomNav = document.getElementById('mobileBottomNav');
-  if (!bottomNav) return;
-  
-  // 检测设备类型，仅在移动端显示
-  function updateNavVisibility() {
-    if (window.innerWidth <= 767) {
-      bottomNav.style.display = 'flex';
-      document.body.classList.add('has-bottom-nav');
-    } else {
-      bottomNav.style.display = 'none';
-      document.body.classList.remove('has-bottom-nav');
-    }
-  }
-  
-  // 初始化显示状态
-  updateNavVisibility();
-  
-  // 监听窗口大小变化
-  window.addEventListener('resize', updateNavVisibility);
-  
-  // 导航状态持久化
-  function saveNavState(navName) {
-    localStorage.setItem('mobile-nav-active', navName);
-  }
-  
-  function loadNavState() {
-    return localStorage.getItem('mobile-nav-active') || 'home';
-  }
-  
-  // 更新激活状态
-  function updateActiveNav(navName) {
-    const items = bottomNav.querySelectorAll('.nav-item');
-    items.forEach(item => {
-      const isActive = item.dataset.nav === navName;
-      item.classList.toggle('active', isActive);
-    });
-    saveNavState(navName);
-  }
-  
-  // 绑定点击事件
-  bottomNav.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const navName = item.dataset.nav;
-      updateActiveNav(navName);
-      
-      // 触觉反馈
-      if (navigator.vibrate) {
-        navigator.vibrate(20);
-      }
-    });
-  });
-  
-  // 页面切换时更新激活状态
-  const originalRestoreBookPage = app.restoreBookPage?.bind(app);
-  if (originalRestoreBookPage) {
-    app.restoreBookPage = function() {
-      originalRestoreBookPage();
-      updateActiveNav('home');
-    };
-  }
-  
-  // 收藏页激活状态（仅当favoritePage存在时）
-  if (app.els && app.els.favoritePage) {
-    const originalRenderFavorites = app.renderFavorites?.bind(app);
-    if (originalRenderFavorites) {
-      app.renderFavorites = function() {
-        originalRenderFavorites();
-        if (this.els.favoritePage?.style.display === 'flex') {
-          updateActiveNav('favorites');
-        }
-      };
-    }
-  }
-  
-  // 恢复上次导航状态
-  const lastNav = loadNavState();
-  updateActiveNav(lastNav);
-}
