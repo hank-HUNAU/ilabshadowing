@@ -204,9 +204,11 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       bookPage: document.getElementById('bookSelectPage'),
       unitPage: document.getElementById('unitListPage'),
       favoritePage: document.getElementById('favoritePage'),
+      unitPage: document.getElementById('unitListPage'),
       bookGrid: document.getElementById('bookGrid'),
-      unitGrid: document.getElementById('unitGrid'),
-      favoriteGrid: document.getElementById('favoriteGrid'),
+      favoriteList: document.getElementById('favoriteList'),
+      favoriteEmpty: document.getElementById('favoriteEmpty'),
+      favoriteStatTotal: document.getElementById('favoriteStatTotal'),
       bookTitle: document.getElementById('bookTitle'),
       unitCount: document.getElementById('unitCount'),
       favoriteCount: document.getElementById('favoriteCount'),
@@ -786,77 +788,68 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     }
   }
 
-  renderFavorites() {
-    if (this.favorites.length === 0) {
-      this.els.favoriteGrid.innerHTML = `
-        <div class="empty-state">
-          <svg class="empty-state-icon" viewBox="0 0 24 24" width="80" height="80" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-          <h3 class="empty-state-title">暂无收藏</h3>
-          <p class="empty-state-desc">播放课文时点击句子右侧的星星图标，收藏喜欢的句子</p>
-          <button class="empty-state-action" onclick="app.restoreBookPage()">去浏览课程</button>
-        </div>
-      `;
-      this.els.favoriteCount.textContent = '0 句';
+  renderFavorites(filtered) {
+    const list = this.els.favoriteList;
+    const empty = this.els.favoriteEmpty;
+    const statBadge = this.els.favoriteStatTotal;
+    const data = filtered || this.favorites;
+
+    if (statBadge) {
+      statBadge.textContent = `${this.favorites.length} 句`;
+    }
+
+    if (data.length === 0) {
+      list.innerHTML = '';
+      empty.style.display = 'block';
       return;
     }
-    
-    this.els.favoriteCount.textContent = `${this.favorites.length} 句`;
-    this.els.favoriteGrid.innerHTML = this.favorites.map((f, i) => {
-      const num = f.lessonTitle.match(/\d+/)?.[0] || i + 1;
+
+    empty.style.display = 'none';
+    list.innerHTML = data.map((f, i) => {
+      const idx = filtered ? this.favorites.indexOf(f) : i;
+      const bookLabel = f.bookKey || '';
+      const unitLabel = f.unitIndex !== undefined ? `第${f.unitIndex + 1}课` : '';
+      const dateStr = f.timestamp ? new Date(f.timestamp).toLocaleDateString() : '';
+      
       return `
-      <div class="unit-card favorite-item" data-fav-idx="${i}" style="min-height:60px;align-items:flex-start;text-align:left;position:relative;">
-        <div class="unit-num" style="font-size:1rem;margin-bottom:4px;">${num}</div>
-        <div class="unit-title" style="font-size:0.75rem;white-space:normal;line-height:1.3;">${f.sentence.substring(0, 30)}${f.sentence.length > 30 ? '...' : ''}</div>
-        <button class="favorite-delete-btn" data-fav-idx="${i}" aria-label="删除收藏" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:var(--text-tertiary);cursor:pointer;padding:8px;border-radius:50%;transition:all 0.2s;">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 6L6 18M6 6l12 12"/>
-          </svg>
-        </button>
+      <div class="favorite-item" data-fav-idx="${idx}">
+        <div class="favorite-item-header">${bookLabel} ${unitLabel}</div>
+        <div class="favorite-item-en">${f.en || f.sentence || ''}</div>
+        <div class="favorite-item-cn">${f.cn || f.translation || ''}</div>
+        <div class="favorite-item-footer">
+          <span class="favorite-item-date">${dateStr}</span>
+          <div class="favorite-item-actions">
+            <button class="favorite-item-btn play" data-fav-idx="${idx}" aria-label="播放" title="播放">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+            </button>
+            <button class="favorite-item-btn delete" data-fav-idx="${idx}" aria-label="删除收藏" title="删除">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>`;
     }).join('');
   }
-  
+
   // 搜索过滤收藏
   filterFavorites(query) {
     if (!query || query.trim() === '') {
-      // 清空搜索，显示全部
       this.renderFavorites();
       return;
     }
-    
+
     const lowerQuery = query.toLowerCase().trim();
     const filtered = this.favorites.filter(f => 
-      f.sentence.toLowerCase().includes(lowerQuery) ||
-      f.translation.toLowerCase().includes(lowerQuery) ||
-      f.bookTitle.toLowerCase().includes(lowerQuery) ||
-      f.lessonTitle.toLowerCase().includes(lowerQuery)
+      (f.en || f.sentence || '').toLowerCase().includes(lowerQuery) ||
+      (f.cn || f.translation || '').toLowerCase().includes(lowerQuery) ||
+      (f.bookKey || '').toLowerCase().includes(lowerQuery)
     );
-    
-    if (filtered.length === 0) {
-      this.els.favoriteGrid.innerHTML = `
-        <div class="empty-state">
-          <svg class="empty-state-icon" viewBox="0 0 24 24" width="80" height="80" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M21 21l-4.35-4.35M19 11a8 8 0 10-16 0 8 8 0 0016 0z"/>
-          </svg>
-          <h3 class="empty-state-title">未找到匹配的句子</h3>
-          <p class="empty-state-desc">试试其他关键词</p>
-        </div>
-      `;
-      this.els.favoriteCount.textContent = `${filtered.length} 句`;
-      return;
-    }
-    
-    this.els.favoriteCount.textContent = `${filtered.length} 句`;
-    this.els.favoriteGrid.innerHTML = filtered.map((f, i) => {
-      const num = f.lessonTitle.match(/\d+/)?.[0] || i + 1;
-      return `
-      <div class="unit-card" data-fav-idx="${this.favorites.indexOf(f)}" style="min-height:60px;align-items:flex-start;text-align:left;">
-        <div class="unit-num" style="font-size:1rem;margin-bottom:4px;">${num}</div>
-        <div class="unit-title" style="font-size:0.75rem;white-space:normal;line-height:1.3;">${f.sentence.substring(0, 30)}${f.sentence.length > 30 ? '...' : ''}</div>
-      </div>`;
-    }).join('');
+
+    this.renderFavorites(filtered);
   }
 
   async loadBooks() {
@@ -1767,53 +1760,49 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       });
     }
     
-    // 收藏网格点击 - 打开对应句子
-    this.els.favoriteGrid.addEventListener('click', e => {
-      // 检查是否点击了删除按钮
-      const deleteBtn = e.target.closest('.favorite-delete-btn');
-      if (deleteBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        const favIdx = +deleteBtn.dataset.favIdx;
-        if (favIdx >= 0 && favIdx < this.favorites.length) {
-          // 删除收藏
-          this.favorites.splice(favIdx, 1);
-          localStorage.setItem(LS.FAVORITES, JSON.stringify(this.favorites));
-          this.updateFavBadge();
-          this.renderFavorites();
-          
-          // 触觉反馈
-          if (navigator.vibrate) {
-            navigator.vibrate(50);
+    // 收藏网格点击 - 打开对应句子/删除
+    if (this.els.favoriteList) {
+      this.els.favoriteList.addEventListener('click', e => {
+        // 删除按钮
+        const deleteBtn = e.target.closest('.favorite-item-btn.delete');
+        if (deleteBtn) {
+          e.stopPropagation();
+          const favIdx = +deleteBtn.dataset.favIdx;
+          if (favIdx >= 0 && favIdx < this.favorites.length) {
+            // 删除收藏
+            this.favorites.splice(favIdx, 1);
+            localStorage.setItem(LS.FAVORITES, JSON.stringify(this.favorites));
+            this.updateFavBadge();
+            this.renderFavorites();
+            toast.success('已删除收藏');
           }
-          
-          toast.success('已删除收藏');
+          return;
         }
-        return;
-      }
-      
-      // 正常点击卡片
-      const card = e.target.closest('.unit-card');
-      if (card) {
-        const favIdx = +card.dataset.favIdx;
-        const fav = this.favorites[favIdx];
-        if (fav) {
-          // 切换到对应课本和课程
-          if (this.key !== fav.key) {
-            this.openBook(fav.key, fav.unitIdx, fav.lineIdx);
-          } else {
-            this.els.bookPage.style.display = 'none';
-            this.els.unitPage.style.display = 'flex';
-            // 打开课程并跳转到指定句子
-            setTimeout(() => {
-              this.open(fav.unitIdx);
-              // 播放指定句子
-              setTimeout(() => this.playLine(fav.lineIdx), 300);
-            }, 100);
+        
+        // 播放按钮
+        const playBtn = e.target.closest('.favorite-item-btn.play');
+        if (playBtn) {
+          e.stopPropagation();
+          const favIdx = +playBtn.dataset.favIdx;
+          const fav = this.favorites[favIdx];
+          if (fav) {
+            // 打开对应课本和课程并播放
+            this.openBook(fav.bookKey, fav.unitIndex, fav.lineIndex);
+          }
+          return;
+        }
+        
+        // 点击卡片 - 打开对应课文
+        const item = e.target.closest('.favorite-item');
+        if (item) {
+          const favIdx = +item.dataset.favIdx;
+          const fav = this.favorites[favIdx];
+          if (fav) {
+            this.openBook(fav.bookKey, fav.unitIndex, fav.lineIndex);
           }
         }
-      }
-    });
+      });
+    }
     
     // Close
     this.els.close.addEventListener('click', () => { 

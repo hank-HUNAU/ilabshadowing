@@ -270,41 +270,35 @@
     </main>
 
     <!-- 收藏页 -->
-    <main id="favoritePage" class="unit-page" style="display: none;">
+    <main id="favoritePage" class="favorit-page" style="display: none;">
       <header class="top-bar">
-        <button id="backToBooksFromFav" class="back-btn" aria-label="返回课本选择">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M15 19l-7-7 7-7"/>
-          </svg>
-        </button>
-        <span class="back-btn-label">课本选择</span>
         <h1 class="site-title">我的收藏</h1>
-        <span id="favoriteCount" class="unit-count">0 课</span>
+        <div class="header-actions">
+          <span id="favoriteStatTotal" class="stat-badge">0 句</span>
+        </div>
       </header>
       
-      <!-- 下拉刷新指示器 -->
-      <div id="pullToRefreshFav" class="pull-to-refresh">
-        <svg class="refresh-icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M23 4v6h-6"/>
-          <path d="M1 20v-6h6"/>
-          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-        </svg>
-        <span class="refresh-text">下拉刷新</span>
-      </div>
-      
-      <!-- 搜索框 -->
-      <div class="favorite-search-bar">
-        <input type="text" id="favoriteSearch" placeholder="搜索收藏的句子..." 
-          style="width:100%;max-width:600px;padding:12px 20px 12px 44px;border:1px solid var(--border);border-radius:var(--radius-lg);font-size:0.95rem;background:var(--bg);color:var(--text);margin:16px auto;display:block"
-          oninput="app.filterFavorites(this.value)">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-          style="position:absolute;left:50%;transform:translateX(-50%);margin-top:28px;color:var(--text-tertiary)">
+      <!-- 搜索栏 -->
+      <div class="favorite-search-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/>
           <path d="M21 21l-4.35-4.35"/>
         </svg>
+        <input type="text" id="favoriteSearch" placeholder="搜索收藏的句子..." 
+          oninput="app.filterFavorites(this.value)">
       </div>
       
-      <section id="favoriteGrid" class="unit-grid"></section>
+      <!-- 收藏列表（LRC行级别） -->
+      <section id="favoriteList" class="favorite-list"></section>
+      
+      <!-- 空状态 -->
+      <div class="empty-state" id="favoriteEmpty" style="display: none;">
+        <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+        <h3 class="empty-state-title">暂无收藏</h3>
+        <p class="empty-state-desc">播放课文时点击句子右侧的星星图标，收藏喜欢的句子</p>
+      </div>
     </main>
 
     <!-- 课文预习弹窗 -->
