@@ -595,16 +595,14 @@ small,
 .lyrics-scroll,
 .unit-grid,
 .book-grid,
-.changelog-list,
-#favoriteGrid {
+.changelog-list {
   scrollbar-width: thin;
 }
 
 .lyrics-scroll::-webkit-scrollbar,
 .unit-grid::-webkit-scrollbar,
 .book-grid::-webkit-scrollbar,
-.changelog-list::-webkit-scrollbar,
-#favoriteGrid::-webkit-scrollbar {
+.changelog-list::-webkit-scrollbar {
   width: 6px;
 }
 
@@ -3434,8 +3432,7 @@ body.hide-en .line-en { display: none; }
   }
 
   /* 隐藏顶部导航栏的用户中心按钮（已移到底部） */
-  #userCenterBtn,
-  #showFavorites {
+  #userCenterBtn {
     display: none;
   }
 
@@ -3526,10 +3523,6 @@ body.hide-en .line-en { display: none; }
   /* 手机端：隐藏次要按钮，显示更多按钮 */
   #timerBtn, #speedBtn, #transBtn {
     display: none;
-  }
-  
-  #moreBtn {
-    display: flex !important;
   }
   
   .main-play { width: 48px; height: 48px; }
@@ -3884,25 +3877,6 @@ body,
 }
 
 /* 收藏收藏徽章 */
-#showFavorites {
-  position: relative;
-}
-
-.fav-badge {
-  position: absolute;
-  top: -2px;
-  right: -4px;
-  background: #fbbf24;
-  color: white;
-  font-size: 0.65rem;
-  font-weight: 700;
-  padding: 2px 5px;
-  border-radius: 10px;
-  min-width: 16px;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(251, 191, 36, 0.4);
-}
-
 /* ========== 微交互动画 ========== */
 
 /* 按钮点击波纹效果 */

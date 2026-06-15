@@ -707,8 +707,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
             </svg>
             <h3 class="empty-state-title">没有显示的课程</h3>
-            <p class="empty-state-desc">您已隐藏所有课程，请在用户中心重新选择</p>
-            <button class="empty-state-action" onclick="document.getElementById('userCenterBtn').click()">去选择课程</button>
+            <p class="empty-state-desc">请在 data.json 中添加课程配置</p>
           </div>
         `;
         return;

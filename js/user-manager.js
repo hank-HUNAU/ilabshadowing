@@ -157,12 +157,7 @@ class UserManager {
   }
   
   updateFavCount() {
-    const favCount = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]').length;
-    const badge = document.getElementById('favCountBadge');
-    if (badge) {
-      badge.textContent = favCount;
-      badge.style.display = favCount > 0 ? '' : 'none';
-    }
+    // 已移除收藏计数显示
   }
   
   // ========== 数据导出 ==========
