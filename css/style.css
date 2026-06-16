@@ -1469,6 +1469,18 @@ body {
   text-align: center;
 }
 
+.loading-msg {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  justify-content: center;
+  animation: pulse-opacity 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse-opacity {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
 .line-actions {
   display: flex;
   align-items: center;

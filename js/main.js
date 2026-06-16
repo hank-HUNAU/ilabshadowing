@@ -763,23 +763,20 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
   }
 
   async preloadLrcFiles() {
-    // 预加载所有 LRC 文件到缓存，点击播放时 0 延迟显示歌词
-    // 同时缓存每个课程的句子数量
     const promises = this.units.map((u, i) => {
       const url = getLrcUrl(u.filename, this.path, this.key);
-      return fetch(url).then(r => r.text()).then(lrc => {
+      return fetch(url).then(r => {
+        if (!r.ok) throw new Error(`LRC ${r.status}`);
+        return r.text();
+      }).then(lrc => {
         this.cache.set(url, lrc);
-        
-        // 解析LRC文件，获取句子数量
         const lines = Lrc.parse(lrc);
         const lineCount = Lrc.getLearningSentenceCount(lines);
-        
-        // 缓存句子数量（使用课程索引作为key）
         this.cache.set(`lineCount_${i}`, lineCount);
-        
-      }).catch(() => {
-        // 如果LRC文件加载失败，缓存默认值
-        this.cache.set(`lineCount_${i}`, 5); // 默认5句
+      }).catch(e => {
+        console.warn(`Failed to preload LRC for unit ${i}: ${e.message}`);
+        this.cache.set(url, '');
+        this.cache.set(`lineCount_${i}`, 5);
       });
     });
     await Promise.all(promises);
@@ -817,49 +814,49 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     
     const u = this.units[i];
     
-    // 先显示弹窗（标题先显示数字）
-    this.els.title.textContent = `Lesson ${parseInt(u.filename)}`;
+    this.els.title.textContent = u.title || u.lesson_num || `Lesson ${i + 1}`;
     this.navBtns();
     this.activeCard(i);
     this.reset();
-    this.hideFavoriteToolbar(); // 隐藏收藏工具栏
+    this.hideFavoriteToolbar();
     
-    // 开始学习计时
     if (userManager) {
       userManager.startStudySession();
     }
     
-    // 默认全屏模式：打开时移除 windowed 类，添加 expanded 类（兼容旧版）
     const inner = this.els.dlg.querySelector('.dialog-inner');
     if (inner) {
       inner.classList.remove('windowed');
       inner.classList.add('expanded');
-      
-      // 更新图标状态
       const icoExp = this.els.expand?.querySelector('.ico-expand');
       const icoShr = this.els.expand?.querySelector('.ico-shrink');
       if (icoExp) icoExp.style.display = 'none';
       if (icoShr) icoShr.style.display = 'block';
     }
     
-    // 先显示弹窗（不等待 LRC 加载）
     this.els.dlg.showModal();
+    this.els.area.innerHTML = '<p class="line loading-msg">加载中...</p>';
     
-    // 添加下拉关闭手势（仅手机端）
     if (window.innerWidth <= 767) {
       this.setupPullToClose();
     }
     
-    // 异步加载 LRC
     const lrcUrl = getLrcUrl(u.filename, this.path, this.key);
     let txt = this.cache.get(lrcUrl);
-    if (!txt) {
+    if (txt == null) {
       try {
-        const response = await fetch(lrcUrl);
-        if (!response.ok) throw new Error('LRC not found');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        const response = await fetch(lrcUrl, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!response.ok) throw new Error(`LRC ${response.status}`);
         txt = await response.text();
       } catch (e) {
-        console.error('Failed to load LRC:', e);
+        if (e.name === 'AbortError') {
+          console.error(`LRC fetch timeout: ${lrcUrl}`);
+        } else {
+          console.error('Failed to load LRC:', e);
+        }
         txt = '';
       }
       this.cache.set(lrcUrl, txt);
