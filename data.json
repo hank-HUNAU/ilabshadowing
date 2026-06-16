@@ -58,7 +58,7 @@
       {
         "key": "u002",
         "title": "Lesson 3-4",
-        " audio": "L002",
+        "audio": "L002",
         "lines": [
           {
             "time": 0.5,
@@ -100,7 +100,7 @@
       {
         "key": "u003",
         "title": "Lesson 5-6",
-        " audio": "L003",
+        "audio": "L003",
         "lines": [
           {
             "time": 0.5,
@@ -142,42 +142,42 @@
           {
             "time": 0.5,
             "en": "Good morning.",
-            "cn": "Good morning."
+            "cn": "早上好。"
           },
           {
             "time": 2,
             "en": "Good morning, Mr Blake.",
-            "cn": "Good morning, Mr Blake."
+            "cn": "早上好，布莱克先生。"
           },
           {
             "time": 4,
             "en": "Sit down please.",
-            "cn": "Sit down please."
+            "cn": "请坐。"
           },
           {
             "time": 6,
             "en": "This is Miss Sophie Dupont.",
-            "cn": "This is Miss Sophie Dupont."
+            "cn": "这是索菲·杜邦小姐。"
           },
           {
             "time": 8.5,
             "en": "Sophie is a new student.",
-            "cn": "Sophie is a new student."
+            "cn": "索菲是新来的学生。"
           },
           {
             "time": 11,
             "en": "She is French.",
-            "cn": "She is French."
+            "cn": "她是法国人。"
           },
           {
             "time": 13.5,
             "en": "I'm her teacher.",
-            "cn": "I'm her teacher."
+            "cn": "我是她的老师。"
           },
           {
             "time": 16,
             "en": "Nice to meet you.",
-            "cn": "Nice to meet you."
+            "cn": "很高兴认识你。"
           }
         ]
       }
@@ -1676,7 +1676,7 @@
     "NCE1_u004_0": {
       "id": "NCE1_u004_0",
       "sentence": "Good morning.",
-      "translation": "Good morning.",
+      "translation": "早上好。",
       "audio": "https://jikhdympaifsmubmwilp.supabase.co/storage/v1/object/public/nce1-audio/L004.mp3",
       "listening": {
         "options": [
@@ -1715,7 +1715,7 @@
     "NCE1_u004_1": {
       "id": "NCE1_u004_1",
       "sentence": "Good morning, Mr Blake.",
-      "translation": "Good morning, Mr Blake.",
+      "translation": "早上好，布莱克先生。",
       "audio": "https://jikhdympaifsmubmwilp.supabase.co/storage/v1/object/public/nce1-audio/L004.mp3",
       "listening": {
         "options": [
@@ -1762,7 +1762,7 @@
     "NCE1_u004_2": {
       "id": "NCE1_u004_2",
       "sentence": "Sit down please.",
-      "translation": "Sit down please.",
+      "translation": "请坐。",
       "audio": "https://jikhdympaifsmubmwilp.supabase.co/storage/v1/object/public/nce1-audio/L004.mp3",
       "listening": {
         "options": [
@@ -1807,7 +1807,7 @@
     "NCE1_u004_3": {
       "id": "NCE1_u004_3",
       "sentence": "This is Miss Sophie Dupont.",
-      "translation": "This is Miss Sophie Dupont.",
+      "translation": "这是索菲·杜邦小姐。",
       "audio": "https://jikhdympaifsmubmwilp.supabase.co/storage/v1/object/public/nce1-audio/L004.mp3",
       "listening": {
         "options": [
@@ -1856,7 +1856,7 @@
     "NCE1_u004_4": {
       "id": "NCE1_u004_4",
       "sentence": "Sophie is a new student.",
-      "translation": "Sophie is a new student.",
+      "translation": "索菲是新来的学生。",
       "audio": "https://jikhdympaifsmubmwilp.supabase.co/storage/v1/object/public/nce1-audio/L004.mp3",
       "listening": {
         "options": [
@@ -1905,7 +1905,7 @@
     "NCE1_u004_5": {
       "id": "NCE1_u004_5",
       "sentence": "She is French.",
-      "translation": "She is French.",
+      "translation": "她是法国人。",
       "audio": "https://jikhdympaifsmubmwilp.supabase.co/storage/v1/object/public/nce1-audio/L004.mp3",
       "listening": {
         "options": [
@@ -1950,7 +1950,7 @@
     "NCE1_u004_6": {
       "id": "NCE1_u004_6",
       "sentence": "I'm her teacher.",
-      "translation": "I'm her teacher.",
+      "translation": "我是她的老师。",
       "audio": "https://jikhdympaifsmubmwilp.supabase.co/storage/v1/object/public/nce1-audio/L004.mp3",
       "listening": {
         "options": [
@@ -1995,7 +1995,7 @@
     "NCE1_u004_7": {
       "id": "NCE1_u004_7",
       "sentence": "Nice to meet you.",
-      "translation": "Nice to meet you.",
+      "translation": "很高兴认识你。",
       "audio": "https://jikhdympaifsmubmwilp.supabase.co/storage/v1/object/public/nce1-audio/L004.mp3",
       "listening": {
         "options": [
