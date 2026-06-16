@@ -216,35 +216,6 @@
 }
 
 /* 触摸反馈优化 */
-@media (hover: none) and (pointer: coarse) {
-  /* 移动端触摸反馈 */
-  .ctrl-btn:active {
-    transform: scale(0.92);
-    background: rgba(0, 122, 255, 0.15);
-  }
-  
-  .book-card:active {
-    transform: scale(0.96);
-  }
-
-  .unit-card:active {
-    transform: scale(0.97);
-  }
-  
-  .icon-btn:active {
-    transform: scale(0.9);
-    background: rgba(0, 122, 255, 0.1);
-  }
-  
-  /* 移除移动端 hover 效果，避免延迟 */
-  .book-card:hover {
-    transform: none;
-  }
-  
-  .ctrl-btn:hover {
-    transform: none;
-  }
-}
 
 /* 桌面端保持原有反馈 */
 @media (hover: hover) {
@@ -307,11 +278,6 @@
   transform: translateY(0) scale(0.96);
 }
 
-@media (hover: none) and (pointer: coarse) {
-  .empty-state-action:active {
-    transform: scale(0.94);
-  }
-}
 
 /* 进度可视化 - 环形进度条 */
 .progress-ring {
@@ -983,31 +949,8 @@ body {
 }
 
 /* 移动端顶部导航栏优化 */
-@media (max-width: 767px) {
-  .top-bar {
-    padding: 10px 16px;
-    margin-bottom: 8px;
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-    border-top: none;
-  }
-  
-  .site-title {
-    font-size: 1.2rem;
-  }
-}
 
 /* 平板端顶部导航栏优化 */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .top-bar {
-    padding: 12px 20px;
-  }
-  
-  .site-title {
-    font-size: 1.3rem;
-  }
-}
 
 /* 课程卡片 */
 .unit-grid {
@@ -1016,71 +959,7 @@ body {
   gap: 20px;
   flex: 1;
   align-content: start;
-}
 
-/* 下拉刷新指示器 */
-.pull-to-refresh {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 0;
-  overflow: hidden;
-  margin-bottom: 0;
-  transition: height 0.3s ease, margin-bottom 0.3s ease;
-}
-
-.pull-to-refresh.pulling {
-  height: 60px;
-  margin-bottom: 16px;
-}
-
-.pull-to-refresh.refreshing {
-  height: 60px;
-  margin-bottom: 16px;
-}
-
-.refresh-icon {
-  width: 24px;
-  height: 20px;
-  margin-bottom: 8px;
-  transition: transform 0.3s ease;
-}
-
-.pull-to-refresh.pulling .refresh-icon {
-  transform: rotate(180deg);
-}
-
-.pull-to-refresh.refreshing .refresh-icon {
-  animation: spin 1s linear infinite;
-}
-
-.refresh-text {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* 手机端下拉刷新优化 */
-@media (max-width: 767px) {
-  .pull-to-refresh {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 10;
-    background: var(--bg);
-  }
-
-  .unit-page {
-    position: relative;
-    overflow: hidden;
-  }
-}
 
 .unit-card {
   background: var(--card-solid);
@@ -2457,271 +2336,6 @@ body.hide-en .line-en { display: none; }
   transform: scale(0.98);
 }
 
-@media (max-width: 767px) {
-  /* ========== PWA 安装弹窗手机端优化 ========== */
-  
-  #pwaInstallDialog {
-    max-width: 100vw;
-    width: calc(100% - 20px);
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-  }
-
-  #pwaInstallDialog .pwa-dialog-content {
-    padding: 24px 20px;
-  }
-
-  #pwaInstallDialog .pwa-icon {
-    margin-bottom: 16px;
-  }
-
-  .app-install-icon {
-    width: 64px;
-    height: 64px;
-  }
-
-  #pwaInstallDialog .install-title {
-    font-size: 1.3rem;
-  }
-
-  #pwaInstallDialog p {
-    font-size: 0.95rem;
-  }
-
-  #pwaInstallDialog .install-benefits {
-    padding: 16px;
-  }
-
-  #pwaInstallDialog .install-benefits li {
-    font-size: 0.9rem;
-  }
-
-  #pwaInstallDialog .install-actions {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  #pwaInstallDialog .btn-primary,
-  #pwaInstallDialog .btn-secondary {
-    width: 100%;
-    min-height: 52px;
-    font-size: 1rem;
-  }
-
-  /* ========== 播放器控制优化 - 手机端 ========== */
-  
-  .player-footer {
-    padding: 20px 16px;
-    padding-bottom: calc(20px + env(safe-area-inset-bottom));
-  }
-
-  .progress-row {
-    margin-bottom: 16px;
-  }
-
-  .track-bar {
-    height: 48px;
-  }
-
-  .track-bar-visual {
-    height: 6px;
-  }
-
-  .track-handle {
-    width: 18px;
-    height: 18px;
-  }
-
-  .controls-row {
-    gap: 12px;
-  }
-
-  .controls-row .ctrl-btn {
-    min-width: 56px;
-    min-height: 56px;
-    padding: 14px;
-  }
-
-  .main-play {
-    width: 72px !important;
-    height: 72px !important;
-  }
-
-  .main-play svg {
-    width: 28px;
-    height: 28px;
-  }
-
-  /* ========== 触摸区域优化 - 最小 44×44pt ========== */
-  
-  /* 按钮最小触摸区域 */
-  .ctrl-btn,
-  .icon-btn {
-    min-width: 44px;
-    min-height: 44px;
-    padding: 12px 16px;
-  }
-  
-  /* 底部控制栏按钮加大 */
-  .controls-row .ctrl-btn {
-    min-width: 48px;
-    min-height: 48px;
-    padding: 10px 14px;
-  }
-  
-  /* 主播放按钮更大（易操作） */
-  .main-play {
-    width: 64px !important;
-    height: 64px !important;
-  }
-  
-  /* 图标按钮（返回/关闭等） */
-  .back-btn,
-  .close-icon {
-    min-width: 44px;
-    min-height: 44px;
-    padding: 12px;
-  }
-  
-  /* 收藏删除按钮加大 */
-  .favorite-delete-btn {
-    min-width: 44px;
-    min-height: 44px;
-    padding: 12px;
-  }
-  
-  /* 课本卡片增加点击区域 */
-  .book-card {
-    min-height: 100px;
-    padding: 20px;
-  }
-  
-  /* 课程卡片增加点击区域 */
-  .unit-card {
-    min-height: 72px;
-    padding: 16px 20px;
-  }
-  
-  /* 空状态行动按钮 */
-  .empty-state-action {
-    min-width: 44px;
-    min-height: 48px;
-    padding: 14px 32px;
-  }
-  
-  /* ========== 安全区域适配 ========== */
-  
-  /* 顶部导航栏固定 + 适配刘海/灵动岛 */
-  .top-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: calc(44px + env(safe-area-inset-top));
-    padding-top: env(safe-area-inset-top);
-    padding-left: 12px;
-    padding-right: 12px;
-    border-radius: 0;
-    border-bottom: 1px solid var(--border);
-    border-top: none;
-    border-left: none;
-    border-right: none;
-    margin-bottom: 0;
-    z-index: 1000;
-    background: var(--bg);
-    gap: 12px;
-  }
-  
-  /* 内容区域适配固定导航栏 */
-  #app {
-    padding-top: calc(44px + env(safe-area-inset-top));
-    padding-bottom: calc(56px + env(safe-area-inset-bottom));
-  }
-  
-  /* 课本选择页和课程列表页内容区域 */
-  .book-page,
-  .unit-page {
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-  
-  /* 弹窗头部适配 */
-  .dialog-header {
-    padding-top: max(16px, var(--safe-area-top));
-  }
-  
-  /* 底部控制栏适配 Home Indicator */
-  .player-footer {
-    padding-bottom: max(16px, var(--safe-area-bottom));
-  }
-  
-  /* 弹窗底部适配 */
-  .pwa-dialog-content,
-  .user-center-content {
-    margin-bottom: max(0, var(--safe-area-bottom));
-  }
-  
-  /* ========== 字体可读性优化 ========== */
-  
-  /* 防止 iOS 自动缩放 */
-  input,
-  textarea,
-  select {
-    font-size: 16px !important;
-  }
-  
-  /* 歌词英文加大 */
-  .line-en {
-    font-size: 1.15rem; /* 18.4px */
-  }
-  
-  /* 歌词中文加大 */
-  .line-cn {
-    font-size: 1rem; /* 16px */
-  }
-  
-  /* 按钮文本加大 */
-  .ctrl-btn,
-  .icon-btn,
-  .time-text,
-  .unit-count,
-  .fav-badge {
-    font-size: 0.95rem; /* 15.2px → 16px */
-  }
-  
-  /* 标题文本优化 */
-  .site-title {
-    font-size: 1.2rem; /* 19.2px */
-  }
-  
-  .dialog-title {
-    font-size: 1.1rem; /* 17.6px */
-  }
-  
-  /* 课程数字优化 */
-  .unit-num {
-    font-size: 1rem; /* 16px */
-  }
-  
-  /* ========== 单手握持优化 ========== */
-  
-  /* 弹窗内容区内边距减小 */
-  .pwa-dialog-content {
-    padding: 20px;
-    width: calc(100% - 40px);
-  }
-  
-  /* 导航按钮间距缩小（便于单手） */
-  .nav-group {
-    gap: 8px;
-  }
-  
-  .nav-icon {
-    min-width: 40px;
-    min-height: 40px;
-  }
-}
 
 /* 用户中心弹窗样式 */
 .user-center-content {
@@ -3029,31 +2643,6 @@ body.hide-en .line-en { display: none; }
   border-color: #ff3b30;
 }
 
-@media (max-width: 1023px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .course-select-list {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 767px) {
-  .user-center-content {
-    width: 100%;
-    max-height: 95vh;
-    border-radius: 20px 20px 0 0;
-  }
-  
-  .dialog-header-row {
-    padding: 20px;
-  }
-}
 
 /* ========== 方案 C: 折叠卡片 + 仪表盘 ========== */
 
@@ -3205,33 +2794,6 @@ body.hide-en .line-en { display: none; }
 }
 
 /* 手机端适配 */
-@media (max-width: 767px) {
-  .user-section {
-    padding: 20px;
-  }
-  
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .course-select-list {
-    grid-template-columns: 1fr;
-  }
-  
-  .progress-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  
-  .progress-percent {
-    text-align: left;
-  }
-  
-  .user-name {
-    display: none;
-  }
-}
 
 /* 更新弹窗居中显示 */
 #updateDialog {
@@ -3427,269 +2989,8 @@ body.hide-en .line-en { display: none; }
 }
 
 /* 手机端适配 */
-@media (max-width: 767px) {
-  #app {
-    padding-top: calc(44px + env(safe-area-inset-top));
-    padding-bottom: calc(56px + env(safe-area-inset-bottom));
-    padding-left: 0;
-    padding-right: 0;
-  }
-
-  /* 隐藏桌面端footer */
-  .site-footer {
-    display: none;
-  }
-
-  /* 底部导航栏样式 */
-  .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: calc(56px + env(safe-area-inset-bottom));
-    padding-bottom: env(safe-area-inset-bottom);
-    background: var(--bg);
-    border-top: 1px solid var(--border);
-    z-index: 1000;
-    display: flex;
-  }
-
-  .nav-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    min-width: 0;
-    text-decoration: none;
-    color: var(--text-secondary);
-    transition: all 0.2s ease;
-  }
-
-  .nav-item.active {
-    color: var(--primary);
-  }
-
-.nav-icon {
-  width: 28px;
-  height: 22px;
-}
-
-  .nav-label {
-    font-size: 10px;
-    font-weight: 500;
-  }
-
-  .nav-item:active {
-    opacity: 0.7;
-    transform: scale(0.95);
-  }
-
-  /* 隐藏顶部导航栏的用户中心按钮（已移到底部） */
-  #userCenterBtn {
-    display: none;
-  }
-
-  .top-bar {
-    gap: 12px;
-    padding: 12px 16px;
-    border-radius: var(--radius-lg);
-  }
-
-  .site-title {
-    font-size: 1.4rem;
-  }
-
-  .back-btn-label {
-    display: none;
-  }
-
-  .unit-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
-
-  .unit-card {
-    border-radius: var(--radius-xl);
-    padding: 16px 12px;
-    aspect-ratio: 1 / 1;
-    min-height: auto;
-  }
-
-  .unit-card.nce1-enhanced {
-    min-height: 85px;
-    padding: 8px 6px;
-    gap: 4px;
-  }
-
-  .unit-card.nce1-enhanced .unit-num {
-    font-size: 1.4rem;
-    padding: 4px 10px;
-    margin-top: 6px;
-    margin-bottom: 2px;
-  }
-
-  .unit-card.nce1-enhanced .unit-title {
-    font-size: 0.7rem;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .unit-card.nce1-enhanced .status-badge {
-    padding: 1px 4px;
-    font-size: 8px;
-    top: 4px;
-    right: 4px;
-  }
-
-  .unit-card.nce1-enhanced .progress-bar-container {
-    height: 2px;
-    margin: 2px 0;
-  }
-
-  .unit-card.nce1-enhanced .duration,
-  .unit-card.nce1-enhanced .progress-text {
-    font-size: 8px;
-  }
-
-  .unit-num {
-    font-size: 1.8rem;
-    margin-bottom: 6px;
-  }
-
-  .unit-title {
-    font-size: 0.85rem;
-  }
-
-  .player-dialog {
-    width: 100%;
-    height: 100%;
-  }
-  
-  .dialog-inner {
-    border-radius: 0;
-    box-shadow: none;
-    border: none;
-  }
-  
-  #expandBtn { display: none; }
-
-  .player-footer {
-    padding: 12px;
-    padding-bottom: calc(12px + env(safe-area-inset-bottom));
-  }
-
-  .controls-row { gap: 14px; }
-  
-  /* 手机端：隐藏次要按钮，显示更多按钮 */
-  #timerBtn, #speedBtn, #transBtn {
-    display: none;
-  }
-  
-  .main-play { width: 48px; height: 48px; }
-  .tag-btn { padding: 6px 10px; font-size: 0.75rem; }
-  
-  /* 手机竖屏：隐藏重复按钮文字，只显示图标和次数 */
-  #repeatSingleBtn span, #repeatAllBtn span {
-    font-size: 0.7rem;
-  }
-
-  .line {
-    padding: 14px 16px;
-    margin-bottom: 8px;
-  }
-
-  .line-en { font-size: 1.05rem; }
-  .line-cn { font-size: 0.85rem; }
-
-  .dialog-header {
-    padding: 14px 16px;
-    padding-top: calc(14px + env(safe-area-inset-top));
-  }
-  
-  /* 平板端：90% 宽度 */
-  @media (min-width: 768px) and (max-width: 1024px) {
-    .dialog-inner {
-      width: 90%;
-      height: 85dvh;
-    }
-  }
-  
-  /* 桌面端：80% 宽度，最大 1200px */
-  @media (min-width: 1025px) {
-    .dialog-inner {
-      width: 80%;
-      max-width: 1200px;
-      height: 85dvh;
-    }
-  }
-  
-  .icon-btn {
-    width: 36px;
-    height: 36px;
-  }
-  
-  .dialog-title {
-    font-size: 1rem;
-  }
-  
-  .lyrics-scroll {
-    padding: 16px;
-  }
-}
 
 /* 平板端适配 */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .line-en { font-size: 1.15rem; }
-  .line-cn { font-size: 0.9rem; }
-  
-  .dialog-inner {
-    width: 95%;
-    height: 90vh;
-  }
-
-  /* 平板端课程卡片优化 - 5列布局 */
-  .unit-grid {
-    grid-template-columns: repeat(5, 1fr);
-    gap: 16px;
-  }
-
-  .unit-card {
-    min-height: 100px;
-    padding: 18px 14px;
-  }
-
-  .unit-card.nce1-enhanced {
-    min-height: 95px;
-    padding: 12px 10px;
-  }
-
-  .unit-card.nce1-enhanced .unit-num {
-    font-size: 1.7rem;
-  }
-
-  .unit-card.nce1-enhanced .status-badge {
-    padding: 3px 8px;
-    font-size: 10px;
-  }
-
-  .unit-card.nce1-enhanced .progress-bar-container {
-    height: 3px;
-    margin: 4px 0;
-  }
-
-  .unit-card.nce1-enhanced .duration,
-  .unit-card.nce1-enhanced .progress-text {
-    font-size: 10px;
-  }
-
-  .unit-num {
-    font-size: 1.6rem;
-  }
-}
 
 /* 桌面端适配 */
 @media (min-width: 1024px) {
@@ -3697,90 +2998,6 @@ body.hide-en .line-en { display: none; }
   .line-cn { font-size: 1rem; }
 }
 
-@media (max-width: 767px) and (orientation: landscape) {
-  /* 横屏时歌词区域自适应 */
-  .lyrics-scroll {
-    max-height: max(60vh, 55vh);
-    min-height: 40vh;
-  }
-  
-  /* 控制栏保持可见 - 粘性定位 */
-  .player-footer {
-    position: sticky;
-    bottom: 0;
-    background: var(--bg);
-    z-index: 100;
-  }
-
-  /* 横屏播放器高度限制 */
-  .dialog-inner {
-    max-height: 600px;
-  }
-  
-  /* 弹窗适配横屏 */
-  .pwa-dialog-content,
-  .player-dialog .dialog-inner {
-    max-width: 80vw;
-    max-height: 600px;
-  }
-  
-  /* 课程网格优化 */
-  .unit-grid {
-    grid-template-columns: repeat(8, 1fr);
-    gap: 10px;
-  }
-  
-  .unit-card {
-    min-height: 70px;
-    padding: 12px 8px;
-  }
-
-  .unit-card.nce1-enhanced {
-    min-height: 80px;
-    padding: 10px 8px;
-  }
-
-  .unit-card.nce1-enhanced .unit-num {
-    font-size: 1.5rem;
-  }
-
-  .unit-card.nce1-enhanced .status-badge {
-    padding: 2px 6px;
-    font-size: 9px;
-  }
-
-  .unit-card.nce1-enhanced .progress-bar-container {
-    height: 2px;
-    margin: 3px 0;
-  }
-
-  .unit-card.nce1-enhanced .duration,
-  .unit-card.nce1-enhanced .progress-text {
-    font-size: 8px;
-  }
-
-  .unit-num {
-    font-size: 1.1rem;
-  }
-
-  .unit-grid.think-layout {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-  }
-
-  .unit-grid.think-layout .unit-card {
-    padding: 16px 12px;
-    min-height: 100px;
-  }
-
-  .unit-grid.think-layout .unit-num {
-    font-size: 1.4rem;
-  }
-
-  .unit-grid.think-layout .unit-title {
-    font-size: 0.7rem;
-  }
-}
 
 /* ========== 性能优化 - 低端设备降级 ========== */
 
@@ -3896,33 +3113,9 @@ body,
 }
 
 /* 移动端隐藏开关（使用自动切换） */
-@media (max-width: 767px) {
-  .dark-mode-toggle {
-    display: none;
-  }
-}
 
 /* ========== P1 - 底部导航栏优化 (拇指热区) ========== */
 
-@media (max-width: 767px) {
-  /* 为底部导航栏预留空间 */
-  body.has-bottom-nav #app {
-    padding-bottom: calc(56px + var(--safe-area-bottom, 0px) + 24px);
-  }
-  
-  /* 收藏删除按钮位置优化 - 右下角拇指热区 */
-  .favorite-delete-btn {
-    right: 8px;
-    bottom: 8px;
-    top: auto;
-    transform: none;
-  }
-  
-  /* 播放器控制栏在移动端可适当放大 */
-  .controls-row {
-    gap: 10px;
-  }
-}
     min-height: auto;
     border-radius: var(--radius-md);
   }
@@ -4342,22 +3535,6 @@ body,
   box-shadow: var(--shadow-md);
 }
 
-@media (max-width: 767px) {
-  .toast-container {
-    top: 60px;
-    left: 16px;
-    right: 16px;
-    transform: none;
-  }
-  
-  .toast {
-    max-width: 100%;
-  }
-  
-  .empty-state {
-    padding: 40px 16px;
-  }
-}
 
 /* ========== 隐私政策 ========== */
 .privacy-content {
@@ -4589,34 +3766,6 @@ body,
   box-shadow: var(--shadow-md);
 }
 
-@media (max-width: 767px) {
-  .onboarding-content {
-    padding: 32px 20px;
-  }
-  
-  .onboarding-icon {
-    font-size: 48px;
-  }
-  
-  .onboarding-content h3 {
-    font-size: 1.3rem;
-  }
-  
-  .tip-card {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-  
-  .onboarding-nav {
-    flex-direction: column-reverse;
-  }
-  
-  .onboarding-prev,
-  .onboarding-next {
-    width: 100%;
-  }
-}
 
 /* ========== 头像选择器 ========== */
 .profile-header {
@@ -4839,29 +3988,6 @@ body,
   flex: 1;
 }
 
-@media (max-width: 767px) {
-  .profile-header {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-  
-  .profile-fields {
-    width: 100%;
-  }
-  
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .emoji-grid {
-    grid-template-columns: repeat(5, 1fr);
-  }
-  
-  .setting-row {
-    flex-direction: column;
-  }
-}
 
 /* 新手引导课程选择 */
 /* 课程选择网格 */
@@ -4872,14 +3998,6 @@ body,
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
-}
-
-@media (min-width: 640px) {
-  .course-select-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    max-width: 600px;
-  }
 }
 
 @media (min-width: 1024px) {
@@ -4908,74 +4026,8 @@ body,
 }
 
 /* 平板端适配 */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .dashboard-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .fold-header {
-    padding: 16px 20px;
-  }
-  
-  .fold-content {
-    padding: 0 20px;
-  }
-  
-  .fold-content.expanded {
-    padding: 0 20px 20px;
-  }
-}
 
 /* 手机端适配 */
-@media (max-width: 767px) {
-  .dashboard-panel {
-    padding: 16px;
-    margin-bottom: 12px;
-  }
-  
-  .dashboard-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-  
-  .dash-card {
-    padding: 16px;
-    border-radius: var(--radius-md);
-  }
-  
-  .dash-icon {
-    font-size: 1.5rem;
-  }
-  
-  .dash-value {
-    font-size: 1.4rem;
-  }
-  
-  .dash-label {
-    font-size: 0.8rem;
-  }
-  
-  .fold-header {
-    padding: 16px 20px;
-  }
-  
-  .fold-title span:last-child {
-    font-size: 1rem;
-  }
-  
-  .fold-content {
-    padding: 0 20px;
-  }
-  
-  .fold-content.expanded {
-    padding: 0 20px 16px;
-  }
-  
-  /* 表单网格改为单列 */
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-}
 
 .course-checkbox {
   display: none;
@@ -5243,24 +4295,6 @@ body,
   transition: width 0.3s ease;
 }
 
-@media (max-width: 767px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-  
-  .stat-card {
-    padding: 12px;
-  }
-  
-  .stat-value {
-    font-size: 1.2rem;
-  }
-  
-  .stat-label {
-    font-size: 0.8rem;
-  }
-}
 
 /* 用户中心 - 最近学习快捷入口 */
 .recent-course-shortcut {
@@ -5731,50 +4765,8 @@ body {
 }
 
 /* 移动端底部导航优化 */
-@media (max-width: 767px) {
-  .bottom-nav {
-    padding: 0 4px;
-  }
-  
-  .bottom-nav .nav-item {
-    gap: 2px;
-    padding: 6px 10px;
-  }
-  
-  .bottom-nav .nav-icon {
-    width: 20px;
-    height: 20px;
-  }
-  
-  .bottom-nav .nav-label {
-    font-size: 0.6rem;
-  }
-  
-  .bottom-nav .nav-item.active .nav-label {
-    font-size: 0.65rem;
-  }
-  
-  .bottom-nav .nav-item.active::before {
-    width: 16px;
-    height: 2px;
-  }
-}
 
 /* 平板端底部导航优化 */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .bottom-nav .nav-item {
-    padding: 8px 16px;
-  }
-  
-  .bottom-nav .nav-icon {
-    width: 21px;
-    height: 21px;
-  }
-  
-  .bottom-nav .nav-label {
-    font-size: 0.68rem;
-  }
-}
 
 /* 桌面端底部导航增强 */
 @media (min-width: 1024px) {
@@ -5833,225 +4825,8 @@ body {
 /* ========== Think Level 0 课程卡片优化 ========== */
 
 /* 手机端优化布局 - 2列布局 */
-@media (max-width: 767px) {
-  .unit-grid.think-layout {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    padding: 0 16px;
-  }
-
-  .unit-grid.think-layout .unit-card {
-    min-height: 130px;
-    padding: 14px 12px;
-    aspect-ratio: auto;
-    background: var(--card-solid);
-    border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    border: 1px solid var(--border);
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .unit-grid.think-layout .unit-card:active {
-    transform: scale(0.97);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  }
-
-  /* 卡片顶部标签 */
-  .unit-grid.think-layout .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 6px;
-  }
-
-  .unit-grid.think-layout .type-tag {
-    padding: 3px 8px;
-    background: linear-gradient(135deg, #5ac8fa, #007aff);
-    color: white;
-    font-size: 9px;
-    font-weight: 600;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 122, 255, 0.2);
-  }
-
-  .unit-grid.think-layout .type-tag.culture {
-    background: linear-gradient(135deg, #ff6b6b, #feca57);
-    box-shadow: 0 2px 4px rgba(255, 107, 107, 0.2);
-  }
-
-  .unit-grid.think-layout .type-tag.math {
-    background: linear-gradient(135deg, #26de81, #00d2d3);
-    box-shadow: 0 2px 4px rgba(38, 222, 129, 0.2);
-  }
-
-  .unit-grid.think-layout .status-badge {
-    padding: 3px 8px;
-    background: rgba(0, 122, 255, 0.1);
-    color: #007aff;
-    font-size: 9px;
-    font-weight: 600;
-    border-radius: 10px;
-  }
-
-  /* 课号样式优化 */
-  .unit-grid.think-layout .unit-num {
-    font-size: 1.3rem;
-    padding: 6px 12px;
-    margin-bottom: 2px;
-    line-height: 1.1;
-    color: white;
-    font-weight: 700;
-    background: var(--accent-gradient);
-    border-radius: 10px;
-    box-shadow: 0 3px 10px rgba(0, 122, 255, 0.2);
-  }
-
-  /* 标题样式优化 */
-  .unit-grid.think-layout .unit-title {
-    font-size: 0.8rem;
-    margin-bottom: 6px;
-    line-height: 1.2;
-    color: var(--text-secondary);
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  /* 卡片底部信息 */
-  .unit-grid.think-layout .card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: auto;
-    padding-top: 8px;
-    border-top: 1px solid rgba(0, 0, 0, 0.04);
-  }
-
-  .unit-grid.think-layout .duration,
-  .unit-grid.think-layout .progress-text {
-    font-size: 10px;
-    color: var(--text-tertiary);
-    display: flex;
-    align-items: center;
-    gap: 3px;
-  }
-
-  /* 操作按钮 */
-  .unit-grid.think-layout .card-action {
-    text-align: center;
-    margin-top: 4px;
-  }
-
-  .unit-grid.think-layout .action-text {
-    font-size: 11px;
-    color: #007aff;
-    font-weight: 600;
-    font-size: 0.7rem;
-  }
-
-  /* 完成状态卡片 */
-  .unit-grid.think-layout .unit-card.completed {
-    background: linear-gradient(135deg, rgba(38, 222, 129, 0.05), rgba(0, 210, 211, 0.02));
-    border-color: rgba(38, 222, 129, 0.2);
-  }
-
-  .unit-grid.think-layout .unit-card.completed .status-badge {
-    background: rgba(38, 222, 129, 0.1);
-    color: #26de81;
-  }
-
-  .unit-grid.think-layout .unit-card.completed .action-text {
-    color: #26de81;
-  }
-
-  /* 进度条样式 */
-  .unit-grid.think-layout .progress-bar-container {
-    width: 100%;
-    height: 4px;
-    background: rgba(0, 0, 0, 0.06);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: 6px;
-  }
-
-  .unit-grid.think-layout .progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #007aff, #5ac8fa);
-    border-radius: 2px;
-    transition: width 0.3s ease;
-  }
-
-  .unit-grid.think-layout .unit-card.completed .progress-bar-fill {
-    background: linear-gradient(90deg, #26de81, #00d2d3);
-  }
-}
 
 /* 平板端优化布局 */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .unit-grid.think-layout {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    padding: 0 20px;
-  }
-
-  .unit-grid.think-layout .unit-card {
-    min-height: 120px;
-    padding: 16px 14px;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(0, 0, 0, 0.04);
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .unit-grid.think-layout .unit-card:active {
-    transform: scale(0.97);
-  }
-
-  .unit-grid.think-layout .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-
-  .unit-grid.think-layout .type-tag,
-  .unit-grid.think-layout .status-badge {
-    padding: 4px 10px;
-    font-size: 10px;
-    border-radius: 12px;
-  }
-
-  .unit-grid.think-layout .unit-num {
-    font-size: 1.4rem;
-    margin-bottom: 4px;
-  }
-
-  .unit-grid.think-layout .unit-title {
-    font-size: 0.85rem;
-    margin-bottom: 8px;
-  }
-
-  .unit-grid.think-layout .card-footer {
-    padding-top: 10px;
-    border-top: 1px solid rgba(0, 0, 0, 0.04);
-  }
-
-  .unit-grid.think-layout .duration,
-  .unit-grid.think-layout .progress-text {
-    font-size: 11px;
-  }
-
-  .unit-grid.think-layout .action-text {
-    font-size: 12px;
-  }
-}
 
 /* 桌面端优化布局 */
 @media (min-width: 1024px) {
@@ -6410,25 +5185,6 @@ html {
 }
 
 /* 响应式优化 */
-@media (max-width: 479px) {
-  .color-theme-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-  
-  .color-theme-option {
-    padding: 8px;
-  }
-  
-  .color-theme-color {
-    width: 24px;
-    height: 24px;
-  }
-  
-  .color-theme-label {
-    font-size: 0.7rem;
-  }
-}
 
 /* 暗黑模式适配 */
 @media (prefers-color-scheme: dark) {
@@ -6562,11 +5318,6 @@ html {
 }
 
 /* 手机端（<768px）：隐藏侧边导航 */
-@media (max-width: 767px) {
-  .side-nav {
-    display: none !important;
-  }
-}
 
 /* ========== 图标尺寸统一化 ========== */
 
@@ -6614,19 +5365,6 @@ html {
 }
 
 /* 手机端图标尺寸稍小 */
-@media (max-width: 767px) {
-  .side-nav-item svg,
-  .nav-icon {
-    width: 20px !important;
-    height: 20px !important;
-  }
-  
-  .icon-btn svg,
-  .back-btn svg {
-    width: 20px !important;
-    height: 20px !important;
-  }
-}
 
 /* ========== 微交互增强 ========== */
 
@@ -6777,131 +5515,4 @@ html {
   justify-content: center;
   color: var(--text-tertiary);
   font-size: 0.9rem;
-}
-
-/* ========== 更多选项按钮 & 底部弹窗 ========== */
-.more-options-btn {
-  display: none;
-}
-
-.more-sheet-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 10000;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  animation: sheet-overlay-in 0.25s ease;
-}
-
-@keyframes sheet-overlay-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.more-sheet {
-  width: 100%;
-  max-width: 480px;
-  max-height: 70vh;
-  background: var(--card);
-  border-radius: 20px 20px 0 0;
-  overflow-y: auto;
-  animation: sheet-slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  padding-bottom: env(safe-area-inset-bottom, 16px);
-}
-
-@keyframes sheet-slide-up {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-
-.more-sheet-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 20px 12px;
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  background: var(--card);
-  border-radius: 20px 20px 0 0;
-  z-index: 1;
-}
-
-.more-sheet-header h3 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.more-sheet-body {
-  padding: 16px 20px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.more-option-row {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.more-option-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.more-option-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.chip {
-  padding: 8px 16px;
-  border-radius: 20px;
-  border: 1px solid var(--border);
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.chip:active {
-  transform: scale(0.95);
-}
-
-.chip.active {
-  background: var(--accent-gradient);
-  color: white;
-  border-color: transparent;
-  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
-  font-weight: 600;
-}
-
-/* 手机端显示更多按钮 */
-@media (max-width: 767px) {
-  .more-options-btn {
-    display: inline-flex;
-  }
-
-  /* 调整控件栏以容纳更多按钮 */
-  .controls-row {
-    gap: 8px;
-  }
-
-  .more-option-chips {
-    gap: 6px;
-  }
-
-  .chip {
-    padding: 8px 14px;
-    font-size: 0.8rem;
-  }
 }

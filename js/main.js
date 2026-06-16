@@ -172,8 +172,7 @@ class App {
     this.silenceThreshold = 0.15;  // 静音阈值 (0-1)
     this.silenceDuration = 0.25;   // 持续 250ms 才判定（避免误判）
     // 手机端禁用静音检测（iOS Safari 不兼容 captureStream）
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    this.useSilenceDetection = !isMobile;
+    this.useSilenceDetection = true;
     
     // preRoll：前移 150ms 补偿 MP3 seek 解码精度
     this.preRoll = 0.15;
@@ -209,7 +208,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       bookTitle: document.getElementById('bookTitle'),
       unitCount: document.getElementById('unitCount'),
       backToBooks: document.getElementById('backToBooks'),
-      pullToRefresh: document.getElementById('pullToRefresh'),
       dlg: document.getElementById('playerDialog'),
       title: document.getElementById('unitTitle'),
       close: document.getElementById('closeBtn'),
@@ -235,9 +233,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       repeat: document.getElementById('repeatBtn'),
       repeatCount: document.getElementById('repeatCount'),
       audio: document.getElementById('audio'),
-      moreBtn: document.getElementById('moreBtn'),
-      moreSheet: document.getElementById('moreSheet'),
-      moreSheetClose: document.getElementById('moreSheetClose')
     };
 
     this.els.audio.playbackRate = this.spd;
@@ -356,8 +351,8 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       this.useSilenceDetection = false;
     }
 
-  // ========== 边缘返回手势 - iOS 风格 ==========
-  }
+    }
+
   
   // 获取当前音量 (0-1)
   getCurrentVolume() {
@@ -837,9 +832,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     this.els.dlg.showModal();
     this.els.area.innerHTML = '<p class="line loading-msg">加载中...</p>';
     
-    if (window.innerWidth <= 767) {
-      this.setupPullToClose();
-    }
     
     const lrcUrl = getLrcUrl(u.filename, this.path, this.key);
     let txt = this.cache.get(lrcUrl);
@@ -1500,147 +1492,9 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       
     };
 
-    // 更多选项按钮 → 打开底部弹窗
-    if (this.els.moreBtn) {
-      this.els.moreBtn.addEventListener('click', () => {
-        this.openMoreSheet();
-      });
-    }
-
-    // 关闭底部弹窗
-    if (this.els.moreSheetClose) {
-      this.els.moreSheetClose.addEventListener('click', () => {
-        this.closeMoreSheet();
-      });
-    }
-
-    // 点击遮罩关闭
-    if (this.els.moreSheet) {
-      this.els.moreSheet.addEventListener('click', (e) => {
-        if (e.target === this.els.moreSheet) {
-          this.closeMoreSheet();
-        }
-      });
-    }
-
-    // 定时关闭 chips
-    const timerChips = document.getElementById('timerChips');
-    if (timerChips) {
-      timerChips.addEventListener('click', (e) => {
-        const chip = e.target.closest('.chip');
-        if (!chip) return;
-        const val = parseInt(chip.dataset.val);
-        this.setTimer(val);
-        timerChips.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === chip));
-        if (this.els.timerLabel) this.els.timerLabel.textContent = val === 0 ? '关闭' : `${val}分`;
-        triggerHapticFeedback('light');
-      });
-    }
-
-    // 播放速度 chips
-    const speedChips = document.getElementById('speedChips');
-    if (speedChips) {
-      speedChips.addEventListener('click', (e) => {
-        const chip = e.target.closest('.chip');
-        if (!chip) return;
-        const val = parseFloat(chip.dataset.val);
-        this.setSpeed(val);
-        speedChips.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === chip));
-        if (this.els.spdL) this.els.spdL.textContent = `${val}x`;
-        triggerHapticFeedback('light');
-      });
-    }
-
-    // 显示模式 chips
-    const transChips = document.getElementById('transChips');
-    if (transChips) {
-      transChips.addEventListener('click', (e) => {
-        const chip = e.target.closest('.chip');
-        if (!chip) return;
-        const val = chip.dataset.val;
-        this.setTrans(val);
-        const labels = { 'bilingual': '双语', 'en-only': '英文', 'cn-only': '中文' };
-        transChips.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === chip));
-        if (this.els.trL) this.els.trL.textContent = labels[val] || val;
-        triggerHapticFeedback('light');
-      });
-    }
-
-    // 窗口模式 chips
-    const expandChips = document.getElementById('expandChips');
-    if (expandChips) {
-      expandChips.addEventListener('click', (e) => {
-        const chip = e.target.closest('.chip');
-        if (!chip) return;
-        const val = chip.dataset.val;
-        this.toggleExpand(val);
-        expandChips.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === chip));
-        triggerHapticFeedback('light');
-      });
-    }
   }
 
-  openMoreSheet() {
-    if (!this.els.moreSheet) return;
-    this.els.moreSheet.style.display = 'flex';
-    this.syncMoreSheetChips();
-  }
 
-  closeMoreSheet() {
-    if (!this.els.moreSheet) return;
-    this.els.moreSheet.style.display = 'none';
-  }
-
-  syncMoreSheetChips() {
-    const timerChips = document.getElementById('timerChips');
-    if (timerChips) {
-      timerChips.querySelectorAll('.chip').forEach(c => {
-        c.classList.toggle('active', parseInt(c.dataset.val) === this.timerMinutes);
-      });
-    }
-    const speedChips = document.getElementById('speedChips');
-    if (speedChips) {
-      speedChips.querySelectorAll('.chip').forEach(c => {
-        c.classList.toggle('active', parseFloat(c.dataset.val) === this.spd);
-      });
-    }
-    const transChips = document.getElementById('transChips');
-    if (transChips) {
-      transChips.querySelectorAll('.chip').forEach(c => {
-        c.classList.toggle('active', c.dataset.val === this.tr);
-      });
-    }
-    const expandChips = document.getElementById('expandChips');
-    if (expandChips) {
-      const isFull = !this.els.dlg.querySelector('.dialog-inner')?.classList.contains('windowed');
-      expandChips.querySelectorAll('.chip').forEach(c => {
-        c.classList.toggle('active', c.dataset.val === (isFull ? 'full' : 'windowed'));
-      });
-    }
-  }
-
-  setTimer(min) {
-    this.timerMinutes = min;
-    this.updateTimerDisplay();
-    if (min === 0) {
-      toast.info('定时关闭已取消');
-    } else {
-      toast.info(`${min}分钟后自动关闭`);
-    }
-  }
-
-  setSpeed(val) {
-    this.spd = val;
-    this.els.audio.playbackRate = val;
-    localStorage.setItem(LS.SPD, val);
-    this.syncUI();
-  }
-
-  setTrans(val) {
-    this.tr = val;
-    localStorage.setItem(LS.TR, val);
-    this.applyTr();
-  }
 
   toggleExpand(mode) {
     const inner = this.els.dlg.querySelector('.dialog-inner');
@@ -1672,144 +1526,11 @@ document.addEventListener('DOMContentLoaded', () => {
   userManager = new UserManager();
   
   // 初始化移动端手势
-  initMobileGestures();
   
   // 初始化应用
   new App().init();
 });
 
-// 移动端手势支持
-let touchStartX = 0;
-let touchStartY = 0;
-let touchEndX = 0;
-let touchEndY = 0;
-let isEdgeSwipe = false; // 标记是否为屏幕边缘滑动
-
-function initMobileGestures() {
-  if (window.innerWidth <= 768) {
-    document.addEventListener('touchstart', handleTouchStart, { passive: true });
-    document.addEventListener('touchend', handleTouchEnd, { passive: true });
-  }
-}
-
-function handleTouchStart(e) {
-  touchStartX = e.changedTouches[0].screenX;
-  touchStartY = e.changedTouches[0].screenY;
-  
-  // 检测是否为屏幕边缘滑动（系统侧滑返回区域）
-  const screenWidth = window.innerWidth;
-  isEdgeSwipe = touchStartX < 30 || touchStartX > screenWidth - 30;
-}
-
-function handleTouchEnd(e) {
-  touchEndX = e.changedTouches[0].screenX;
-  touchEndY = e.changedTouches[0].screenY;
-  
-  handleSwipe();
-}
-
-// ========== 方案 C: 折叠卡片交互 ==========
-
-// 折叠/展开卡片
-function toggleFoldCard(section) {
-  const card = document.querySelector(`.fold-card[data-fold="${section}"]`);
-  if (!card) return;
-  
-  const content = card.querySelector('.fold-content');
-  const isExpanded = card.classList.contains('expanded');
-  
-  // 切换状态
-  card.classList.toggle('expanded');
-  content.classList.toggle('show');
-  
-  // 保存展开/折叠状态到 localStorage
-  const foldState = JSON.parse(localStorage.getItem('nce_fold_state') || '{}');
-  foldState[section] = !isExpanded;
-  localStorage.setItem('nce_fold_state', JSON.stringify(foldState));
-  
-  // 展开时更新仪表盘
-  if (!isExpanded) {
-    setTimeout(() => {
-      updateDashboard();
-    }, 300);
-  }
-}
-
-// 恢复折叠状态
-function restoreFoldState() {
-  const foldState = JSON.parse(localStorage.getItem('nce_fold_state') || '{}');
-  
-  Object.entries(foldState).forEach(([section, isExpanded]) => {
-    if (isExpanded) {
-      setTimeout(() => {
-        toggleFoldCard(section);
-      }, 100);
-    }
-  });
-}
-
-// 更新仪表盘数据
-function updateDashboard() {
-  const stats = loadLearningStats();
-  
-  // 累计学习时间
-  document.getElementById('dashTotalTime').textContent = formatLearningTime(stats.totalTime);
-  
-  // 连续学习天数
-  document.getElementById('dashStreak').textContent = stats.streak + '天';
-  
-  // 收藏句子数
-  const favs = getFavorites();
-  document.getElementById('dashFavorites').textContent = favs.length + '句';
-  
-  // 成就解锁数（简化：显示 0/6）
-  document.getElementById('dashAchievements').textContent = '0/6';
-}
-
-function handleSwipe() {
-  const diffX = touchEndX - touchStartX;
-  const diffY = touchEndY - touchStartY;
-  
-  // 如果是屏幕边缘滑动，优先让系统处理（侧滑返回）
-  if (isEdgeSwipe && Math.abs(diffX) > 30 && Math.abs(diffY) < 30) {
-    // 不阻止默认行为，让系统处理侧滑返回
-    return;
-  }
-  
-  // 防误触：垂直滑动优先
-  if (Math.abs(diffY) > Math.abs(diffX)) {
-    // 垂直滑动，忽略水平手势
-    return;
-  }
-  
-  // 水平滑动（切换课程） - 在播放器打开时生效
-  if (Math.abs(diffX) > 50 && Math.abs(diffY) < 30) {
-    const appInstance = window.app;
-    if (!appInstance || !appInstance.els?.dlg?.open) return;
-    
-    if (diffX > 0) {
-      // 向右滑动 - 上一课
-      if (appInstance.idx > 0) {
-        appInstance.open(appInstance.idx - 1);
-        toast.info('上一课');
-        // 触觉反馈
-        if (navigator.vibrate) {
-          navigator.vibrate(30);
-        }
-      }
-    } else {
-      // 向左滑动 - 下一课
-      if (appInstance.idx < appInstance.units.length - 1) {
-        appInstance.open(appInstance.idx + 1);
-        toast.info('下一课');
-        // 触觉反馈
-        if (navigator.vibrate) {
-          navigator.vibrate(30);
-        }
-      }
-    }
-  }
-}
 
 // 导出折叠卡片函数到全局作用域
 window.toggleFoldCard = toggleFoldCard;
@@ -1923,10 +1644,7 @@ function detectLowEndDevice() {
     (navigator.connection && navigator.connection.saveData)
   );
   
-  // 老旧 iOS 设备检测（iPhone 6/7/8 等）
-  const isOldIOS = /iPhone OS (9|10|11|12|13)_/.test(navigator.userAgent);
-  
-  if (isLowEnd || isOldIOS) {
+  if (isLowEnd) {
     document.documentElement.classList.add('low-end-device');
   }
 }
