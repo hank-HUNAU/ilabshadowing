@@ -240,19 +240,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     this.els.audio.playbackRate = this.spd;
     this.applyTr();
 
-    // 边缘返回手势相关属性
-    this.pageHistory = [];
-    this.currentPage = 'book';
-    this.edgeGesture = {
-      active: false,
-      startX: 0,
-      currentX: 0,
-      progress: 0,
-      threshold: 100,
-      edgeWidth: 20,
-      isBackGesture: false,
-      targetPage: null
-    };
     this.syncUI();
     
     // 初始化 Web Audio API 用于静音检测
@@ -271,17 +258,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     
     // 恢复上次页面
     this.restoreLastPage();
-    
-    // 初始化下拉刷新（仅手机端）
-    if (window.innerWidth <= 767) {
-      this.initPullToRefresh();
-    }
-
-    // 初始化边缘返回手势（仅手机端）
-    if (window.innerWidth <= 767) {
-      this.initEdgeBackGesture();
-    }
-    
     // 初始化SPA路由器
     this.initSPARouter();
   }
@@ -383,164 +359,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     }
 
   // ========== 边缘返回手势 - iOS 风格 ==========
-  }
-  
-  initEdgeBackGesture() {
-    this.createEdgeBackUI();
-    document.addEventListener('touchstart', this.handleEdgeTouchStart.bind(this), { passive: true });
-    document.addEventListener('touchmove', this.handleEdgeTouchMove.bind(this), { passive: false });
-    document.addEventListener('touchend', this.handleEdgeTouchEnd.bind(this), { passive: true });
-    window.addEventListener('popstate', this.handlePopState.bind(this));
-    this.initPageHistory();
-  }
-  
-  createEdgeBackUI() {
-    const indicator = document.createElement('div');
-    indicator.id = 'edgeBackIndicator';
-    indicator.className = 'edge-back-indicator';
-    
-    const progress = document.createElement('div');
-    progress.id = 'edgeBackProgress';
-    progress.className = 'edge-back-progress';
-    
-    const touchZone = document.createElement('div');
-    touchZone.id = 'edgeTouchZone';
-    touchZone.className = 'edge-touch-zone';
-    
-    document.body.appendChild(indicator);
-    document.body.appendChild(progress);
-    document.body.appendChild(touchZone);
-    
-    this.els.edgeBackIndicator = indicator;
-    this.els.edgeBackProgress = progress;
-    this.els.edgeTouchZone = touchZone;
-  }
-  
-  initPageHistory() {
-    this.currentPage = 'book';
-    this.pageHistory = ['book'];
-    
-    if (window.history.state === null) {
-      window.history.replaceState({ page: 'book' }, '', '#book');
-    }
-  }
-  
-  handleEdgeTouchStart(e) {
-    const touch = e.touches[0];
-    
-    if (touch.clientX <= this.edgeGesture.edgeWidth) {
-      if (this.canGoBack()) {
-        this.edgeGesture.active = true;
-        this.edgeGesture.startX = touch.clientX;
-        this.edgeGesture.currentX = touch.clientX;
-        this.edgeGesture.progress = 0;
-        this.edgeGesture.isBackGesture = true;
-        
-        this.els.edgeTouchZone.classList.add('active');
-        document.body.classList.add('edge-gesture-active');
-        e.preventDefault();
-      }
-    }
-  }
-  
-  handleEdgeTouchMove(e) {
-    if (!this.edgeGesture.active || !this.edgeGesture.isBackGesture) return;
-    
-    const touch = e.touches[0];
-    const diffX = touch.clientX - this.edgeGesture.startX;
-    
-    this.edgeGesture.currentX = Math.min(diffX, window.innerWidth * 0.8);
-    this.edgeGesture.progress = this.edgeGesture.currentX / window.innerWidth;
-    
-    this.els.edgeBackProgress.style.transform = `scaleY(${this.edgeGesture.progress})`;
-    this.els.edgeBackProgress.classList.add('active');
-    this.els.edgeBackIndicator.classList.add('active');
-    
-    if (Math.abs(diffX) > 10) {
-      e.preventDefault();
-    }
-  }
-  
-  handleEdgeTouchEnd(e) {
-    if (!this.edgeGesture.active) return;
-    
-    const shouldGoBack = this.edgeGesture.currentX >= this.edgeGesture.threshold;
-    
-    if (shouldGoBack) {
-      this.triggerEdgeBack();
-    } else {
-      this.cancelEdgeBack();
-    }
-    
-    this.edgeGesture.active = false;
-    this.edgeGesture.isBackGesture = false;
-  }
-  
-  triggerEdgeBack() {
-    this.hideEdgeBackUI();
-    
-    if (this.pageHistory.length > 1) {
-      const previousPage = this.pageHistory[this.pageHistory.length - 2];
-      this.pageHistory.pop();
-      this.currentPage = previousPage;
-      window.history.back();
-    }
-  }
-  
-  cancelEdgeBack() {
-    this.hideEdgeBackUI();
-  }
-  
-  hideEdgeBackUI() {
-    this.els.edgeTouchZone.classList.remove('active');
-    this.els.edgeBackProgress.classList.remove('active');
-    this.els.edgeBackIndicator.classList.remove('active');
-    document.body.classList.remove('edge-gesture-active');
-  }
-  
-  canGoBack() {
-    return this.pageHistory.length > 1;
-  }
-  
-  handlePopState(e) {
-    const state = e.state;
-    
-    if (state && state.page) {
-      const direction = this.getNavigationDirection(state.page);
-      this.transitionPage(state.page, direction);
-      this.currentPage = state.page;
-      this.updateBottomNavState(state.page);
-    }
-  }
-  
-  getNavigationDirection(targetPage) {
-    const currentIndex = this.pageHistory.indexOf(targetPage);
-    const currentLastIndex = this.pageHistory.length - 1;
-    
-    return currentIndex < currentLastIndex ? 'reverse' : 'forward';
-  }
-  
-  updateBottomNavState(page) {
-    // 更新侧边导航（电脑端）
-    const sideNav = document.getElementById('sideNav');
-    if (sideNav) {
-      sideNav.querySelectorAll('.side-nav-item').forEach(item => {
-        item.classList.remove('active');
-        if (item.dataset.page === page) {
-          item.classList.add('active');
-        }
-      });
-    }
-  }
-  
-  navigateBottomNavWithHistory(page, direction = 'forward') {
-    if (page !== this.currentPage) {
-      this.pageHistory.push(page);
-      this.currentPage = page;
-      window.history.pushState({ page: page }, '', `#${page}`);
-    }
-    
-    this.navigateBottomNav(page, direction);
   }
   
   // 获取当前音量 (0-1)
@@ -666,21 +484,6 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     }
     
     localStorage.setItem(LS.FAVORITES, JSON.stringify(this.favorites));
-  }
-
-  // 手机端底部导航栏导航
-  navigateBottomNav(page, direction = 'forward') {
-    // 已使用SPA路由器
-  }
-
-  transitionPage(page, direction = 'forward') {}
-
-  renderFavorites() {
-    // 已移除收藏页面
-  }
-  
-  filterFavorites(query) {
-    // 已移除收藏页面
   }
 
   async loadBooks() {
