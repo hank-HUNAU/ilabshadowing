@@ -808,15 +808,20 @@ body {
 .book-card:hover {
   background: var(--bg-secondary);
   color: var(--text);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary);
 }
 
 .book-card:active {
-  transform: scale(0.98);
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .book-icon {
   width: 80px;
   height: 80px;
+  min-width: 80px;
   border-radius: var(--radius-md);
   background: var(--accent-gradient);
   display: flex;
@@ -826,18 +831,19 @@ body {
   font-weight: 700;
   color: white;
   z-index: 1;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
 }
 
 .book-info {
-  text-align: center;
+  flex: 1;
   z-index: 1;
 }
 
 .book-title {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--text);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   letter-spacing: -0.02em;
 }
 
@@ -846,6 +852,7 @@ body {
   color: var(--text-secondary);
   line-height: 1.4;
   font-weight: 400;
+  margin-bottom: 8px;
 }
 
 /* 课程列表页 */
@@ -923,15 +930,16 @@ body {
 }
 
 .unit-count {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: var(--text-secondary);
-  padding: 6px 14px;
-  background: var(--bg-secondary);
-  border-radius: 20px;
-  border: 1px solid var(--border);
-  min-width: 60px;
+  color: white;
+  padding: 4px 12px;
+  background: var(--accent-gradient);
+  border-radius: 12px;
+  min-width: 56px;
   text-align: center;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.2);
 }
 
 /* 顶部导航栏 */
@@ -1090,15 +1098,16 @@ body {
   position: relative;
 }
 
-/* 悬停效果 */
 .unit-card:hover {
   background: var(--bg-secondary);
-  color: var(--text);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary);
 }
 
-/* 点击效果 */
 .unit-card:active {
-  transform: scale(0.98);
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .unit-num {
@@ -1115,6 +1124,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
 }
 
 .unit-title {
@@ -1157,9 +1167,22 @@ body {
 }
 
 .unit-card.nce1-enhanced .unit-num {
-  font-size: 1.8rem;
-  margin-bottom: 4px;
+  font-size: 1.6rem;
+  padding: 6px 14px;
+  margin-bottom: 2px;
   margin-top: 8px;
+}
+
+.unit-card.nce1-enhanced .unit-title {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  z-index: 1;
 }
 
 .unit-card.nce1-enhanced .progress-bar-container {
@@ -1199,10 +1222,30 @@ body {
   gap: 2px;
 }
 
+.unit-card.nce1-enhanced .card-action {
+  text-align: center;
+  margin-top: 2px;
+}
+
+/* 通用操作提示 */
+.card-action {
+  text-align: center;
+  width: 100%;
+}
+
+.action-text {
+  font-size: 0.7rem;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.unit-card.completed .action-text {
+  color: #26de81;
+}
+
 /* NCE1增强卡片悬停效果 */
 .unit-card.nce1-enhanced:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 122, 255, 0.12);
 }
 
 .unit-card.nce1-enhanced:hover .status-badge {
@@ -1231,7 +1274,7 @@ body {
   }
 
   .unit-card.nce1-enhanced:hover {
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 24px rgba(0, 122, 255, 0.2);
   }
 }
 
@@ -3451,8 +3494,8 @@ body.hide-en .line-en { display: none; }
   }
 
   .unit-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
   }
 
   .unit-card {
@@ -3469,9 +3512,18 @@ body.hide-en .line-en { display: none; }
   }
 
   .unit-card.nce1-enhanced .unit-num {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
+    padding: 4px 10px;
     margin-top: 6px;
     margin-bottom: 2px;
+  }
+
+  .unit-card.nce1-enhanced .unit-title {
+    font-size: 0.7rem;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .unit-card.nce1-enhanced .status-badge {
@@ -5780,10 +5832,10 @@ body {
     min-height: 130px;
     padding: 14px 12px;
     aspect-ratio: auto;
-    background: white;
+    background: var(--card-solid);
     border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     overflow: hidden;
@@ -5835,10 +5887,14 @@ body {
   /* 课号样式优化 */
   .unit-grid.think-layout .unit-num {
     font-size: 1.3rem;
+    padding: 6px 12px;
     margin-bottom: 2px;
     line-height: 1.1;
-    color: var(--text);
+    color: white;
     font-weight: 700;
+    background: var(--accent-gradient);
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 122, 255, 0.2);
   }
 
   /* 标题样式优化 */
@@ -6709,4 +6765,131 @@ html {
   justify-content: center;
   color: var(--text-tertiary);
   font-size: 0.9rem;
+}
+
+/* ========== 更多选项按钮 & 底部弹窗 ========== */
+.more-options-btn {
+  display: none;
+}
+
+.more-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 10000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: sheet-overlay-in 0.25s ease;
+}
+
+@keyframes sheet-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.more-sheet {
+  width: 100%;
+  max-width: 480px;
+  max-height: 70vh;
+  background: var(--card);
+  border-radius: 20px 20px 0 0;
+  overflow-y: auto;
+  animation: sheet-slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+@keyframes sheet-slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.more-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--card);
+  border-radius: 20px 20px 0 0;
+  z-index: 1;
+}
+
+.more-sheet-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.more-sheet-body {
+  padding: 16px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.more-option-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.more-option-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.more-option-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.chip:active {
+  transform: scale(0.95);
+}
+
+.chip.active {
+  background: var(--accent-gradient);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+  font-weight: 600;
+}
+
+/* 手机端显示更多按钮 */
+@media (max-width: 767px) {
+  .more-options-btn {
+    display: inline-flex;
+  }
+
+  /* 调整控件栏以容纳更多按钮 */
+  .controls-row {
+    gap: 8px;
+  }
+
+  .more-option-chips {
+    gap: 6px;
+  }
+
+  .chip {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
 }

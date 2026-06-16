@@ -266,10 +266,69 @@
               </svg>
               <span id="transLabel">双语</span>
             </button>
+
+            <button id="moreBtn" class="ctrl-btn tag-btn more-options-btn" title="更多选项">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
+                <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                <circle cx="12" cy="19" r="1.5" fill="currentColor"/>
+              </svg>
+            </button>
           </div>
         </footer>
       </div>
     </dialog>
+
+    <!-- 更多选项底部弹窗 -->
+    <div id="moreSheet" class="more-sheet-overlay" style="display:none">
+      <div class="more-sheet">
+        <div class="more-sheet-header">
+          <h3>更多选项</h3>
+          <button id="moreSheetClose" class="icon-btn" aria-label="关闭">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <div class="more-sheet-body">
+          <div class="more-option-row">
+            <span class="more-option-label">定时关闭</span>
+            <div class="more-option-chips" id="timerChips">
+              <button data-val="0" class="chip active">关闭</button>
+              <button data-val="15" class="chip">15分</button>
+              <button data-val="30" class="chip">30分</button>
+              <button data-val="60" class="chip">60分</button>
+            </div>
+          </div>
+          <div class="more-option-row">
+            <span class="more-option-label">播放速度</span>
+            <div class="more-option-chips" id="speedChips">
+              <button data-val="0.5" class="chip">0.5x</button>
+              <button data-val="0.75" class="chip">0.75x</button>
+              <button data-val="1" class="chip active">1.0x</button>
+              <button data-val="1.25" class="chip">1.25x</button>
+              <button data-val="1.5" class="chip">1.5x</button>
+              <button data-val="2" class="chip">2.0x</button>
+            </div>
+          </div>
+          <div class="more-option-row">
+            <span class="more-option-label">显示模式</span>
+            <div class="more-option-chips" id="transChips">
+              <button data-val="bilingual" class="chip active">双语</button>
+              <button data-val="en-only" class="chip">英文</button>
+              <button data-val="cn-only" class="chip">中文</button>
+            </div>
+          </div>
+          <div class="more-option-row">
+            <span class="more-option-label">窗口模式</span>
+            <div class="more-option-chips" id="expandChips">
+              <button data-val="full" class="chip active">全屏</button>
+              <button data-val="windowed" class="chip">窗口</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Toast 提示 -->
     <div id="toastContainer" class="toast-container"></div>

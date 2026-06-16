@@ -234,7 +234,10 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       trL: document.getElementById('transLabel'),
       repeat: document.getElementById('repeatBtn'),
       repeatCount: document.getElementById('repeatCount'),
-      audio: document.getElementById('audio')
+      audio: document.getElementById('audio'),
+      moreBtn: document.getElementById('moreBtn'),
+      moreSheet: document.getElementById('moreSheet'),
+      moreSheetClose: document.getElementById('moreSheetClose')
     };
 
     this.els.audio.playbackRate = this.spd;
@@ -279,35 +282,30 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
 
   renderBooks() {
     if (!this.els.bookGrid) return;
-    this.els.bookGrid.innerHTML = this.books.map(b => `
+    const getIcon = (book) => book.icon || ({
+      NCE1: 'N1', THINK_0: 'T0', THINK_F: 'TF'
+    }[book.key] || book.key.slice(0, 2));
+
+    this.els.bookGrid.innerHTML = this.books.map(b => {
+      const count = this.unitCounts ? (this.unitCounts[b.key] || 0) : (this.unitsData[b.key] || []).length;
+      return `
       <div class="book-card" data-key="${b.key}">
-        <h3 class="book-title">${b.title}</h3>
-        <p class="book-desc">${this.getBookDesc(b)}</p>
-        <span class="unit-count">${b.units.length} 课</span>
-      </div>
-    `).join('');
+        <div class="book-icon">${getIcon(b)}</div>
+        <div class="book-info">
+          <div class="book-title">${b.title}</div>
+          <div class="book-desc">${this.getBookDesc(b)}</div>
+          <span class="unit-count">${count} 课</span>
+        </div>
+      </div>`;
+    }).join('');
   }
 
   getBookDesc(book) {
-    return book.desc || `共 ${book.units.length} 课`;
+    return book.desc || `共 ${this.unitCounts ? (this.unitCounts[book.key] || 0) : (this.unitsData[book.key] || []).length} 课`;
   }
 
   restoreLastPage() {
-    const lastBook = localStorage.getItem(LS.BOOK);
-    const lastPage = localStorage.getItem(LS.LAST_PAGE);
-    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
-
-    // 桌面端：直接进入最近课本的课程列表
-    if (isDesktop && lastBook && lastPage === 'unit') {
-      this.openBook(lastBook);
-      return;
-    }
-    if (isDesktop && lastBook) {
-      this.openBook(lastBook);
-      return;
-    }
-
-    // 手机端：显示课本选择页
+    // 所有设备统一显示课本选择页
     this.renderBooks();
   }
 
@@ -497,17 +495,18 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     try {
       const data = await fetch('data.json').then(r => r.json());
       const allBooks = data.books || [];
+      this.unitsData = data.units || {};   // { NCE1: [...], THINK_0: [...] }
       
       const selected = userManager?.getSelectedCourses() || null;
       
-      if (selected === null) {
+      if (!selected || selected.length === 0) {
         this.books = allBooks;
       } else {
         this.books = allBooks.filter(b => selected.includes(b.key));
       }
       
       this.renderSidebar();
-      
+
       if (this.books.length === 0) {
         this.els.unitGrid.innerHTML = `
           <div class="empty-state">
@@ -521,6 +520,17 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
         `;
         return;
       }
+
+      // 从 book.json 获取准确的课程数量
+      this.unitCounts = {};
+      await Promise.all(this.books.map(async b => {
+        try {
+          const d = await fetch(`${b.bookPath}/book.json`).then(r => r.json());
+          this.unitCounts[b.key] = (d.units || []).length;
+        } catch {
+          this.unitCounts[b.key] = (this.unitsData[b.key] || []).length;
+        }
+      }));
     } catch (e) { 
       console.error('[App] Failed to load data.json:', e);
       this.books = []; 
@@ -619,7 +629,8 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       this.els.unitCount.textContent = `${this.units.length} 课`;
       this.grid();
       this.restoreUnit();
-      this.preloadLrcFiles(); // 预加载 LRC 文件
+      await this.preloadLrcFiles(); // 预加载 LRC 文件
+      this.updateNce1CardTitles();   // 用 LRC 第二行更新 NCE1 标题
       
       // 加载完成回调
       if (callback) callback();
@@ -722,20 +733,22 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
           </div>
         </div>`;
       } else {
-        const showTitle = isThink && description;
-        const circumference = 75.4;
-        const offset = circumference - (progress / 100) * circumference;
+        const unitTitle = u.title || '';
         
         return `
         <div class="unit-card nce1-enhanced ${isCompleted ? 'completed' : ''}" data-i="${i}">
           <div class="status-badge">${statusText}</div>
           <div class="unit-num">${num}</div>
+          <div class="unit-title">${unitTitle}</div>
           <div class="progress-bar-container">
             <div class="progress-bar-fill" style="width: ${progress}%"></div>
           </div>
           <div class="card-footer">
             <span class="duration">⏱ ${this.getUnitDuration(i)}</span>
             <span class="progress-text">${completedLines}/${totalLines}</span>
+          </div>
+          <div class="card-action">
+            <span class="action-text">${actionText}</span>
           </div>
         </div>`;
       }
@@ -772,37 +785,20 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     await Promise.all(promises);
   }
 
-  async updateTitlesFromLrc() {
-    // 批量从 LRC 获取 [ti:] 标签作为标题
-    const cards = this.els.grid.querySelectorAll('.card-title');
-    
-    for (const card of cards) {
-      const filename = card.getAttribute('data-filename');
-      if (!filename) continue;
-      
-      const lrcUrl = getLrcUrl(filename, this.path, this.key);
-      let txt = this.cache.get(lrcUrl);
-      
-      if (!txt) {
-        try {
-          const response = await fetch(lrcUrl);
-          if (response.ok) {
-            txt = await response.text();
-            this.cache.set(lrcUrl, txt);
-          }
-        } catch (e) {
-          console.error('Failed to load LRC for title:', e);
-        }
+  updateNce1CardTitles() {
+    const cards = this.els.unitGrid.querySelectorAll('.unit-card');
+    if (!cards.length) return;
+    this.units.forEach((u, i) => {
+      const lrcUrl = getLrcUrl(u.filename, this.path, this.key);
+      const lrcTxt = this.cache.get(lrcUrl);
+      if (!lrcTxt || !cards[i]) return;
+      const lines = Lrc.parse(lrcTxt);
+      const firstLine = lines.find(l => l.en && l.en.trim());
+      if (firstLine) {
+        const titleEl = cards[i].querySelector('.unit-title');
+        if (titleEl) titleEl.textContent = firstLine.en;
       }
-      
-      if (txt) {
-        // 从 [ti:xxx] 提取标题
-        const tiMatch = txt.match(/\[ti:(.+)\]/);
-        if (tiMatch) {
-          card.textContent = tiMatch[1].trim();
-        }
-      }
-    }
+    });
   }
 
   restoreUnit() {
@@ -1442,6 +1438,21 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
         this.els.dlg.close(); 
       } 
     });
+
+    // 展开/窗口模式切换（桌面端）
+    if (this.els.expand) {
+      this.els.expand.addEventListener('click', () => {
+        const inner = this.els.dlg.querySelector('.dialog-inner');
+        const icoExp = this.els.expand.querySelector('.ico-expand');
+        const icoShr = this.els.expand.querySelector('.ico-shrink');
+        if (!inner) return;
+        if (inner.classList.contains('windowed')) {
+          this.toggleExpand('full');
+        } else {
+          this.toggleExpand('windowed');
+        }
+      });
+    }
     
     // 键盘快捷键（仅桌面端）
     if (window.innerWidth > 768) {
@@ -1491,6 +1502,163 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       }
       
     };
+
+    // 更多选项按钮 → 打开底部弹窗
+    if (this.els.moreBtn) {
+      this.els.moreBtn.addEventListener('click', () => {
+        this.openMoreSheet();
+      });
+    }
+
+    // 关闭底部弹窗
+    if (this.els.moreSheetClose) {
+      this.els.moreSheetClose.addEventListener('click', () => {
+        this.closeMoreSheet();
+      });
+    }
+
+    // 点击遮罩关闭
+    if (this.els.moreSheet) {
+      this.els.moreSheet.addEventListener('click', (e) => {
+        if (e.target === this.els.moreSheet) {
+          this.closeMoreSheet();
+        }
+      });
+    }
+
+    // 定时关闭 chips
+    const timerChips = document.getElementById('timerChips');
+    if (timerChips) {
+      timerChips.addEventListener('click', (e) => {
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        const val = parseInt(chip.dataset.val);
+        this.setTimer(val);
+        timerChips.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === chip));
+        if (this.els.timerLabel) this.els.timerLabel.textContent = val === 0 ? '关闭' : `${val}分`;
+        triggerHapticFeedback('light');
+      });
+    }
+
+    // 播放速度 chips
+    const speedChips = document.getElementById('speedChips');
+    if (speedChips) {
+      speedChips.addEventListener('click', (e) => {
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        const val = parseFloat(chip.dataset.val);
+        this.setSpeed(val);
+        speedChips.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === chip));
+        if (this.els.spdL) this.els.spdL.textContent = `${val}x`;
+        triggerHapticFeedback('light');
+      });
+    }
+
+    // 显示模式 chips
+    const transChips = document.getElementById('transChips');
+    if (transChips) {
+      transChips.addEventListener('click', (e) => {
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        const val = chip.dataset.val;
+        this.setTrans(val);
+        const labels = { 'bilingual': '双语', 'en-only': '英文', 'cn-only': '中文' };
+        transChips.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === chip));
+        if (this.els.trL) this.els.trL.textContent = labels[val] || val;
+        triggerHapticFeedback('light');
+      });
+    }
+
+    // 窗口模式 chips
+    const expandChips = document.getElementById('expandChips');
+    if (expandChips) {
+      expandChips.addEventListener('click', (e) => {
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        const val = chip.dataset.val;
+        this.toggleExpand(val);
+        expandChips.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === chip));
+        triggerHapticFeedback('light');
+      });
+    }
+  }
+
+  openMoreSheet() {
+    if (!this.els.moreSheet) return;
+    this.els.moreSheet.style.display = 'flex';
+    this.syncMoreSheetChips();
+  }
+
+  closeMoreSheet() {
+    if (!this.els.moreSheet) return;
+    this.els.moreSheet.style.display = 'none';
+  }
+
+  syncMoreSheetChips() {
+    const timerChips = document.getElementById('timerChips');
+    if (timerChips) {
+      timerChips.querySelectorAll('.chip').forEach(c => {
+        c.classList.toggle('active', parseInt(c.dataset.val) === this.timerMinutes);
+      });
+    }
+    const speedChips = document.getElementById('speedChips');
+    if (speedChips) {
+      speedChips.querySelectorAll('.chip').forEach(c => {
+        c.classList.toggle('active', parseFloat(c.dataset.val) === this.spd);
+      });
+    }
+    const transChips = document.getElementById('transChips');
+    if (transChips) {
+      transChips.querySelectorAll('.chip').forEach(c => {
+        c.classList.toggle('active', c.dataset.val === this.tr);
+      });
+    }
+    const expandChips = document.getElementById('expandChips');
+    if (expandChips) {
+      const isFull = !this.els.dlg.querySelector('.dialog-inner')?.classList.contains('windowed');
+      expandChips.querySelectorAll('.chip').forEach(c => {
+        c.classList.toggle('active', c.dataset.val === (isFull ? 'full' : 'windowed'));
+      });
+    }
+  }
+
+  setTimer(min) {
+    this.timerMinutes = min;
+    this.updateTimerDisplay();
+    if (min === 0) {
+      toast.info('定时关闭已取消');
+    } else {
+      toast.info(`${min}分钟后自动关闭`);
+    }
+  }
+
+  setSpeed(val) {
+    this.spd = val;
+    this.els.audio.playbackRate = val;
+    localStorage.setItem(LS.SPD, val);
+    this.syncUI();
+  }
+
+  setTrans(val) {
+    this.tr = val;
+    localStorage.setItem(LS.TR, val);
+    this.applyTr();
+  }
+
+  toggleExpand(mode) {
+    const inner = this.els.dlg.querySelector('.dialog-inner');
+    const icoExp = this.els.expand?.querySelector('.ico-expand');
+    const icoShr = this.els.expand?.querySelector('.ico-shrink');
+    if (!inner) return;
+    if (mode === 'windowed') {
+      inner.classList.add('windowed');
+      if (icoExp) icoExp.style.display = 'block';
+      if (icoShr) icoShr.style.display = 'none';
+    } else {
+      inner.classList.remove('windowed');
+      if (icoExp) icoExp.style.display = 'none';
+      if (icoShr) icoShr.style.display = 'block';
+    }
   }
 }
 
