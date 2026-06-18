@@ -15,6 +15,8 @@ function triggerHapticFeedback(intensity = 'light') {
 /* 全局常量 */
 const SPEEDS = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
 const REPEAT_COUNTS = [1, 2, 3, 5, 10, 99]; // 重复次数选项
+const MOBILE_BP = 768; // 手机端断点 (与CSS一致)
+const isMobile = () => window.innerWidth < MOBILE_BP;
 const LS = { 
   BOOK: 'nce_book', 
   UNIT: k => `nce_${k}_u`, 
@@ -286,12 +288,12 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     this.restoreLastPage();
     
     // 初始化下拉刷新（仅手机端）
-    if (window.innerWidth <= 767) {
+    if (isMobile()) {
       this.initPullToRefresh();
     }
 
     // 初始化边缘返回手势（仅手机端）
-    if (window.innerWidth <= 767) {
+    if (isMobile()) {
       this.initEdgeBackGesture();
     }
     
@@ -1238,7 +1240,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     this.els.dlg.showModal();
     
     // 添加下拉关闭手势（仅手机端）
-    if (window.innerWidth <= 767) {
+    if (isMobile()) {
       this.setupPullToClose();
     }
     
@@ -1718,7 +1720,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     });
 
     // 手机端长按菜单
-    if (window.innerWidth <= 767 && this.els.longPressMenu) {
+    if (isMobile() && this.els.longPressMenu) {
       let longPressTimer = null;
       let longPressedCard = null;
 
@@ -1841,11 +1843,20 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       let isDragging = false;
       const dialogInner = this.els.dlg.querySelector('.dialog-inner');
       const threshold = 150; // 拉动阈值
+      const triggerArea = 200; // 顶部触发区域（扩大至200px）
+
+      // 添加下拉指示条（视觉提示）
+      if (!dialogInner.querySelector('.pull-indicator')) {
+        const indicator = document.createElement('div');
+        indicator.className = 'pull-indicator';
+        indicator.style.cssText = 'position:absolute;top:8px;left:50%;transform:translateX(-50%);width:36px;height:4px;background:rgba(128,128,128,0.3);border-radius:2px;z-index:10;pointer-events:none;';
+        dialogInner.appendChild(indicator);
+      }
 
       const handleTouchStart = (e) => {
-        // 只在顶部区域触发
+        // 扩大到顶部200px可触发
         const touch = e.touches[0];
-        if (touch.clientY < 100) {
+        if (touch.clientY < triggerArea) {
           startY = touch.clientY;
           isDragging = true;
           currentY = startY;
@@ -2723,7 +2734,7 @@ function initMobileBottomNav() {
   
   // 检测设备类型，仅在移动端显示
   function updateNavVisibility() {
-    if (window.innerWidth <= 767) {
+    if (isMobile()) {
       bottomNav.style.display = 'flex';
       document.body.classList.add('has-bottom-nav');
     } else {

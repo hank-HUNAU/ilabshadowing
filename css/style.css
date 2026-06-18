@@ -2538,10 +2538,40 @@ body.hide-en .line-en { display: none; }
     padding: 12px;
   }
   
+  /* 首页卡片对齐修正 */
+  .book-info {
+    text-align: left;
+    flex: 1;
+    min-width: 0;
+  }
+  
   /* 课本卡片增加点击区域 */
   .book-card {
     min-height: 100px;
     padding: 20px;
+  }
+  
+  /* 课本网格手机端单列 */
+  .book-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  /* 课本图标缩小 */
+  .book-icon {
+    width: 64px;
+    height: 64px;
+    font-size: 2rem;
+    flex-shrink: 0;
+  }
+  
+  /* 课本标题缩小 */
+  .book-title {
+    font-size: 1rem;
+  }
+  
+  .book-desc {
+    font-size: 0.8rem;
   }
   
   /* 课程卡片增加点击区域 */
@@ -3521,24 +3551,31 @@ body.hide-en .line-en { display: none; }
     padding-bottom: calc(12px + env(safe-area-inset-bottom));
   }
 
-  .controls-row { gap: 14px; }
+  .controls-row {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
   
-  /* 手机端：隐藏次要按钮，显示更多按钮 */
+  /* 所有按钮可见，去掉隐藏逻辑 */
   #timerBtn, #speedBtn, #transBtn {
-    display: none;
+    display: flex;
   }
   
   #moreBtn {
-    display: flex !important;
+    display: none !important;
   }
   
   .main-play { width: 48px; height: 48px; }
+  .ctrl-btn { 
+    min-width: 44px; 
+    min-height: 44px; 
+    padding: 8px 10px;
+  }
   .tag-btn { padding: 6px 10px; font-size: 0.75rem; }
   
-  /* 手机竖屏：隐藏重复按钮文字，只显示图标和次数 */
-  #repeatSingleBtn span, #repeatAllBtn span {
-    font-size: 0.7rem;
-  }
+  /* 进度条触摸优化 */
+  .track-bar { height: 52px; }
+  .track-handle { width: 20px; height: 20px; }
 
   .line {
     padding: 14px 16px;
@@ -3643,28 +3680,36 @@ body.hide-en .line-en { display: none; }
 @media (max-width: 767px) and (orientation: landscape) {
   /* 横屏时歌词区域自适应 */
   .lyrics-scroll {
-    max-height: max(60vh, 55vh);
-    min-height: 40vh;
+    max-height: max(45vh, 40vh);
+    min-height: 30vh;
   }
   
-  /* 控制栏保持可见 - 粘性定位 */
+  /* 控制栏固定在底部 */
   .player-footer {
-    position: sticky;
+    position: fixed;
     bottom: 0;
+    left: 0;
+    right: 0;
     background: var(--bg);
     z-index: 100;
+    padding: 10px 16px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 
   /* 横屏播放器高度限制 */
   .dialog-inner {
-    max-height: 600px;
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 80px; /* 避让固定底部控件 */
   }
   
   /* 弹窗适配横屏 */
   .pwa-dialog-content,
   .player-dialog .dialog-inner {
     max-width: 80vw;
-    max-height: 600px;
+    max-height: 100vh;
   }
   
   /* 课程网格优化 */
