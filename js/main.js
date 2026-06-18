@@ -233,6 +233,7 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
       repeat: document.getElementById('repeatBtn'),
       repeatCount: document.getElementById('repeatCount'),
       audio: document.getElementById('audio'),
+      loadingOverlay: document.getElementById('loadingOverlay'),
     };
 
     this.els.audio.playbackRate = this.spd;
@@ -865,20 +866,46 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     // 异步加载音频
     const audio = this.els.audio;
     const audioSrc = getAudioUrl(u.filename, this.path, this.key);
-    audio.src = audioSrc;
-    audio.load();
-    
+
+    // 显示加载状态
+    this.els.loadingOverlay.style.display = 'flex';
+    let slowLoadTimer = setTimeout(() => {
+      if (window.toast && window.toast.info) {
+        window.toast.info('音频加载中，请稍候...');
+      }
+    }, 5000);
+    let loadTimeoutTimer = setTimeout(() => {
+      const loadingText = this.els.loadingOverlay.querySelector('.loading-text');
+      if (loadingText) loadingText.textContent = '正在加载音频，请耐心等待...';
+    }, 10000);
+
+    const onReady = () => {
+      clearTimeout(slowLoadTimer);
+      clearTimeout(loadTimeoutTimer);
+      this.els.loadingOverlay.style.display = 'none';
+      this.restoreTime();
+    };
+
+    audio.addEventListener('canplay', onReady, { once: true });
     audio.addEventListener('loadeddata', () => {
-      // 恢复上次播放进度
+      clearTimeout(slowLoadTimer);
+      clearTimeout(loadTimeoutTimer);
+      this.els.loadingOverlay.style.display = 'none';
       this.restoreTime();
     }, { once: true });
-    
+
+    audio.src = audioSrc;
+    audio.load();
+
     audio.addEventListener('error', (e) => {
+      clearTimeout(slowLoadTimer);
+      clearTimeout(loadTimeoutTimer);
+      this.els.loadingOverlay.style.display = 'none';
       console.error('Audio load error:', e);
       if (window.toast && window.toast.error) {
         window.toast.error('音频加载失败，请检查网络连接');
       }
-      
+
       // 测试直接访问 URL
       fetch(audio.src, { method: 'HEAD' })
         .catch(err => console.error('Direct fetch error:', err));

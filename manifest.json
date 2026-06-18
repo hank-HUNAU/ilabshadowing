@@ -2,8 +2,8 @@
   "name": "Hankilab 学习中心",
   "short_name": "学习中心",
   "description": "新概念英语第一册 AI 跟读学习站",
-  "start_url": "/ilabshadowing/",
-  "scope": "/ilabshadowing/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "display_override": ["window-controls-overlay"],
   "background_color": "#f8fafc",
@@ -12,25 +12,25 @@
   "categories": ["education", "productivity"],
   "icons": [
     {
-      "src": "/ilabshadowing/icons/icon-192.png",
+      "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/ilabshadowing/icons/icon-512.png",
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/ilabshadowing/icons/icon-144.png",
+      "src": "icons/icon-144.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/ilabshadowing/icons/icon-96.png",
+      "src": "icons/icon-96.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "any"
@@ -41,10 +41,10 @@
       "name": "开始学习",
       "short_name": "学习",
       "description": "打开课本选择页面",
-      "url": "/ilabshadowing/",
+      "url": "./",
       "icons": [
         {
-          "src": "/ilabshadowing/icons/icon-192.png",
+          "src": "icons/icon-192.png",
           "sizes": "192x192",
           "type": "image/png"
         }
