@@ -822,12 +822,20 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
     
     const inner = this.els.dlg.querySelector('.dialog-inner');
     if (inner) {
-      inner.classList.remove('windowed');
-      inner.classList.add('expanded');
       const icoExp = this.els.expand?.querySelector('.ico-expand');
       const icoShr = this.els.expand?.querySelector('.ico-shrink');
-      if (icoExp) icoExp.style.display = 'none';
-      if (icoShr) icoShr.style.display = 'block';
+      const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+      if (isDesktop) {
+        inner.classList.add('windowed');
+        inner.classList.remove('expanded');
+        if (icoExp) icoExp.style.display = 'block';
+        if (icoShr) icoShr.style.display = 'none';
+      } else {
+        inner.classList.remove('windowed');
+        inner.classList.add('expanded');
+        if (icoExp) icoExp.style.display = 'none';
+        if (icoShr) icoShr.style.display = 'block';
+      }
     }
     
     this.els.dlg.showModal();
