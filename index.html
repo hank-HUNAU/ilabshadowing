@@ -4,7 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#007aff">
+  <meta name="description" content="Hankilab 学习中心 - 新概念英语和Think系列英语跟读训练工具，支持单句循环、静音检测、学习统计和离线使用。">
+  <meta name="keywords" content="英语学习,跟读训练,新概念英语,Think,口语练习,PWA">
+  <meta property="og:title" content="Hankilab 学习中心 - 英语跟读训练工具">
+  <meta property="og:description" content="专为英语学习者设计的跟读训练工具，支持单句循环跟读、收藏句子、学习进度追踪和离线使用。">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="theme-color" content="#0891b2">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -220,6 +226,8 @@
   </aside>
 
   <div id="app">
+    <!-- 屏幕阅读器通知区域 -->
+    <div aria-live="polite" aria-atomic="true" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0"></div>
     <!-- 首页：课本选择 -->
     <main id="bookSelectPage" class="book-page">
       <header class="top-bar">
@@ -308,7 +316,7 @@
     </main>
 
     <!-- 课文预习弹窗 -->
-    <dialog id="playerDialog" class="player-dialog">
+    <dialog id="playerDialog" class="player-dialog" role="dialog" aria-modal="true" aria-labelledby="unitTitle">
       <div class="dialog-inner">
         <!-- 弹窗头部 -->
         <header class="dialog-header">
@@ -413,7 +421,7 @@
     </dialog>
 
     <!-- 手机端更多选项弹窗 -->
-    <dialog id="mobileMenuDialog" class="pwa-dialog">
+    <dialog id="mobileMenuDialog" class="pwa-dialog" role="dialog" aria-modal="true" aria-labelledby="mobileMenuDialog h3">
       <div class="pwa-dialog-content" style="max-width:320px;border-radius:20px">
         <div class="dialog-header-row">
           <h3>更多选项</h3>
@@ -450,7 +458,7 @@
     </dialog>
     
     <!-- PWA 安装提示弹窗（优化版） -->
-    <dialog id="pwaInstallDialog" class="pwa-dialog">
+    <dialog id="pwaInstallDialog" class="pwa-dialog" role="dialog" aria-modal="true" aria-labelledby="pwaInstallDialog h3">
       <div class="pwa-dialog-content">
         <div class="pwa-icon">
           <img src="/icons/icon-192.png" alt="HANKILAB" class="app-install-icon">
@@ -486,7 +494,7 @@
     <!-- 功能更新提示已移除，改用 Toast 通知 -->
     
     <!-- 用户中心弹窗 -->
-    <dialog id="userCenterDialog" class="pwa-dialog">
+    <dialog id="userCenterDialog" class="pwa-dialog" role="dialog" aria-modal="true" aria-labelledby="userCenterDialog h3">
       <div class="pwa-dialog-content user-center-content">
         <div class="dialog-header-row">
           <h3>用户中心</h3>
@@ -639,7 +647,7 @@
     <!-- 关于应用弹窗（已删除，改为独立页面 about.html） -->
     
     <!-- 新手引导弹窗 -->
-    <dialog id="onboardingDialog" class="pwa-dialog">
+    <dialog id="onboardingDialog" class="pwa-dialog" role="dialog" aria-modal="true" aria-labelledby="onboardingDialog h3">
       <div class="pwa-dialog-content onboarding-content">
         <div class="onboarding-step" id="onboardingStep1">
           <div class="onboarding-icon">👋</div>
@@ -929,7 +937,7 @@
   </script>
   
   <!-- 首页底部信息栏 -->
-  <footer class="site-footer">
+  <footer class="site-footer" role="contentinfo">
     <div class="footer-content">
       <div class="footer-left">
         <span class="footer-text">© 2026 Hankilab. All rights reserved.</span>
@@ -942,8 +950,8 @@
   </footer>
   
 <!-- 统一底部导航栏 -->
-  <nav id="bottomNav" class="bottom-nav">
-    <a href="#" class="nav-item active" data-page="book" aria-label="学习">
+  <nav id="bottomNav" class="bottom-nav" role="navigation" aria-label="主导航">
+    <a href="#" class="nav-item active" data-page="book" aria-label="学习" aria-current="page">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>

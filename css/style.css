@@ -4,10 +4,10 @@
   --bg-secondary: #efeff1;
   --card: rgba(255, 255, 255, 0.8);
   --card-solid: #ffffff;
-  --primary: #007aff;
-  --primary-light: #0a84ff;
-  --primary-dark: #0056b3;
-  --accent-gradient: linear-gradient(135deg, #007aff, #5ac8fa);
+  --primary: #0891b2;
+  --primary-light: #06b6d4;
+  --primary-dark: #0e7490;
+  --accent-gradient: linear-gradient(135deg, #0891b2, #22d3ee);
   --text: #1d1d1f;
   --text-secondary: #6e6e73;
   --text-tertiary: #86868b;
@@ -995,8 +995,13 @@ body {
 /* 平板端顶部导航栏优化 */
 @media (min-width: 768px) and (max-width: 1023px) {
   .top-bar {
-    padding: 12px 20px;
+    padding: 12px 24px;
   }
+  
+  .site-title {
+    font-size: 1.4rem;
+  }
+}
   
   .site-title {
     font-size: 1.3rem;
@@ -3623,17 +3628,20 @@ body.hide-en .line-en { display: none; }
 
 /* 平板端适配 */
 @media (min-width: 768px) and (max-width: 1023px) {
+  /* 歌词字体 */
   .line-en { font-size: 1.15rem; }
   .line-cn { font-size: 0.9rem; }
   
+  /* 弹窗 */
   .dialog-inner {
     width: 95%;
     height: 90vh;
+    max-width: 700px;
   }
 
-  /* 平板端课程卡片优化 - 5列布局 */
+  /* 课程卡片 - 自适应列 */
   .unit-grid {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 16px;
   }
 
@@ -3668,6 +3676,44 @@ body.hide-en .line-en { display: none; }
 
   .unit-num {
     font-size: 1.6rem;
+  }
+  
+  /* 课本卡片平板优化 */
+  .book-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .book-card {
+    min-height: 120px;
+    padding: 24px;
+  }
+  
+  .book-icon {
+    width: 72px;
+    height: 72px;
+    font-size: 2.2rem;
+  }
+  
+  .book-title {
+    font-size: 1.1rem;
+  }
+  
+  /* 控制栏平板优化 */
+  .controls-row {
+    gap: 16px;
+    flex-wrap: nowrap;
+  }
+  
+  .ctrl-btn {
+    min-width: 52px;
+    min-height: 52px;
+    padding: 10px 12px;
+  }
+  
+  .main-play {
+    width: 56px;
+    height: 56px;
   }
 }
 
