@@ -6598,6 +6598,12 @@ html {
     color: var(--primary);
     margin: 0;
     line-height: 1.2;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+  
+  .brand h1:hover {
+    opacity: 0.8;
   }
   
   /* 侧边导航菜单 */

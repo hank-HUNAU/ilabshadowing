@@ -1557,6 +1557,16 @@ this.favorites = JSON.parse(localStorage.getItem(LS.FAVORITES) || '[]');
   fmt(s) { if (!isFinite(s)) return '0:00'; return `${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`; }
 
   bind() {
+    // 侧边导航品牌点击打开用户中心
+    const sideNavBrand = document.querySelector('.side-nav-header .brand h1');
+    if (sideNavBrand) {
+      sideNavBrand.style.cursor = 'pointer';
+      sideNavBrand.addEventListener('click', () => {
+        const userCenterBtn = document.getElementById('userCenterBtn');
+        if (userCenterBtn) userCenterBtn.click();
+      });
+    }
+
     // 手机端底部导航栏
     const bottomNav = document.getElementById('bottomNav');
     if (bottomNav) {
